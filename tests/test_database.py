@@ -5,7 +5,7 @@ sys.path.append(f'{os.path.dirname(__file__)}/..')
 import pytest
 from json import loads
 
-import modules.database as database
+from modules.database.database import Database
 
 # load test data
 with open("files/testdata/default.json", "r") as file:
@@ -15,36 +15,39 @@ with open("files/testdata/default.json", "r") as file:
 
 username = list(users.keys())[0]
 password = users[username]["password"]
+if "db.db3" in os.listdir():
+    os.remove("db.db3")
+db = Database("db.db3")
+
 
 # users table tests
 
-@pytest.mark.skip(reason="Not implemented")
 def test_add_user():
     num_users = 1000
     for i in range(num_users):
-        database.users.add(f'user{i}', passwd="test")
+        db.users.add(f'user{i}', "test")
     
-    assert len(database.users.all()) == num_users
+    assert len(db.users) == num_users
 
 @pytest.mark.skip(reason="Not implemented")
 def test_delete_user():
-    user_id = database.users.add(username, passwd=password)
-    assert database.users.size() == 1
-    database.users.delete(user_id)
-    assert database.users.size() == 0
+    user_id = db.users.add(username, passwd=password)
+    assert len(db.users) == 1
+    db.users.delete(user_id)
+    assert len(db.users) == 0
 
 @pytest.mark.skip(reason="Not implemented")
 def test_modify_user():
-    user_id = database.users.add(username, passwd=password)
-    current = database.users.getJSON(user_id)
-    database.users.modify(user_id, name="user1")
-    new = database.users.getJSON(user_id)
+    user_id = db.users.add(username, passwd=password)
+    current = db.users.getJSON(user_id)
+    db.users.modify(user_id, name="user1")
+    new = db.users.getJSON(user_id)
     assert not current == new
 
 # journals table tests
-@pytest.mark.skip(reason="Not implemented")
 def test_create_journal():
-    user_id = database.users.add(username, passwd=password)
+    user_id = db.users.add(username, password)
     num_journals = 1000
-    database.journals.add(user_id, [(f"q{i}", f"a{i}") for i in range(num_journals)])
-    assert len(database.journals.all()) == num_journals
+    for _ in range(num_journals):
+        db.journals.add(user_id)
+    assert len(db.journals) == num_journals
