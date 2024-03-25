@@ -15,25 +15,23 @@ with open("files/testdata/default.json", "r") as file:
 
 username = list(users.keys())[0]
 password = users[username]["password"]
+API = api.API()
 
 # authorization
 
 @pytest.mark.skip(reason="Not implemented")
 def test_register():
-    API = api.API()
     result = API.register(username, password)
     assert result
 
 @pytest.mark.skip(reason="Not implemented")
 def test_login():
-    API = api.API()
     API.register(username, password)
     token = API.login(username, password)
     assert not token == ""
 
 @pytest.mark.skip(reason="Not implemented")
 def test_get_initial_questions():
-    API = api.API()
     API.register(username, password)
     token = API.login(username, password)
     assert API.get_initial(token) == default_questions
