@@ -11,7 +11,7 @@ def test_add_user():
     for i in range(num_users):
         database.users.add(f'user{i}')
     
-    assert len(users.all()) == num_users
+    assert len(database.users.all()) == num_users
 
 def test_delete_user():
     database.users.add("user")
