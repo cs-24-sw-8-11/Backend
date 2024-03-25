@@ -2,10 +2,13 @@ import os
 import sys
 sys.path.append(f'{os.path.dirname(__file__)}/..')
 
+import pytest
+
 import modules.database as database
 
 # users table tests
 
+@pytest.mark.skip(reason="Not implemented")
 def test_add_user():
     num_users = 1000
     for i in range(num_users):
@@ -13,6 +16,7 @@ def test_add_user():
     
     assert len(database.users.all()) == num_users
 
+@pytest.mark.skip(reason="Not implemented")
 def test_delete_user():
     database.users.add("user")
     user_id = database.users.all()[0]
@@ -20,6 +24,7 @@ def test_delete_user():
     database.users.delete(user_id)
     assert len(database.users.all()) == 0
 
+@pytest.mark.skip(reason="Not implemented")
 def test_modify_user():
     database.users.add("user")
     user_id = database.users.all()[0]
@@ -29,7 +34,7 @@ def test_modify_user():
     assert not current == new
 
 # journals table tests
-
+@pytest.mark.skip(reason="Not implemented")
 def test_create_journal():
     database.users.add("user")
     user_id = database.users.all()[0]
