@@ -13,7 +13,7 @@ with open("files/testdata/default.json", "r") as file:
     default_questions = loads(data)["questions"]
     users:dict[str, dict] = loads(data)["users"]
 
-username = users.keys()[0]
+username = list(users.keys())[0]
 password = users[username]["password"]
 
 # users table tests
