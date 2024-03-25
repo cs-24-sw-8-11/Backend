@@ -13,6 +13,9 @@ with open("files/testdata/default.json", "r") as file:
     default_questions = loads(data)["questions"]
     users:dict[str, dict] = loads(data)["users"]
 
+username = users.keys()[0]
+password = users[username]["password"]
+
 # users table tests
 
 @pytest.mark.skip(reason="Not implemented")
@@ -25,8 +28,6 @@ def test_add_user():
 
 @pytest.mark.skip(reason="Not implemented")
 def test_delete_user():
-    username = users.keys()[0]
-    password = users[username]["password"]
     user_id = database.users.add(username, passwd=password)
     assert database.users.size() == 1
     database.users.delete(user_id)
@@ -34,8 +35,6 @@ def test_delete_user():
 
 @pytest.mark.skip(reason="Not implemented")
 def test_modify_user():
-    username = users.keys()[0]
-    password = users[username]["password"]
     user_id = database.users.add(username, passwd=password)
     current = database.users.getJSON(user_id)
     database.users.modify(user_id, name="user1")
@@ -45,8 +44,6 @@ def test_modify_user():
 # journals table tests
 @pytest.mark.skip(reason="Not implemented")
 def test_create_journal():
-    username = users.keys()[0]
-    password = users[username]["password"]
     user_id = database.users.add(username, passwd=password)
     num_journals = 1000
     database.journals.add(user_id, [(f"q{i}", f"a{i}") for i in range(num_journals)])
