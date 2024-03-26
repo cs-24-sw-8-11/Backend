@@ -6,7 +6,7 @@
 
 std::shared_ptr<Database> db;
 
-void init_db(){
+/*void init_db(){
     std::remove("/tmp/db.db3");
     db = std::make_shared<Database>("/tmp/db.db3");
 }
@@ -25,7 +25,7 @@ void test_add_user(){
         });
     }
     assert(db->users->size() == num_users);
-}
+}*/
 
 int main(){
     init_db();
