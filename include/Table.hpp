@@ -14,14 +14,13 @@ class Table {
             this->name = name;
             this->columns = columns;
             this->db = db;
-            std::string qs = "?";
+            std::string qs = columns[0];
             for(auto i = 1; i < columns.size(); i++){
-                qs += ", ?";
+                qs += ", ";
+                qs += columns[i];
             }
-            SQLite::Statement query(*(this->db), std::format("CREATE TABLE IF NOT EXISTS {} values ({})", this->name, qs));
-            for(auto i = 0; i < columns.size(); i++){
-                query.bind(i, columns[i]);
-            }
+            auto sql = std::format("CREATE TABLE IF NOT EXISTS {} ({})", this->name, qs);
+            SQLite::Statement query(*(this->db), sql);
             query.exec();
         }
         size_t size(){
@@ -34,12 +33,16 @@ class Table {
         void add(std::vector<std::string> keys, std::vector<std::string> values){
             std::string qs = "?";
             std::string keystring = keys[0];
-            for(auto i = 1; i < columns.size(); i++){
+            for(auto i = 1; i < keys.size(); i++){
                 qs += ", ?";
                 keystring += ", ";
                 keystring += keys[i];
             }
-            SQLite::Statement query(*(this->db), std::format("insert into {} ({}) values ({})", this->name, keystring, qs));
+            auto sql = std::format("INSERT INTO {} ({}) VALUES ({})", this->name, keystring, qs);
+            SQLite::Statement query(*(this->db), sql);
+            for(auto i = 0; i < values.size(); i++){
+                query.bind(i+1, values[i]);
+            }
             query.exec();
         }
 };

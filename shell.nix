@@ -2,7 +2,7 @@
     pkg = pkgs.writeScriptBin "run-backend" ''
         cmake -B build
         cmake --build build
-        ./build/backend
+        ./build/src/backend
     '';
     
     crow = pkgs.stdenv.mkDerivation rec {

@@ -4,5 +4,7 @@
 
 int main(int argc, char* argv[]){
     std::cout << "Started backend program..." << std::endl;
-    Database db{"/tmp/db.db3"};
+    Database db("/tmp/db.db3");
+    db.users->add({"username", "password"}, {"tester", "tester"});
+    db.users->add({"username", "password"}, {"tester1", "tester"});
 }
