@@ -14,7 +14,7 @@ jobs:
               with:
                 submodules: recursive
             - name: test
-              run: g++ --version
+              run: sudo apt install g++-13
             - name: setup-env
               run: sudo apt install cmake sqlite3 libasio-dev gcc
             - name: build
