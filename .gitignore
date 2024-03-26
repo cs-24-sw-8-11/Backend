@@ -1,3 +1,5 @@
 __pycache__
-dev.ipynb
 *.db3
+build
+test.cpp
+.vscode
