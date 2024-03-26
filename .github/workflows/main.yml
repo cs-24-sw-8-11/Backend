@@ -9,12 +9,11 @@ on:
 jobs:
     test-all:
         runs-on: ubuntu-latest
+        container: gcc:13
         steps:
             - uses: actions/checkout@v4.1.1
               with:
                 submodules: recursive
-            - name: test
-              run: sudo apt install g++-13
             - name: setup-env
               run: sudo apt install cmake sqlite3 libasio-dev gcc
             - name: build
