@@ -28,6 +28,6 @@ void test_add_user(){
 }*/
 
 int main(){
-    init_db();
-    test_add_user();
+    //init_db();
+    //test_add_user();
 }
