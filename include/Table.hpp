@@ -14,17 +14,17 @@ class Table {
             this->name = name;
             this->columns = columns;
             this->db = db;
-            std::string qs = columns[0];
-            for(auto i = 1; i < columns.size(); i++){
+            std::string qs;
+            for(auto i = 0; i < columns.size(); i++){
                 qs += ", ";
                 qs += columns[i];
             }
-            auto sql = std::format("CREATE TABLE IF NOT EXISTS {} ({})", this->name, qs);
+            auto sql = std::format("CREATE TABLE IF NOT EXISTS {} (id integer primary key{})", this->name, qs);
             SQLite::Statement query(*(this->db), sql);
             query.exec();
         }
         size_t size(){
-            SQLite::Statement query(*(this->db), std::format("select * from {}", this->name));
+            SQLite::Statement query(*(this->db), std::format("select id from {}", this->name));
             auto size = 0;
             while(query.executeStep()) size++;
             return size;
@@ -44,6 +44,13 @@ class Table {
                 query.bind(i+1, values[i]);
             }
             query.exec();
+        }
+
+        int get_id(std::string key, std::string value){
+            SQLite::Statement query(*(this->db), std::format("SELECT id FROM {} where {} = ?", this->name, key));
+            query.bind(1, value);
+            query.exec();
+            return query.getColumn("id").getInt();
         }
 };
 
