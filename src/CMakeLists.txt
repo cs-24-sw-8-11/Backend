@@ -13,6 +13,7 @@ target_link_libraries(backend
     SQLiteCpp
     sqlite3
     argparse
+    Crow
 )
 
 add_test(NAME database_test COMMAND database_test WORKING_DIRECTORY ..)

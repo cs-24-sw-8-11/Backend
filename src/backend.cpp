@@ -2,6 +2,7 @@
 #include <argparse/argparse.hpp>
 
 #include "Database.hpp"
+#include "Api.hpp"
 
 int main(int argc, char* argv[]){
     argparse::ArgumentParser program("backend");
