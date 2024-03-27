@@ -57,7 +57,7 @@ class Table {
                         break;
                 }
                 std::cerr << "\033[38;2;255;0;0m" << msg << "\033[0m" << std::endl;
-                std::cerr << "\t\033[38;2;100;100;100m" << e.what() << "\033[0m" << std::endl;
+                std::cerr << "\t" << e.getErrorCode() << ":\t\033[38;2;100;100;100m" << e.what() << "\033[0m" << std::endl;
             }
         }
 
@@ -81,7 +81,7 @@ class Table {
                         break;
                 }
                 std::cerr << "\033[38;2;255;0;0m" << msg << "\033[0m" << std::endl;
-                std::cerr << "\033[38;2;100;100;100m" << e.what() << "\033[0m" << std::endl;
+                std::cerr << "\t" << e.getErrorCode() << ":\t\033[38;2;100;100;100m" << e.what() << "\033[0m" << std::endl;
                 res.push_back(-1);
             }
             return res;
