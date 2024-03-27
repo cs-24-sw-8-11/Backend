@@ -67,6 +67,7 @@ void test_add_journal(){
 }
 
 void test_delete_journal(){
+    
 }
 
 int main(){
