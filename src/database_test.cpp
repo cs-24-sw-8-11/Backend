@@ -41,7 +41,7 @@ void test_add_user(){
 
 /*void test_delete_user(){
     db->users->add({"username", "password"}, {default_username, default_password});
-    auto user_id = db->users->get_id("username", default_username);
+    auto user_id = db->users->get_where("username", default_username)[0];
     assert(db->users->size() == 1);
     db->users->delete(user_id);
     assert(db->users->size() == 0);
@@ -49,16 +49,16 @@ void test_add_user(){
 
 /*void test_modify_user(){
     db->users->add({"username", "password"}, {default_username, default_password});
-    auto user_id = db->users->get_id("username", default_username);
+    auto user_id = db->users->get_where("username", default_username)[0];
     auto current_data = db->users->get(user_id);
     db->users->modify(user_id, {"username"}, {"tester1"});
     auto new_data = db->users->get(user_id);
-    assert(current_data == new_data);
+    assert(current_data != new_data);
 }*/
 
 void test_add_journal(){
     db->users->add({"username", "password"}, {default_username, default_password});
-    auto user_id = db->users->get_id("username", default_username);
+    auto user_id = db->users->get_where("username", default_username)[0];
     auto num_journals = 1000;
     for(auto i = 0; i < num_journals; i++){
         db->journals->add({"userId"}, {std::format("{}", user_id)});
@@ -66,11 +66,30 @@ void test_add_journal(){
     assert(db->journals->size() == num_journals);
 }
 
-void test_delete_journal(){
-    
-}
+/*void test_delete_journal(){
+    db->users->add({"username", "password"}, {default_username, default_password});
+    auto user_id = db->users->get_where("username", default_username)[0];
+    db->journals->add({"userId"}, {std::format("{}", user_id)});
+    assert(db->journals->size() == 1);
+    auto journal_id = db->journals->get_where("userId", std::format("{}", user_id))[0];
+    db->journals->delete(journal_id);
+    assert(db->journals->size() == 1);
+}*/
+
+/*void test_modify_journal(){
+    db->users->add({"username", "password"}, {default_username, default_password});
+    auto user_id = db->users->get_where("username", default_username)[0];
+    db->journals->add({"userId"}, {std::format("{}", user_id)});
+    auto journal_id = db->journals->get_where("userId", std::format("{}", user_id))[0];
+    auto current_data = db->journals->get(journal_id);
+    db->journals->modify(journal_id, {"userId", std::format("{}", user_id+1)});
+    auto new_data = db->journals->get(journal_id);
+    assert(current_data != new_data);
+}*/
 
 int main(){
-    init();
+    init(); // reinit between each test to clear environment
     test_add_user();
+    init();
+    test_add_journal();
 }

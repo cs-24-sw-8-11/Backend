@@ -61,12 +61,14 @@ class Table {
             }
         }
 
-        int get_id(std::string key, std::string value){
+        std::vector<int> get_where(std::string key, std::string value){
             SQLite::Statement query(*(this->db), std::format("SELECT id FROM {} where {} = ?", this->name, key));
             query.bind(1, value);
+            std::vector<int> res;
             try{
-                query.executeStep();
-                return query.getColumn("id").getInt();
+                while(query.executeStep()){
+                    res.push_back(query.getColumn("id").getInt());
+                }
             }
             catch(SQLite::Exception e){
                 std::string msg;
@@ -80,8 +82,9 @@ class Table {
                 }
                 std::cerr << "\033[38;2;255;0;0m" << msg << "\033[0m" << std::endl;
                 std::cerr << "\033[38;2;100;100;100m" << e.what() << "\033[0m" << std::endl;
-                return -1;
+                res.push_back(-1);
             }
+            return res;
         }
 };
 
