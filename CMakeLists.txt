@@ -9,4 +9,5 @@ include_directories(include)
 add_subdirectory(src)
 
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/lib/SQLiteCpp)
-
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/lib/argparse)
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/lib/json)
