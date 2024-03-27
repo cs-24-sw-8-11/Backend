@@ -13,7 +13,7 @@ target_link_libraries(backend
     sqlite3
 )
 
-add_test(NAME database_test COMMAND database_test)
-add_test(NAME api_test COMMAND api_test)
-add_test(NAME predictions_test COMMAND predictions_test)
-add_test(NAME questionaire_test COMMAND questionaire_test)
+add_test(NAME database_test COMMAND database_test WORKING_DIRECTORY ..)
+add_test(NAME api_test COMMAND api_test WORKING_DIRECTORY ..)
+add_test(NAME predictions_test COMMAND predictions_test WORKING_DIRECTORY ..)
+add_test(NAME questionaire_test COMMAND questionaire_test WORKING_DIRECTORY ..)

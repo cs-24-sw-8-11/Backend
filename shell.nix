@@ -1,8 +1,14 @@
 {pkgs ? import <nixpkgs> {}, ...}: let
-    pkg = pkgs.writeScriptBin "run-backend" ''
-        cmake -B build
-        cmake --build build
-        ./build/src/backend
+    build-dir = "./build";
+    compile = pkgs.writeScriptBin "build-project" ''
+        ${pkgs.cmake}/bin/cmake -B ${build-dir}
+        ${pkgs.cmake}/bin/cmake --build ${build-dir}
+    '';
+    run = pkgs.writeScriptBin "run-project" ''
+        ${build-dir}/src/backend $@
+    '';
+    test = pkgs.writeScriptBin "test-project" ''
+        ${pkgs.cmake}/bin/ctest --test-dir ${build-dir} $@
     '';
     
     crow = pkgs.stdenv.mkDerivation rec {
@@ -22,10 +28,14 @@ in pkgs.mkShell {
     packages = with pkgs; [
         cmake
         gcc
-        pkg
+        compile
+        run
+        test
         sqlitecpp
         sqlite
         crow
         asio
+        argparse
+        nlohmann_json
     ];
 }
