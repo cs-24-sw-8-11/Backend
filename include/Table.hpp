@@ -43,14 +43,48 @@ class Table {
             for(auto i = 0; i < values.size(); i++){
                 query.bind(i+1, values[i]);
             }
-            query.exec();
+            try{
+                query.exec();
+            }
+            catch(SQLite::Exception e){
+                std::string msg;
+                switch(e.getErrorCode()){
+                    case 19:
+                        msg = "Error! Unique keyword not followed!";
+                        break;
+                    default:
+                        msg = "Unknown error!";
+                        break;
+                }
+                std::cerr << "\033[38;2;255;0;0m" << msg << "\033[0m" << std::endl;
+                std::cerr << "\t" << e.getErrorCode() << ":\t\033[38;2;100;100;100m" << e.what() << "\033[0m" << std::endl;
+            }
         }
 
-        int get_id(std::string key, std::string value){
+        std::vector<int> get_where(std::string key, std::string value){
             SQLite::Statement query(*(this->db), std::format("SELECT id FROM {} where {} = ?", this->name, key));
             query.bind(1, value);
-            query.exec();
-            return query.getColumn("id").getInt();
+            std::vector<int> res;
+            try{
+                while(query.executeStep()){
+                    res.push_back(query.getColumn("id").getInt());
+                }
+            }
+            catch(SQLite::Exception e){
+                std::string msg;
+                switch(e.getErrorCode()){
+                    case -1:
+                        msg = std::format("Error! no value of '{}' in column: '{}' of table: '{}' exists", value, key, this->name);
+                        break;
+                    default:
+                        msg = "Unknown error!";
+                        break;
+                }
+                std::cerr << "\033[38;2;255;0;0m" << msg << "\033[0m" << std::endl;
+                std::cerr << "\t" << e.getErrorCode() << ":\t\033[38;2;100;100;100m" << e.what() << "\033[0m" << std::endl;
+                res.push_back(-1);
+            }
+            return res;
         }
 };
 

@@ -40,7 +40,7 @@ class Database {
                 "foreign key(userId) references users(id)"
             });
             this->userdata = factory.create("userdata", {
-                "agegroup integer not null",
+                "agegroup varchar not null",
                 "occupation varchar not null",
                 "userId integer not null"
             });
