@@ -9,12 +9,22 @@ target_link_libraries(database_test
     sqlite3
     nlohmann_json
 )
+if(MINGW)
+    target_link_libraries(backend
+        SQLiteCpp
+        sqlite3
+        argparse
+        Crow
+        ws2_32
+    )
+else()
 target_link_libraries(backend
     SQLiteCpp
     sqlite3
     argparse
     Crow
 )
+endif()
 
 add_test(NAME database_test COMMAND database_test WORKING_DIRECTORY ..)
 add_test(NAME api_test COMMAND api_test WORKING_DIRECTORY ..)
