@@ -13,7 +13,7 @@ int main(int argc, char* argv[]){
 
     program.add_argument("--database", "-d")
         .help("Specify the path to the SQLite database")
-        .default_value("/tmp/db.db3")
+        .default_value("db.db3")
         .nargs(1);
     
     try{

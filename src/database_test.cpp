@@ -17,8 +17,8 @@ auto num_additions = 100;
 
 
 void init(){
-    std::remove("/tmp/db.db3");
-    db = std::make_shared<Database>("/tmp/db.db3");
+    std::remove("db.db3");
+    db = std::make_shared<Database>("db.db3");
     std::ifstream file("files/testdata/default.json");
     config = nlohmann::json::parse(file);
     default_username = config["user"]["username"].get<std::string>();
