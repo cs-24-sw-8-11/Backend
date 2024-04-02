@@ -63,13 +63,13 @@ verify $password
 echo "authjson:          $authjson"
 verify $authjson
 echo "token:             $token"
-#verify $token
+verify $token
 echo "ids:               $ids"
 #verify $ids
 echo "uid:               $uid"
 #verify $uid
 echo "userdata:          $userdata"
-#verify $userdata
+verify $userdata
 echo "jids:              $jids"
 #verify $jids
 echo "jid:               $jid"

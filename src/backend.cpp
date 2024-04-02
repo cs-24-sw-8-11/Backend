@@ -14,7 +14,11 @@ int main(int argc, char* argv[]){
         .help("Specify the path to the SQLite database")
         .default_value("db.db3")
         .nargs(1);
-    
+    program.add_argument("--port", "-p")
+        .help("Specify the port for the API")
+        .default_value(8080)
+        .nargs(1);
+
     try{
         program.parse_args(argc, argv);
     }
@@ -27,5 +31,6 @@ int main(int argc, char* argv[]){
     }
 
     auto path = program.get<std::string>("--database");
-    API api(path);
+    auto port = program.get<int>("--port");
+    API api(path, port);
 }
