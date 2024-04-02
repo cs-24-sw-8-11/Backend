@@ -1,4 +1,4 @@
-addr="http://localhost:8080"
+addr="$(cat ./files/testdata/default.json | jq -r .addr)"
 username="$(cat ./files/testdata/default.json | jq -r .user.username)"
 password="$(cat ./files/testdata/default.json | jq -r .user.password)"
 authjson="{"username":"$username", "password": "$password"}"
@@ -47,62 +47,41 @@ questions=$(curl -X 'GET' $addr/questions/defaults)
 default_questions=$(curl -X 'GET' $addr/questions/get/default)
 
 echo "---------------------TEST COMPLETE---------------------"
-echo "addr:              $addr"
-echo "username:          $username"
-echo "password:          $password"
-echo "authjson:          $authjson"
-echo "token:             $token"
-echo "ids:               $ids"
-echo "uid:               $uid"
-echo "userdata:          $userdata"
-echo "jids:              $jids"
-echo "jid:               $jid"
-echo "journal:           $journal"
-echo "settings:          $settings"
-echo "questions:         $questions"
-echo "default questions: $default_questions"
-
 # verify if all data is intact
-if [[ "$addr" == "" ]]; then
-    exit 1
-fi
-if [[ "$username" == "" ]]; then
-    exit 1
-fi
-if [[ "$password" == "" ]]; then
-    exit 1
-fi
-if [[ "$authjson" == "" ]]; then
-    exit 1
-fi
-if [[ "$token" == "" ]]; then
-    exit 1
-fi
-if [[ "$ids" == "" ]]; then
-    exit 1
-fi
-if [[ "$uid" == "" ]]; then
-    exit 1
-fi
-if [[ "$userdata" == "" ]]; then
-    exit 1
-fi
-if [[ "$jids" == "" ]]; then
-    exit 1
-fi
-if [[ "$jid" == "" ]]; then
-    exit 1
-fi
-if [[ "$journal" == "" ]]; then
-    exit 1
-fi
-if [[ "$settings" == "" ]]; then
-    exit 1
-fi
-if [[ "$questions" == "" ]]; then
-    exit 1
-fi
-if [[ "$default_questions" == "" ]]; then
-    exit 1
-fi
+verify(){
+    if [[ -z $1 ]]; then 
+        echo "Error: variable is empty"
+        exit 1
+    fi
+}
+echo "addr:              $addr"
+verify $addr
+echo "username:          $username"
+verify $username
+echo "password:          $password"
+verify $password
+echo "authjson:          $authjson"
+verify $authjson
+echo "token:             $token"
+verify $token
+echo "ids:               $ids"
+verify $ids
+echo "uid:               $uid"
+verify $uid
+echo "userdata:          $userdata"
+verify $userdata
+echo "jids:              $jids"
+verify $jids
+echo "jid:               $jid"
+verify $jid
+echo "journal:           $journal"
+verify $journal
+echo "settings:          $settings"
+verify $settings
+echo "questions:         $questions"
+verify $questions
+echo "default questions: $default_questions"
+verify $default_questions
+
+echo "all tests passed!"
 exit 0
