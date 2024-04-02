@@ -7,5 +7,6 @@
         "How old are you?",
         "What is your occupation?",
         "Do you have children?"
-    ]
+    ],
+    "addr":"http://localhost:8080"
 }
