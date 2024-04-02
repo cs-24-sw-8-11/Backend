@@ -1,7 +1,6 @@
 #include <iostream>
 #include <argparse/argparse.hpp>
 
-#include "Database.hpp"
 #include "Api.hpp"
 
 int main(int argc, char* argv[]){
@@ -28,5 +27,5 @@ int main(int argc, char* argv[]){
     }
 
     auto path = program.get<std::string>("--database");
-    Database db(path);
+    API api(path);
 }
