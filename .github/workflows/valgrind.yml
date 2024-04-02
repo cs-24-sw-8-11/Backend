@@ -1,0 +1,29 @@
+name: Valgrind tests
+
+on:
+    pull_request:
+        branches: [main]
+
+jobs:
+    test-all:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4.1.1
+              with:
+                submodules: recursive
+            - name: setup-env
+              run: sudo apt install cmake sqlite3 gcc valgrind
+            - name: build
+              run: cmake -B build && cmake --build build
+              env:
+                CXX: g++-13
+            - name: test-backend
+              run: valgrind ./build/src/backend
+            - name: test-database-tests
+              run: valgrind ./build/src/database_test
+            - name: test-api-tests
+              run: valgrind ./build/src/api_test
+            - name: test-questionare-tests
+              run: valgrind ./build/src/questionaire_test
+            - name: test-predictions-test
+              run: valgrind ./build/src/predictions_test
