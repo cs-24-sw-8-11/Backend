@@ -4,7 +4,93 @@
 #include <iostream>
 #include <unordered_map>
 #include <ranges>
+#include <algorithm>
 #include <SQLiteCpp/SQLiteCpp.h>
+
+class Pair {
+    private:
+        std::string _key;
+        std::string _value;
+    public:
+        Pair(std::string key, std::string value){
+            this->_key = key;
+            this->_value = value;
+        }
+
+        std::string key() const {
+            return this->_key;
+        }
+        std::string value() const {
+            return this->_value;
+        }
+        void set(std::string value){
+            this->_value = value;
+        }
+};
+
+class Row {
+    private:
+        std::vector<Pair> data;
+
+    public:
+        std::vector<std::string> keys(){
+            std::vector<std::string> keys;
+            for(auto pair : data){
+                keys.push_back(pair.key());
+            }
+            return keys;
+        }
+        std::vector<std::string> values(){
+            std::vector<std::string> values;
+            for(auto pair : data){
+                values.push_back(pair.value());
+            }
+            return values;
+        }
+
+        void put(std::string key, std::string value){
+            if(this->has(key)){
+                for(auto pair : this->data){
+                    if(pair.key() == key){
+                        pair.set(value);
+                    }
+                }
+            }
+            else{
+                this->data.push_back(Pair{key, value});
+            }
+        }
+
+        std::string operator[](std::string key){
+            for(auto pair : data){
+                if(pair.key() == key){
+                    return pair.value();
+                }
+            }
+            throw std::exception();
+        }
+
+        inline bool has(std::string key){
+            for(auto pair : data){
+                if(pair.key() == key){
+                    return true;
+                }
+            }
+            return false;
+        } 
+
+        inline bool operator!=(const Row& rhs){
+            for(auto pair : rhs.data){
+                if(!(this->has(pair.key()))){
+                    return true;
+                }
+                if(this->operator[](pair.key()) == pair.value()){
+                    return true;
+                }
+            }
+            return false;
+        }
+};
 
 class Table {
     private:
@@ -122,15 +208,15 @@ class Table {
             return res;
         }
 
-        std::unordered_map<std::string, std::string> get(int id){
-            std::unordered_map<std::string, std::string> map;
+        Row get(int id){
+            Row row;
             SQLite::Statement query(*(this->db), std::format("SELECT * FROM {} where id = ?", this->name));
             query.bind(1, id);
             try{
                 query.executeStep();
                 auto colcnt = query.getColumnCount();
                 for(auto i = 0; i < colcnt; i++){
-                    map[query.getColumnName(i)] = query.getColumn(query.getColumnName(i)).getString();
+                    row.put(query.getColumnName(i), query.getColumn(query.getColumnName(i)).getString());
                 }
             }
             catch(SQLite::Exception& e){
@@ -145,7 +231,7 @@ class Table {
                 }
                 print_exception(e, msg);
             }
-            return map;
+            return row;
         }
 
         void delete_item(int id){
