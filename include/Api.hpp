@@ -1,8 +1,10 @@
 #include <crow.h>
 
 #include <iostream>
+#include <format>
 #include <string>
 #include "Database.hpp"
+#include <nlohmann/json.hpp>
 
 class API {
    public:
@@ -22,14 +24,17 @@ class API {
         });
 
         CROW_ROUTE(app, "/user/get/<int>")
-        ([](int id) {
+        ([&](int id) {
             crow::json::wvalue x({});
+            auto user = db->users->get(id);
             if (id < 0){
                 x["error"] = "Invalid id";
                 return x;
             }
-            x["username"] = "thomas";
-            x["id"] = id;
+            x["username"] = user["username"];
+            x["password"] = user["password"];
+            x["id"] = user["id"];
+            x["userdataId"] = user["userdataId"];
             x["stress level"] = 100;
             return x;
         });
@@ -52,14 +57,14 @@ class API {
             auto x = crow::json::load(req.body);
             crow::json::wvalue responsejson({});
             if (!x){
-                responsejson["error"] = "Unable to load/parse json";
+                responsejson["error"] = req.body;
                 return responsejson;
             }
         
             auto username = x["username"].s();
             auto password = x["password"].s();
-            if(username == "thomas" && password == "thomas"){
-                responsejson["something"] = "thomas authorized";
+            if(username == "tester" && password == "tester"){
+                responsejson["status"] = "thomas authorized";
 
                 return responsejson;
             }
@@ -74,7 +79,7 @@ class API {
             auto x = crow::json::load(req.body);
             crow::json::wvalue responsejson({});
             if (!x){
-                responsejson["error"] = "Unable to load/parse json";
+                responsejson["error"] = req.body;
                 return responsejson;
             }
         
@@ -101,7 +106,7 @@ class API {
             auto x = crow::json::load(req.body);
             crow::json::wvalue responsejson({});
             if (!x){
-                responsejson["error"] = "Unable to load/parse json";
+                responsejson["error"] = req.body;
                 return responsejson;
             }
         
@@ -118,23 +123,26 @@ class API {
                 return responsejson;
             }
         });
+        
         CROW_ROUTE(app, "/journals/new")
         .methods("POST"_method)
         ([](const crow::request& req) {
             auto x = crow::json::load(req.body);
+            nlohmann::json loaded = nlohmann::json::parse(req.body);
             crow::json::wvalue responsejson({});
             if (!x){
-                responsejson["error"] = "Unable to load/parse json";
+                responsejson["error"] = req.body;
                 return responsejson;
             }
-        
             auto token = x["token"].s();
             auto data = x["data"];
             if(token == "thomas"){
                 responsejson["status"] = "thomas authorized";
                 std::string something = "New Journal Entry:\n";
-                for(auto i = 0; i < 0; i ++){
-                    something += std::format("Question: {}\nAnswer: {}", data[i]["question"], data[i]["answer"]);
+                auto vector = loaded["data"].get<std::vector<std::string>>();
+                for(auto i = 0; i < vector.size(); i ++){
+                    something += std::format("{}\n",vector[i]);
+                    //something += std::format("Question: {0}\nAnswer: {1}", data[i]["question"].s(), data[i]["answer"].s());
                 }
                 responsejson["data"] = something;
 
@@ -145,6 +153,7 @@ class API {
                 return responsejson;
             }
         });
+        
         CROW_ROUTE(app, "/journals/ids/<int>")
         ([](int id) {
             crow::json::wvalue x({});
@@ -156,9 +165,10 @@ class API {
             x["journal"] = "thomas stress";
             return x;
         });
+        /*
         CROW_ROUTE(app, "/journals/delete/<int>/<int>")
         .methods("DELETE"_method)
-        ([](int userid, int journalid, const crow::request& req) {
+        ([](const crow::request& req, int userid, int journalid) {
             auto x = crow::json::load(req.body);
             crow::json::wvalue responsejson({});
             if (!x){
@@ -171,7 +181,7 @@ class API {
                 responsejson["status"] = "thomas authorized";
                 std::string something = "New Journal Entry:\n";
                 for(auto i = 0; i < 0; i ++){
-                    something += std::format("Question: {}\nAnswer: {}", data[i]["question"], data[i]["answer"]);
+                    something += std::format("Question: {}\nAnswer: {}", data[i]["question"].s(), data[i]["answer"].s());
                 }
                 responsejson["data"] = something;
 
@@ -182,6 +192,7 @@ class API {
                 return responsejson;
             }
         });
+        */
         CROW_ROUTE(app, "/settings/get/<int>")
         ([&](int id) {
             crow::json::wvalue x({});
@@ -198,7 +209,7 @@ class API {
         CROW_ROUTE(app, "/questions/default")
         ([&]() {
             crow::json::wvalue x({});
-            auto questions = db->questions->get_where("tag","default");
+            auto questions = db->questions->get_where("tags","default");
 
             for(auto i = 0; i > questions.size(); i++){
                 auto question = db->questions->get(i);
@@ -211,7 +222,7 @@ class API {
         CROW_ROUTE(app, "/questions/get/<string>")
         ([&](std::string inputString) {
             crow::json::wvalue x({});
-            auto questions = db->questions->get_where("tag",inputString);
+            auto questions = db->questions->get_where("tags",inputString);
 
             for(auto i = 0; i > questions.size(); i++){
                 auto question = db->questions->get(i);

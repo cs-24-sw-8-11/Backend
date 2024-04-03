@@ -23,6 +23,7 @@ target_link_libraries(backend
     sqlite3
     argparse
     Crow
+    nlohmann_json
 )
 endif()
 

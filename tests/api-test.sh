@@ -1,7 +1,7 @@
 addr="$(cat ./files/testdata/default.json | jq -r .addr)"
 username="$(cat ./files/testdata/default.json | jq -r .user.username)"
 password="$(cat ./files/testdata/default.json | jq -r .user.password)"
-authjson="{"username":"$username", "password": "$password"}"
+authjson="{\"username\":\"$username\", \"password\": \"$password\"}"
 
 # /register
 curl -X 'POST' -d "$authjson" $addr/register
