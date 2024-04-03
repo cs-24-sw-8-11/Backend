@@ -89,25 +89,25 @@ void test_add_setting(){
                 Deletion tests
 */// -----------------------------------------------
 
-/*void test_delete_user(){
+void test_delete_user(){
     db->users->add({"username", "password"}, {default_username, default_password});
     auto user_id = db->users->get_where()[0];
     assert(db->users->size() == 1);
-    db->users->delete(user_id);
+    db->users->delete_item(user_id);
     assert(db->users->size() == 0);
-}*/
+}
 
-/*void test_delete_journal(){
+void test_delete_journal(){
     db->users->add({"username", "password"}, {default_username, default_password});
     auto user_id = db->users->get_where()[0];
     db->journals->add({"userId"}, {std::format("{}", user_id)});
     assert(db->journals->size() == 1);
-    auto journal_id = db->journals->get_where())[0];
-    db->journals->delete(journal_id);
-    assert(db->journals->size() == 1);
-}*/
+    auto journal_id = db->journals->get_where()[0];
+    db->journals->delete_item(journal_id);
+    assert(db->journals->size() == 0);
+}
 
-/*void test_delete_question(){
+void test_delete_question(){
     for(auto question : default_questions)
         db->questions->add({"question", "tags"}, {question, "default"});
 
@@ -115,12 +115,12 @@ void test_add_setting(){
     
     auto ids = db->questions->get_where();
     for(auto id : ids){
-        db->questions->delete(id);
+        db->questions->delete_item(id);
     }
     assert(db->questions->size() == 0);
-}*/
+}
 
-/*void test_delete_answer(){
+void test_delete_answer(){
     db->users->add({"username", "password"}, {default_username, default_password});
     auto user_id = db->users->get_where()[0];
     db->journals->add({"userId"}, {std::format("{}", user_id)});
@@ -132,66 +132,66 @@ void test_add_setting(){
     assert(db->answers->size() == 1);
     auto answer_id = db->answers->get_where()[0];
 
-    db->answers->delete(answer_id); 
+    db->answers->delete_item(answer_id); 
     assert(db->answers->size() == 0);   
-}*/
+}
 
-/*void test_delete_setting(){
+void test_delete_setting(){
     db->users->add({"username", "password"}, {default_username, default_password});
     auto user_id = db->users->get_where()[0];
     db->settings->add({"userId", "key", "value"}, {std::format("{}", user_id), "testkey", "testvalue"});
     assert(db->settings->size() == 1);
     auto setting_id = db->settings->get_where()[0];
-    db->settings->delete(setting_id);
+    db->settings->delete_item(setting_id);
     assert(db->settings->size() == 0);
-}*/
+}
 
-/*void test_delete_userdata(){
+void test_delete_userdata(){
     db->users->add({"username", "password"}, {default_username, default_password});
     auto user_id = db->users->get_where()[0];
     db->userdata->add({"agegroup", "occupation", "userId"}, {"50-54", "unemployed", std::format("{}", user_id)});
     assert(db->userdata->size() == 1);
     auto userdata_id = db->userdata->get_where()[0];
-    db->userdata->delete(userdata_id);
+    db->userdata->delete_item(userdata_id);
     assert(db->userdata->size() == 0);
-}*/
+}
 
 /* -------------------------------------------------
                 Modification tests
 */// -----------------------------------------------
 
-/*void test_modify_user(){
+void test_modify_user(){
     db->users->add({"username", "password"}, {default_username, default_password});
     auto user_id = db->users->get_where()[0];
     auto current_data = db->users->get(user_id);
     db->users->modify(user_id, {"username"}, {"tester1"});
     auto new_data = db->users->get(user_id);
     assert(current_data != new_data);
-}*/
+}
 
 
-/*void test_modify_journal(){
+void test_modify_journal(){
     db->users->add({"username", "password"}, {default_username, default_password});
     auto user_id = db->users->get_where()[0];
     db->journals->add({"userId"}, {std::format("{}", user_id)});
     auto journal_id = db->journals->get_where()[0];
     auto current_data = db->journals->get(journal_id);
-    db->journals->modify(journal_id, {"userId", std::format("{}", user_id+1)});
+    db->journals->modify(journal_id, {"userId"}, {std::format("{}", user_id+1)});
     auto new_data = db->journals->get(journal_id);
     assert(current_data != new_data);
-}*/
+}
 
-/*void test_modify_question(){
+void test_modify_question(){
     for(auto question : default_questions)
         db->questions->add({"question", "tags"}, {question, "default"});
     auto question_id = db->questions->get_where()[0];
     auto current_data = db->questions->get(question_id);
-    db->questions->modify({"tags"}, {"notdefault"});
+    db->questions->modify(question_id, {"tags"}, {"notdefault"});
     auto new_data = db->questions->get(question_id);
     assert(current_data != new_data);
-}*/
+}
 
-/*void test_modify_answer(){
+void test_modify_answer(){
     db->users->add({"username", "password"}, {default_username, default_password});
     auto user_id = db->users->get_where()[0];
     db->journals->add({"userId"}, {std::format("{}", user_id)});
@@ -202,32 +202,32 @@ void test_add_setting(){
     db->answers->add({"answer", "journalId", "questionId"}, {"answer", std::format("{}", journal_id), std::format("{}", question_id)});
     auto answer_id = db->answers->get_where()[0];
     auto current_data = db->answers->get(answer_id);
-    db->answers->modify({"answer"}, {"betteranswer"});
+    db->answers->modify(answer_id, {"answer"}, {"betteranswer"});
     auto new_data = db->answers->get(answer_id);
     assert(current_data != new_data);
-}*/
+}
 
-/*void test_modify_setting(){
+void test_modify_setting(){
     db->users->add({"username", "password"}, {default_username, default_password});
     auto user_id = db->users->get_where()[0];
     db->settings->add({"userId", "key", "value"}, {std::format("{}", user_id), "testkey", "testvalue"});
     auto setting_id = db->settings->get_where()[0];
     auto current_data = db->settings->get(setting_id);
-    db->settings->modify({"value"}, {"bettervalue"});
+    db->settings->modify(setting_id, {"value"}, {"bettervalue"});
     auto new_data = db->settings->get(setting_id);
     assert(current_data != new_data);
-}*/
+}
 
-/*void test_modify_userdata(){
+void test_modify_userdata(){
     db->users->add({"username", "password"}, {default_username, default_password});
     auto user_id = db->users->get_where()[0];
     db->userdata->add({"agegroup", "occupation", "userId"}, {"50-54", "unemployed", std::format("{}", user_id)});
     auto userdata_id = db->userdata->get_where()[0];
     auto current_data = db->userdata->get(userdata_id);
-    db->userdata->modify({"agegroup"}, {"55-59"});
+    db->userdata->modify(userdata_id, {"agegroup"}, {"55-59"});
     auto new_data = db->userdata->get(userdata_id);
     assert(current_data != new_data);
-}*/
+}
 
 int main(){
     init(); // reinit between each test to clear environment
@@ -240,4 +240,28 @@ int main(){
     test_add_answer();
     init();
     test_add_setting();
+    init();
+    test_delete_user();
+    init();
+    test_delete_journal();
+    init();
+    test_delete_question();
+    init();
+    test_delete_answer();
+    init();
+    test_delete_setting();
+    init();
+    test_delete_userdata();
+    init();
+    test_modify_user();
+    init();
+    test_modify_journal();
+    init();
+    test_modify_question();
+    init();
+    test_modify_answer();
+    init();
+    test_modify_setting();
+    init();
+    test_modify_userdata();
 }
