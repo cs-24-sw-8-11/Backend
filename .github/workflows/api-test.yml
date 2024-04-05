@@ -20,4 +20,4 @@ jobs:
               env:
                 CXX: g++-13
             - name: run-test
-              run: ./build/src/api_test --addrport $(cat ./files/testdata/default.json | jq -r .addr) & bash ./tests/api-test.sh 
+              run: ./build/src/backend --addrport $(cat ./files/testdata/default.json | jq -r .addr) & bash ./tests/api-test.sh 

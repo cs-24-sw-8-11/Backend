@@ -10,18 +10,18 @@ curl -X 'POST' -d "$authjson" $addr/register
 token=$(curl -X 'POST' -d "$authjson" $addr/auth)
 
 # /user/ids/<n-m>
-ids=$(curl -X 'GET' $addr/ids)
+ids=$(curl -X 'GET' $addr/user/ids)
 # get the one user id
 uid=$(echo "$ids" | jq -r .[0])
 
 # /user/data/update
-curl -X 'POST' -d "{\"token\":\"$token\", \"data\":{}}" $addr/user/data/update
+curl -X 'POST' -d "{\"token\":\"$token\", \"data\":{\"agegroup\":\"42-69\", \"occupation\":\"school\"}}" $addr/user/data/update
 
 # /user/get/<uid>
 userdata=$(curl -X 'GET' $addr/user/get/$uid)
 
 # /journals/new
-curl -X 'POST' -d "{\"token\":\"$token\", \"data\":[{\"question\":\"q1\", \"answer\":\"a1\"}]}" $addr/journals/new
+curl -X 'POST' -d "{\"token\":\"$token\", \"comment\":\"Too many exams today.\", \"data\":[{\"question\":\"1\", \"answer\":\"a1\"},{\"question\":\"2\", \"answer\":\"a2\"}]}" $addr/journals/new
 
 # /journals/ids/<uid>
 jids=$(curl -X 'GET' $addr/journals/ids/$uid)
@@ -32,10 +32,10 @@ jid=$(echo "$jids" | jq -r .[0])
 journal=$(curl -X 'GET' $addr/journals/get/$jid)
 
 # /journals/delete/<uid>/<jid>
-curl -X 'DELETE' $addr/journals/delete/$uid/$jid
+curl -X 'DELETE' $addr/journals/delete/$uid/$jid/$token
 
 # /settings/update
-curl -X 'POST' -d "{\"token\":\"$token\", \"settings\":{\"key\":\"value\", \"key1\": \"value1\"}}" $addr/settings/update
+curl -X 'POST' -d "{\"token\":\"$token\", \"settings\":{\"key\":\"modified\", \"key1\": \"modified1\"}}" $addr/settings/update
 
 # /settings/get/<uid>
 settings=$(curl -X 'GET' $addr/settings/get/$uid)
