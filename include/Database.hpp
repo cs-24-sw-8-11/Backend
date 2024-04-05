@@ -1,5 +1,10 @@
 #include "Table.hpp"
 
+enum QuestionType {
+    VALUED,
+    BOOLEAN
+};
+
 class Database {
     public:
         std::shared_ptr<Table> users;
@@ -8,6 +13,7 @@ class Database {
         std::shared_ptr<Table> questions;
         std::shared_ptr<Table> settings;
         std::shared_ptr<Table> userdata;
+        std::shared_ptr<Table> predictions;
 
         Database(std::string path){
             TableFactory factory{path};
@@ -31,6 +37,7 @@ class Database {
             });
             this->questions = factory.create("questions", {
                 "tags varchar",
+                "type integer not null",
                 "question varchar not null"
             });
             this->settings = factory.create("settings", {
@@ -43,6 +50,11 @@ class Database {
                 "agegroup varchar not null",
                 "occupation varchar not null",
                 "userId integer not null"
+            });
+            this->predictions = factory.create("predictions", {
+                "userId integer not null",
+                "value integer not null",
+                "verifiedValue"
             });
         }
 };
