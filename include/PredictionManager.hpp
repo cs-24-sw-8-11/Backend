@@ -2,7 +2,6 @@
 #include <string>
 
 class PredictionBuilder {
-    float lmao_static_value = 1.0;
     float prediction_value = 0.0;
     size_t _size = 0;
     public:
