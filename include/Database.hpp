@@ -5,6 +5,15 @@ enum QuestionType {
     BOOLEAN
 };
 
+enum UserState {
+    TRAINING,
+    STANDARD
+};
+// wrappers to make db access easy while keeping types
+std::string db_int(int e){
+    return std::format("{}", e);
+}
+
 class Database {
     public:
         std::shared_ptr<Table> users;
@@ -21,40 +30,41 @@ class Database {
                 "username VARCHAR UNIQUE NOT NULL",
                 "password VARCHAR NOT NULL",
                 "userdataId INTEGER",
+                "state INTEGER NOT NULL",
                 "FOREIGN KEY(userdataId) REFERENCES userdata(id)"
             });
             this->journals = factory.create("journals", {
                 "comment varchar",
-                "userId integer not null",
-                "foreign key(userId) references users(id)"
+                "userId INTEGER NOT NULL",
+                "FOREIGN KEY(userId) REFERENCES users(id)"
             });
             this->answers = factory.create("answers", {
-                "answer varchar not null",
-                "journalId integer not null",
-                "questionId integer not null",
-                "foreign key(journalId) references journals(id)",
-                "foreign key(questionId) references questions(id)"
+                "answer VARCHAR NOT NULL",
+                "journalId INTEGER NOT NULL",
+                "questionId INTEGER NOT NULL",
+                "FOREIGN KEY(journalId) REFERENCES journals(id)",
+                "FOREIGN KEY(questionId) REFERENCES questions(id)"
             });
             this->questions = factory.create("questions", {
-                "tags varchar",
-                "type integer not null",
-                "question varchar not null"
+                "tags VARCHAR",
+                "type INTEGER NOT NULL",
+                "question VARCHAR NOT NULL"
             });
             this->settings = factory.create("settings", {
-                "key varchar not null",
-                "value varchar not null",
-                "userId integer not null",
-                "foreign key(userId) references users(id)"
+                "key VARCHAR NOT NULL",
+                "value VARCHAR NOT NULL",
+                "userId INTEGER NOT NULL",
+                "FOREIGN KEY(userId) REFERENCES users(id)"
             });
             this->userdata = factory.create("userdata", {
-                "agegroup varchar not null",
-                "occupation varchar not null",
-                "userId integer not null"
+                "agegroup VARCHAR NOT NULL",
+                "occupation VARCHAR NOT NULL",
+                "userId INTEGER NOT NULL"
             });
             this->predictions = factory.create("predictions", {
-                "userId integer not null",
-                "value integer not null",
-                "verifiedValue"
+                "userId INTEGER NOT NULL",
+                "value INTEGER NOT NULL",
+                "FOREIGN KEY(userId) REFERENCES users(id)"
             });
         }
 };
