@@ -2,6 +2,11 @@
 #include <argparse/argparse.hpp>
 
 #include "Api.hpp"
+void DefaultQuestion(std::string path){
+    std::shared_ptr<Database> db;
+    db = std::make_shared<Database>(path);
+    db->questions->add({"type", "tags", "question"},{"1","default","How stressed were you today?"});
+}
 
 int main(int argc, char* argv[]){
     argparse::ArgumentParser program("backend");
@@ -32,5 +37,6 @@ int main(int argc, char* argv[]){
 
     auto path = program.get<std::string>("--database");
     auto port = program.get<int>("--port");
+    DefaultQuestion(path);
     API api(path, port);
 }

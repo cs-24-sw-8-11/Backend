@@ -22,14 +22,13 @@ userdata=$(curl -X 'GET' $addr/user/get/$uid)
 
 # /questions/defaults
 questions=$(curl -X 'GET' $addr/questions/defaults)
-qid=$(jq -r [0].id)
-answer=$(jq -r [0].answer)
+qid=$(echo $questions | jq -r .[0].id)
 
 # /questions/get/<tags>
 default_questions=$(curl -X 'GET' $addr/questions/get/default)
 
 # /journals/new
-curl -X 'POST' -d "{\"token\":\"$token\", \"comment\":\"Too many exams today.\", \"data\":[{\"question\":\"$qid\", \"answer\":\"$answer\"},{\"question\":\"2\", \"answer\":\"a2\"}]}" $addr/journals/new
+curl -X 'POST' -d "{\"token\":\"$token\", \"comment\":\"Too many exams today.\", \"data\":[{\"question\":\"$qid\", \"answer\":\"Very stressed\"},{\"question\":\"2\", \"answer\":\"a2\"}]}" $addr/journals/new
 
 # /journals/ids/<uid>
 jids=$(curl -X 'GET' $addr/journals/ids/$uid)
@@ -84,6 +83,10 @@ echo "questions:         $questions"
 verify $questions
 echo "default questions: $default_questions"
 verify $default_questions
+echo "qid:               $qid"
+verify $qid
+echo "answer:            $answer"
+verify $answer
 
 echo "all tests passed!"
 exit 0
