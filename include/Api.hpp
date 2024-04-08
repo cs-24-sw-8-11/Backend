@@ -66,7 +66,7 @@ class API {
             auto x = crow::json::load(req.body);
             //crow::json::wvalue responsejson({});
             if (!x){
-                return crow::response("Unable to load/parse json");
+                return crow::response(400, "Unable to load/parse json");
             }
         
             auto username = x["username"].s();
@@ -74,12 +74,13 @@ class API {
             auto dbpassword = db->users->get(db->users->get_where("username", username).front())["password"];
             if(dbpassword == password){
                 auto userid = db->users->get_where("username", username).front();
-                auto token = std::format("{}sha256{}", (std::string)username, (std::string)password);
+                auto hash = Hash((std::string)username, (std::string)password);
+                auto token = std::format("{}", hash);
                 authedUsers[userid] = token;
-                return crow::response(token);
+                return crow::response(200, token);
             }
             else{
-                return crow::response("Invalid Token");
+                return crow::response(403, "Invalid Token");
             }
         });
         CROW_ROUTE(app, "/register")
@@ -139,10 +140,16 @@ class API {
             auto userid = UserIdFromToken(token);
             if(authedUsers[userid] == token){
                 auto data = z.at("settings");
+                auto userSettings = db->settings->get_where("userId",std::format("{}",userid));
                 for(auto i = data.begin(); i != data.end(); ++i){
                     auto key = i.key();
                     auto value = i.value().front().get<std::string>();
-                    db->settings->modify(userid,{"key","value"},{key,value});
+                    for(auto setting : userSettings){
+                        auto settingsRow = db->settings->get(setting);
+                        if(settingsRow["key"] == key){
+                            db->settings->modify(setting,{"value"},{value});
+                        }
+                    }
                 }
                 return crow::response(200);
             }
@@ -266,8 +273,6 @@ class API {
             return std::move(wv);
         });
 
-
-
         app.port(port).multithreaded().run();
     }
     int UserIdFromToken(std::string token){
@@ -278,11 +283,18 @@ class API {
         }
         return 0;
     }
+
+   private:
     //Called whenever a user is registered to prevent empty settings
     void DefaultSettings(int userId){
         db->settings->add({"key","value","userId"},{"key","value",std::format("{}",userId)});
         db->settings->add({"key","value","userId"},{"key1","value2",std::format("{}",userId)});
         //add more settings here
     }
-   private:
+    unsigned long Hash(std::string username, std::string password){
+        auto hash1 = std::hash<std::string>{}(username);
+        auto hash2 = std::hash<std::string>{}(password);
+        auto combinedhash = hash1 ^ (hash2 << 1);
+        return combinedhash;
+    }
 };

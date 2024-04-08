@@ -35,7 +35,7 @@ journal=$(curl -X 'GET' $addr/journals/get/$jid)
 curl -X 'DELETE' $addr/journals/delete/$uid/$jid/$token
 
 # /settings/update
-curl -X 'POST' -d "{\"token\":\"$token\", \"settings\":{\"key\":\"modified\", \"key1\": \"modified1\"}}" $addr/settings/update
+curl -X 'POST' -d "{\"token\":\"$token\", \"settings\":{\"key\":\"modified\", \"key1\": \"modified1\",\"someKeyThatDoesntExist\": \"somevalue\"}}" $addr/settings/update
 
 # /settings/get/<uid>
 settings=$(curl -X 'GET' $addr/settings/get/$uid)
