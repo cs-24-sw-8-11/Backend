@@ -171,11 +171,11 @@ class API {
             auto userid = UserIdFromToken(token);
             if(authedUsers[userid] == token){
 
-                auto data = z.at("data").items();
+                auto data = z["data"];
                 auto journalid = db->journals->add({"comment","userId"}, {comment, std::format("{}",userid)});
-                for(auto i = data.begin(); i != data.end(); ++i){
-                    auto questionId = i.value().back().get<std::string>();
-                    auto answer = i.value().front().get<std::string>();
+                for(auto JSONObj : data){
+                    auto questionId = JSONObj["question"];
+                    auto answer = JSONObj["answer"];
                     db->answers->add({"answer","journalId","questionId"},{answer, std::format("{}",journalid), questionId});
                 }
                 return crow::response(200);
