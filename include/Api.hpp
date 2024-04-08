@@ -275,14 +275,7 @@ class API {
 
         app.port(port).multithreaded().run();
     }
-    int UserIdFromToken(std::string token){
-        for(auto user : authedUsers){
-            if (user.second == token){
-                return user.first;
-            }
-        }
-        return 0;
-    }
+
 
    private:
     //Called whenever a user is registered to prevent empty settings
@@ -296,5 +289,13 @@ class API {
         auto hash2 = std::hash<std::string>{}(password);
         auto combinedhash = hash1 ^ (hash2 << 1);
         return combinedhash;
+    }
+    int UserIdFromToken(std::string token){
+        for(auto user : authedUsers){
+            if (user.second == token){
+                return user.first;
+            }
+        }
+        return 0;
     }
 };
