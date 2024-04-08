@@ -259,8 +259,7 @@ class API {
         ([&](std::string tag) {
             auto questions = db->questions->get_where("tags",tag);
             std::vector<crow::json::wvalue> vec;
-            for(auto i = 0; i > questions.size(); i++){
-                auto question = db->questions->get(i);
+            for(auto question : questions){
                 crow::json::wvalue x({});
                 x["id"] = question["id"];
                 x["tags"] = question["tags"];
