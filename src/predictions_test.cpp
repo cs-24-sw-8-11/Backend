@@ -13,9 +13,9 @@ int main(){
     PredictionTest test;
     test.add_test("add-valued-data", [&](){ 
         auto uid = 1;
-        std::vector<std::pair<std::string, int>> data = { //list of pairs, keys are the qid and values are the valued data
-            std::make_pair("1", 1),
-            std::make_pair("2", 4),
+        auto data = { //list of pairs, keys are the qid and values are the valued data
+            std::make_pair("1", 0.1),
+            std::make_pair("2", 0.9),
             std::make_pair("3", 0.6),
             std::make_pair("4", 0.7)
         };
@@ -52,7 +52,7 @@ int main(){
             predictionBuilder.add_boolean_data(pair.first, pair.second);
         }
         auto stresslevel = predictionBuilder.build(); // function that does the heavy lifting
-        assert(stresslevel > 0.0);
+        assert(stresslevel >= 0.0 && stresslevel <= 1.0);
     });
     test.run();
 };
