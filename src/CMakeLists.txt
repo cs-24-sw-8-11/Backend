@@ -9,15 +9,10 @@ target_link_libraries(database_test
     sqlite3
     nlohmann_json
 )
-if(MINGW)
-    target_link_libraries(backend
-        SQLiteCpp
-        sqlite3
-        argparse
-        Crow
-        ws2_32
-    )
-else()
+
+target_link_libraries(predictions_test
+    nlohmann_json
+)
 target_link_libraries(backend
     SQLiteCpp
     sqlite3

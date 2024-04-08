@@ -7,6 +7,9 @@
 #include <algorithm>
 #include <SQLiteCpp/SQLiteCpp.h>
 
+/*
+This is a custom data structure, a key value pair of strings that we can use for the database.
+*/
 class Pair {
     private:
         std::string _key;
@@ -28,6 +31,22 @@ class Pair {
         }
 };
 
+/*
+This is the row class, it is an abstraction of the rows in the database.
+
+### Methods
+it has 4 public methods along with 3 overloaded operators
+- keys()
+  returns a vector of keys
+- values()
+  returns a vector of values
+- put(key, value)
+  inserts a value at the key position of the row, if it already exists it will update the value
+- has(key)
+  returns a boolean whether the row contains a key
+
+- operator[], operator!= and operator== is overloaded
+*/
 class Row {
     private:
         std::vector<Pair> data;
@@ -84,11 +103,14 @@ class Row {
                 if(!(this->has(pair.key()))){
                     return true;
                 }
-                if(this->operator[](pair.key()) == pair.value()){
+                if(this->operator[](pair.key()) != pair.value()){
                     return true;
                 }
             }
             return false;
+        }
+        inline bool operator==(const Row& rhs){
+            return !(*(this) != rhs);
         }
 };
 
