@@ -128,35 +128,6 @@ class API {
                 return crow::response(403);
             }
         });
-        CROW_ROUTE(app, "/settings/update")
-        .methods("POST"_method)
-        ([&](const crow::request& req) {
-            auto x = crow::json::load(req.body);
-            auto z = nlohmann::json::parse(req.body);
-            if (!x){
-                return crow::response(400);
-            }
-            auto token = z["token"].get<std::string>();
-            auto userid = UserIdFromToken(token);
-            if(authedUsers[userid] == token){
-                auto data = z.at("settings");
-                auto userSettings = db->settings->get_where("userId",std::format("{}",userid));
-                for(auto i = data.begin(); i != data.end(); ++i){
-                    auto key = i.key();
-                    auto value = i.value().front().get<std::string>();
-                    for(auto setting : userSettings){
-                        auto settingsRow = db->settings->get(setting);
-                        if(settingsRow["key"] == key){
-                            db->settings->modify(setting,{"value"},{value});
-                        }
-                    }
-                }
-                return crow::response(200);
-            }
-            else{
-                return crow::response(403);
-            }
-        });
         
         CROW_ROUTE(app, "/journals/new")
         .methods("POST"_method)
@@ -239,6 +210,35 @@ class API {
             crow::json::wvalue wv;
             wv = std::move(vec);
             return std::move(wv);
+        });
+        CROW_ROUTE(app, "/settings/update")
+        .methods("POST"_method)
+        ([&](const crow::request& req) {
+            auto x = crow::json::load(req.body);
+            auto z = nlohmann::json::parse(req.body);
+            if (!x){
+                return crow::response(400);
+            }
+            auto token = z["token"].get<std::string>();
+            auto userid = UserIdFromToken(token);
+            if(authedUsers[userid] == token){
+                auto data = z.at("settings");
+                auto userSettings = db->settings->get_where("userId",std::format("{}",userid));
+                for(auto i = data.begin(); i != data.end(); ++i){
+                    auto key = i.key();
+                    auto value = i.value().front().get<std::string>();
+                    for(auto setting : userSettings){
+                        auto settingsRow = db->settings->get(setting);
+                        if(settingsRow["key"] == key){
+                            db->settings->modify(setting,{"value"},{value});
+                        }
+                    }
+                }
+                return crow::response(200);
+            }
+            else{
+                return crow::response(403);
+            }
         });
         CROW_ROUTE(app, "/questions/defaults")
         ([&]() {
