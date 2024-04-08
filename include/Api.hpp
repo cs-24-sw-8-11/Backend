@@ -116,10 +116,10 @@ class API {
             auto token = z["token"].get<std::string>();
             auto userid = UserIdFromToken(token);
             if(authedUsers[userid] == token){
-                auto data = z.at("data");
-                for(auto i = data.begin(); i != data.end(); ++i){
-                    auto key = i.key();
-                    auto value = i.value().front().get<std::string>();
+                auto data = z["data"];
+                for(auto keyJSON : data){
+                    auto key = keyJSON.get<std::string>();
+                    auto value = data[key];
                     db->userdata->modify(userid,{key},{value});
                 }
                 return crow::response(200);
