@@ -1,5 +1,10 @@
+#include <format>
+#include <functional>
+
 #include "PredictionManager.hpp"
 #include "TestTemplate.hpp"
+
+auto num_entries = 1000;
 
 class PredictionTest : public Test<std::function<void()>> {
     void init(){
@@ -8,17 +13,20 @@ class PredictionTest : public Test<std::function<void()>> {
         PredictionManager manager;
 };
 
+template<typename T>
+std::vector<T> make_range(int n, std::function<T(int)> f){
+    std::vector<T> result;
+    for(auto i = 0; i < n; i++){
+        result.push_back(f(i));
+    }
+    return result;
+}
 
 int main(){
     PredictionTest test;
     test.add_test("add-valued-data", [&](){ 
         auto uid = 1;
-        auto data = { //list of pairs, keys are the qid and values are the valued data
-            std::make_pair("1", 0.1),
-            std::make_pair("2", 0.9),
-            std::make_pair("3", 0.6),
-            std::make_pair("4", 0.7)
-        };
+        auto data = make_range<std::pair<std::string, double>>(num_entries, [](int i){return std::make_pair(std::format("{}", i), i/100);});
         auto predictionBuilder = test.manager.create_new_prediction(uid);
         for(auto pair : data){
             predictionBuilder.add_valued_data(pair.first, pair.second);
@@ -27,12 +35,7 @@ int main(){
     });
     test.add_test("add-boolean-data", [&](){
         auto uid = 1;
-        auto data = {
-            std::make_pair("1", true),
-            std::make_pair("2", false),
-            std::make_pair("3", false),
-            std::make_pair("4", true)
-        };
+        auto data = make_range<std::pair<std::string, bool>>(num_entries, [](int i){return std::make_pair(std::format("{}", i), i%2==0);});
         auto predictionBuilder = test.manager.create_new_prediction(uid);
         for(auto pair : data){
             predictionBuilder.add_boolean_data(pair.first, pair.second);
@@ -41,12 +44,8 @@ int main(){
     });
     test.add_test("run-prediction", [&](){
         auto uid = 1;
-        auto data = {
-            std::make_pair("1", true),
-            std::make_pair("2", false),
-            std::make_pair("3", false),
-            std::make_pair("4", false)
-        };
+        auto data = make_range<std::pair<std::string, bool>>(num_entries, [](int i){return std::make_pair(std::format("{}", i), true);});
+
         auto predictionBuilder = test.manager.create_new_prediction(uid);
         for(auto pair : data){
             predictionBuilder.add_boolean_data(pair.first, pair.second);
@@ -55,4 +54,8 @@ int main(){
         assert(stresslevel >= 0.0 && stresslevel <= 1.0);
     });
     test.run();
+
+    PredictionTest extended;
+
+
 };
