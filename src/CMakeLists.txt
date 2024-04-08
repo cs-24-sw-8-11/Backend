@@ -20,7 +20,6 @@ target_link_libraries(backend
     Crow
     nlohmann_json
 )
-endif()
 
 add_test(NAME database_test COMMAND database_test WORKING_DIRECTORY ..)
 add_test(NAME predictions_test COMMAND predictions_test WORKING_DIRECTORY ..)
