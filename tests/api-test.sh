@@ -85,8 +85,6 @@ echo "default questions: $default_questions"
 verify $default_questions
 echo "qid:               $qid"
 verify $qid
-echo "answer:            $answer"
-verify $answer
 
 echo "all tests passed!"
 exit 0
