@@ -4,10 +4,10 @@ password="$(cat ./files/testdata/default.json | jq -r .user.password)"
 authjson="{\"username\":\"$username\", \"password\": \"$password\"}"
 
 # /register
-curl -X 'POST' -d "$authjson" $addr/register
+curl -X 'POST' -d "$authjson" $addr/user/register
 
 # /auth
-token=$(curl -X 'POST' -d "$authjson" $addr/auth)
+token=$(curl -X 'POST' -d "$authjson" $addr/user/auth)
 
 # /user/ids/<n-m>
 ids=$(curl -X 'GET' $addr/user/ids)
@@ -20,8 +20,16 @@ curl -X 'POST' -d "{\"token\":\"$token\", \"data\":{\"agegroup\":\"42-69\", \"oc
 # /user/get/<uid>
 userdata=$(curl -X 'GET' $addr/user/get/$uid)
 
+# /questions/defaults
+questions=$(curl -X 'GET' $addr/questions/defaults)
+qid=$(jq -r [0].id)
+answer=$(jq -r [0].answer)
+
+# /questions/get/<tags>
+default_questions=$(curl -X 'GET' $addr/questions/get/default)
+
 # /journals/new
-curl -X 'POST' -d "{\"token\":\"$token\", \"comment\":\"Too many exams today.\", \"data\":[{\"question\":\"1\", \"answer\":\"a1\"},{\"question\":\"2\", \"answer\":\"a2\"}]}" $addr/journals/new
+curl -X 'POST' -d "{\"token\":\"$token\", \"comment\":\"Too many exams today.\", \"data\":[{\"question\":\"$qid\", \"answer\":\"$answer\"},{\"question\":\"2\", \"answer\":\"a2\"}]}" $addr/journals/new
 
 # /journals/ids/<uid>
 jids=$(curl -X 'GET' $addr/journals/ids/$uid)
@@ -39,12 +47,6 @@ curl -X 'POST' -d "{\"token\":\"$token\", \"settings\":{\"key\":\"modified\", \"
 
 # /settings/get/<uid>
 settings=$(curl -X 'GET' $addr/settings/get/$uid)
-
-# /questions/defaults
-questions=$(curl -X 'GET' $addr/questions/defaults)
-
-# /questions/get/<tags>
-default_questions=$(curl -X 'GET' $addr/questions/get/default)
 
 echo "---------------------TEST COMPLETE---------------------"
 # verify if all data is intact
