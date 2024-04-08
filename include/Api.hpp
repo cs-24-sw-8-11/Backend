@@ -60,7 +60,7 @@ class API {
             return std::move(x);
         });
         
-        CROW_ROUTE(app, "/auth")
+        CROW_ROUTE(app, "/user/auth")
         .methods("POST"_method)
         ([&](const crow::request& req) {
             auto x = crow::json::load(req.body);
@@ -83,7 +83,7 @@ class API {
                 return crow::response(403, "Invalid Token");
             }
         });
-        CROW_ROUTE(app, "/register")
+        CROW_ROUTE(app, "/user/register")
         .methods("POST"_method)
         ([&](const crow::request& req) {
             auto x = crow::json::load(req.body);

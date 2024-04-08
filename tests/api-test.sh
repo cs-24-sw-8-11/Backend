@@ -4,10 +4,10 @@ password="$(cat ./files/testdata/default.json | jq -r .user.password)"
 authjson="{\"username\":\"$username\", \"password\": \"$password\"}"
 
 # /register
-curl -X 'POST' -d "$authjson" $addr/register
+curl -X 'POST' -d "$authjson" $addr/user/register
 
 # /auth
-token=$(curl -X 'POST' -d "$authjson" $addr/auth)
+token=$(curl -X 'POST' -d "$authjson" $addr/user/auth)
 
 # /user/ids/<n-m>
 ids=$(curl -X 'GET' $addr/user/ids)
