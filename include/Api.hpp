@@ -139,11 +139,11 @@ class API {
             auto token = z["token"].get<std::string>();
             auto userid = UserIdFromToken(token);
             if(authedUsers[userid] == token){
-                auto data = z.at("settings");
+                auto data = z["settings"];
                 auto userSettings = db->settings->get_where("userId",std::format("{}",userid));
-                for(auto i = data.begin(); i != data.end(); ++i){
-                    auto key = i.key();
-                    auto value = i.value().front().get<std::string>();
+                for(auto keyJSON : data){
+                    auto key = keyJSON.get<std::string>();
+                    auto value = data[key];
                     for(auto setting : userSettings){
                         auto settingsRow = db->settings->get(setting);
                         if(settingsRow["key"] == key){
