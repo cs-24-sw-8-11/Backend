@@ -24,7 +24,6 @@ class API {
                 return x;
             }
             x["username"] = user["username"];
-            x["password"] = user["password"];
             x["id"] = user["id"];
             x["userdataId"] = user["userdataId"];
             x["stress level"] = 100;
@@ -64,7 +63,6 @@ class API {
         .methods("POST"_method)
         ([&](const crow::request& req) {
             auto x = crow::json::load(req.body);
-            //crow::json::wvalue responsejson({});
             if (!x){
                 return crow::response(400, "Unable to load/parse json");
             }
@@ -168,13 +166,13 @@ class API {
         });
         
         CROW_ROUTE(app, "/journals/ids/<int>") //user id
-        ([&](int id) {
+        ([&](int uid) {
             crow::json::wvalue x({});
-            if (id < 0){
+            if (uid < 0){
                 x["error"] = "Invalid id";
                 return x;
             }
-            auto journals = db->journals->get_where("userId",std::format("{}",id));
+            auto journals = db->journals->get_where("userId",std::format("{}",uid));
             x = std::move(journals); //Funky solution to make it only return json array
             return std::move(x); 
         });
