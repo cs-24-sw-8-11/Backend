@@ -43,6 +43,10 @@ jid=$(echo "$jids" | jq -r .[0])
 # /journals/get/<jid>
 journal=$(curl -X 'GET' $addr/journals/get/$jid)
 
+# /answers/get/<aid>/<token>
+aid=$(echo "$journal" | jq -r .answers[0])
+answer=$(curl -X 'GET' $addr/answers/get/$aid/$token)
+
 # /journals/delete/<uid>/<jid>
 curl -X 'DELETE' $addr/journals/delete/$uid/$jid/$token
 
@@ -52,6 +56,7 @@ curl -X 'POST' -d "{\"token\":\"$token\", \"settings\":{\"key\":\"modified\", \"
 # /settings/get/<uid>
 settings=$(curl -X 'GET' $addr/settings/get/$uid)
 
+pkill backend
 echo "---------------------TEST COMPLETE---------------------"
 # verify if all data is intact
 verify(){
@@ -82,6 +87,8 @@ echo "jid:               $jid"
 verify $jid
 echo "journal:           $journal"
 verify $journal
+echo "answer:            $answer"
+verify $answer
 echo "settings:          $settings"
 verify $settings
 echo "questions:         $questions"
