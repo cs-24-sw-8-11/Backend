@@ -20,4 +20,4 @@ jobs:
               env:
                 CXX: g++-13
             - name: run-test
-              run: ./build/src/backend --port $(cat ./files/testdata/default.json | jq -r .port) & sleep 1 && bash ./tests/api-test.sh 
+              run: bash ./tests/api-test.sh 

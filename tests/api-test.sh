@@ -1,7 +1,12 @@
-addr="$(cat ./files/testdata/default.json | jq -r .addr)"
+addr="http://localhost:$(cat ./files/testdata/default.json | jq -r .port)"
 username="$(cat ./files/testdata/default.json | jq -r .user.username)"
 password="$(cat ./files/testdata/default.json | jq -r .user.password)"
 authjson="{\"username\":\"$username\", \"password\": \"$password\"}"
+
+# start phase
+build/src/backend --port "$(cat ./files/testdata/default.json | jq -r .port)" &
+sleep 1
+
 
 # /register
 curl -X 'POST' -d "$authjson" $addr/user/register
