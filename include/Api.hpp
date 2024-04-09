@@ -11,9 +11,12 @@ class API {
     crow::SimpleApp app;
     std::shared_ptr<Database> db;
     std::map<int, std::string> authedUsers;
-    API(std::string path, int port) {
-        db = std::make_shared<Database>(path);
 
+    API(std::string path) {
+        db = std::make_shared<Database>(path);
+    }
+
+    void Run(int port){
         CROW_ROUTE(app, "/user/get/<int>")
         ([&](int id) {
             crow::json::wvalue x({});
