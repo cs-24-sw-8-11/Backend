@@ -25,12 +25,12 @@ class DBTest : public Test<std::function<void()>> {
         default_questions = config["questions"].get<std::vector<std::string>>();
 
         // add temporary data
-        db->users->add({"username", "password"}, {default_username, default_password});
+        db->users->add({"username", "password", "state"}, {default_username, default_password, db_int(TRAINING)});
         user_id = db->users->get_where("username", default_username)[0];
-        db->journals->add({"userId"}, {std::format("{}", user_id)});
-        journal_id = db->journals->get_where("userId", std::format("{}", user_id))[0];
+        db->journals->add({"userId"}, {db_int(user_id)});
+        journal_id = db->journals->get_where("userId", db_int(user_id))[0];
         for(auto question : default_questions)
-            db->questions->add({"question", "tags", "type"}, {question, "default", std::format("{}", (int)BOOLEAN)});
+            db->questions->add({"question", "tags", "type"}, {question, "default", db_int(BOOLEAN)});
         question_id = db->questions->get_where()[0];
     }
     public:
@@ -49,10 +49,12 @@ int main(){
         for(auto i = 0; i < num_additions; i++){
             users.db->users->add({
                 "username",
-                "password"
+                "password",
+                "state"
             }, {
                 std::format("user{}", i),
-                users.default_password
+                users.default_password,
+                db_int(TRAINING)
             });
         }
         assert(users.db->users->size() == num_additions+1); // +1 to consider temp data
@@ -75,7 +77,7 @@ int main(){
     DBTest journals;
     journals.add_test("add-journal", [&](){
         for(auto i = 0; i < num_additions; i++){
-            journals.db->journals->add({"userId"}, {std::format("{}", journals.user_id)});
+            journals.db->journals->add({"userId"}, {db_int(journals.user_id)});
         }
         assert(journals.db->journals->size() == num_additions+1);
     });
@@ -86,11 +88,11 @@ int main(){
         assert(journals.db->journals->size() == 0);
     });
     journals.add_test("modify-journal", [&](){
-        journals.db->journals->add({"userId"}, {std::format("{}", journals.user_id)});
+        journals.db->journals->add({"userId"}, {db_int(journals.user_id)});
         auto journal_id = journals.db->journals->get_where()[0];
         auto current_data = journals.db->journals->get(journal_id);
         assert(current_data == journals.db->journals->get(journal_id));
-        journals.db->journals->modify(journal_id, {"userId"}, {std::format("{}", journals.user_id+1)});
+        journals.db->journals->modify(journal_id, {"userId"}, {db_int(journals.user_id+1)});
         auto new_data = journals.db->journals->get(journal_id);
         assert(current_data != new_data);
     });
@@ -120,13 +122,13 @@ int main(){
     answers.add_test("add-answer", [&](){
 
         for(auto i = 0; i < num_additions; i++){
-            answers.db->answers->add({"answer", "journalId", "questionId"}, {std::format("answer{}", i), std::format("{}", answers.journal_id), std::format("{}", answers.question_id)});
+            answers.db->answers->add({"answer", "journalId", "questionId"}, {std::format("answer{}", i), db_int(answers.journal_id), db_int(answers.question_id)});
         }
         assert(answers.db->answers->size() == num_additions);
     });
 
     answers.add_test("delete-answer", [&](){
-        answers.db->answers->add({"answer", "journalId", "questionId"}, {"answer", std::format("{}", answers.journal_id), std::format("{}", answers.question_id)});
+        answers.db->answers->add({"answer", "journalId", "questionId"}, {"answer", db_int(answers.journal_id), db_int(answers.question_id)});
         assert(answers.db->answers->size() == 1);
         auto answer_id = answers.db->answers->get_where()[0];
 
@@ -134,7 +136,7 @@ int main(){
         assert(answers.db->answers->size() == 0);   
     });
     answers.add_test("modify-answer", [&](){
-        answers.db->answers->add({"answer", "journalId", "questionId"}, {"answer", std::format("{}", answers.journal_id), std::format("{}", answers.question_id)});
+        answers.db->answers->add({"answer", "journalId", "questionId"}, {"answer", db_int(answers.journal_id), db_int(answers.question_id)});
         auto answer_id = answers.db->answers->get_where()[0];
         auto current_data = answers.db->answers->get(answer_id);
         assert(current_data == answers.db->answers->get(answer_id));
@@ -146,19 +148,19 @@ int main(){
     DBTest settings;
     settings.add_test("add-setting", [&](){
         for(auto i = 0; i < num_additions; i++){
-            settings.db->settings->add({"userId", "key", "value"}, {std::format("{}", settings.user_id), std::format("setting {}", i), std::format("value {}", i)});
+            settings.db->settings->add({"userId", "key", "value"}, {db_int(settings.user_id), std::format("setting {}", i), std::format("value {}", i)});
         }
         assert(settings.db->settings->size() == num_additions);
     });
     settings.add_test("delete-setting", [&](){
-        settings.db->settings->add({"userId", "key", "value"}, {std::format("{}", settings.user_id), "testkey", "testvalue"});
+        settings.db->settings->add({"userId", "key", "value"}, {db_int(settings.user_id), "testkey", "testvalue"});
         assert(settings.db->settings->size() == 1);
         auto setting_id = settings.db->settings->get_where()[0];
         settings.db->settings->delete_item(setting_id);
         assert(settings.db->settings->size() == 0);
     });
     settings.add_test("modify-setting", [&](){
-        settings.db->settings->add({"userId", "key", "value"}, {std::format("{}", settings.user_id), "testkey", "testvalue"});
+        settings.db->settings->add({"userId", "key", "value"}, {db_int(settings.user_id), "testkey", "testvalue"});
         auto setting_id = settings.db->settings->get_where()[0];
         auto current_data = settings.db->settings->get(setting_id);
         assert(current_data == settings.db->settings->get(setting_id));
@@ -169,14 +171,14 @@ int main(){
 
     DBTest userdata;
     userdata.add_test("delete-userdata", [&](){
-        userdata.db->userdata->add({"agegroup", "occupation", "userId"}, {"50-54", "unemployed", std::format("{}", userdata.user_id)});
+        userdata.db->userdata->add({"agegroup", "occupation", "userId"}, {"50-54", "unemployed", db_int(userdata.user_id)});
         assert(userdata.db->userdata->size() == 1);
         auto userdata_id = userdata.db->userdata->get_where()[0];
         userdata.db->userdata->delete_item(userdata_id);
         assert(userdata.db->userdata->size() == 0);
     });
     userdata.add_test("modify-userdata", [&](){
-        userdata.db->userdata->add({"agegroup", "occupation", "userId"}, {"50-54", "unemployed", std::format("{}", userdata.user_id)});
+        userdata.db->userdata->add({"agegroup", "occupation", "userId"}, {"50-54", "unemployed", db_int(userdata.user_id)});
         auto userdata_id = userdata.db->userdata->get_where()[0];
         auto current_data = userdata.db->userdata->get(userdata_id);
         assert(current_data == userdata.db->userdata->get(userdata_id));
@@ -188,19 +190,19 @@ int main(){
     DBTest predictions;
     predictions.add_test("add-prediction", [&](){
         for(auto i = 0; i < num_additions; i++){
-            predictions.db->predictions->add({"userId", "value"}, {std::format("{}", predictions.user_id), std::format("{}", i)});
+            predictions.db->predictions->add({"userId", "value"}, {db_int(predictions.user_id), db_int(i)});
         }
         assert(predictions.db->predictions->size() == num_additions);
     });
     predictions.add_test("delete-prediction", [&](){
-        predictions.db->predictions->add({"userId", "value"}, {std::format("{}", predictions.user_id), "0"});
+        predictions.db->predictions->add({"userId", "value"}, {db_int(predictions.user_id), "0"});
         assert(predictions.db->predictions->size() == 1);
         auto prediction_id = predictions.db->predictions->get_where()[0];
         predictions.db->predictions->delete_item(prediction_id);
         assert(predictions.db->predictions->size() == 0);
     });
     predictions.add_test("modify-prediction", [&](){
-        predictions.db->predictions->add({"userId", "value"}, {std::format("{}", predictions.user_id), "0"});
+        predictions.db->predictions->add({"userId", "value"}, {db_int(predictions.user_id), "0"});
         auto prediction_id = predictions.db->predictions->get_where()[0];
         auto current_data = predictions.db->predictions->get(prediction_id);
         assert(current_data == predictions.db->predictions->get(prediction_id));

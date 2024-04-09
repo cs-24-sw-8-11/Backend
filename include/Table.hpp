@@ -7,6 +7,29 @@
 #include <algorithm>
 #include <SQLiteCpp/SQLiteCpp.h>
 
+#define EXCEPTION_HANDLER catch(SQLite::Exception& e){  \
+    std::string msg;                                    \
+    switch(e.getErrorCode()){                           \
+        case 19:                                        \
+            msg = "Error! A keyword not followed!";     \
+            break;                                      \
+        default:                                        \
+            msg = "Error! Unknown error!";              \
+            break;                                      \
+    }                                                   \
+    std::cerr                                           \
+        << "\033[38;2;255;0;0m"                         \
+        << msg                                          \
+        << "\033[0m"                                    \
+        << std::endl;                                   \
+    std::cerr                                           \
+        << "\t"                                         \
+        << e.getErrorCode()                             \
+        << ":\t\033[38;2;100;100;100m"                  \
+        << e.what() << "\033[0m"                        \
+        << std::endl;                                   \
+}
+
 /*
 This is a custom data structure, a key value pair of strings that we can use for the database.
 */
@@ -119,10 +142,6 @@ class Table {
         std::string name;
         std::vector<std::string> columns;
         std::shared_ptr<SQLite::Database> db;
-        void print_exception(SQLite::Exception e, std::string msg){
-            std::cerr << "\033[38;2;255;0;0m" << msg << "\033[0m" << std::endl;
-            std::cerr << "\t" << e.getErrorCode() << ":\t\033[38;2;100;100;100m" << e.what() << "\033[0m" << std::endl;
-        }
     public:
         Table(std::string name, std::vector<std::string> columns, std::shared_ptr<SQLite::Database> db){
             this->name = name;
@@ -133,23 +152,15 @@ class Table {
                 qs += ", ";
                 qs += columns[i];
             }
-            auto sql = std::format("CREATE TABLE IF NOT EXISTS {} (id integer primary key{})", this->name, qs);
+            auto sql = std::format("CREATE TABLE IF NOT EXISTS {} (id INTEGER PRIMARY KEY{})", this->name, qs);
             SQLite::Statement query(*(this->db), sql);
             try{
                 query.exec();
             }
-            catch(SQLite::Exception& e){
-                std::string msg;
-                switch(e.getErrorCode()){
-                    default:
-                        msg = "Unknown error!";
-                        break;
-                }
-                print_exception(e, msg);
-            }
+            EXCEPTION_HANDLER;
         }
         size_t size(){
-            SQLite::Statement query(*(this->db), std::format("select id from {}", this->name));
+            SQLite::Statement query(*(this->db), std::format("SELECT id FROM {}", this->name));
             auto size = 0;
             while(query.executeStep()) size++;
             return size;
@@ -176,23 +187,11 @@ class Table {
                 query2.executeStep();
                 id = query2.getColumn("id").getInt();
             }
-            catch(SQLite::Exception& e){
-                std::string msg;
-                switch(e.getErrorCode()){
-                    case 19:
-                        msg = "Error! Unique keyword not followed!";
-                        break;
-                    default:
-                        msg = "Unknown error!";
-                        break;
-                }
-                print_exception(e, msg);
-            }
-            return id;
+            EXCEPTION_HANDLER;
         }
 
         std::vector<int> get_where(std::string key, std::string value){
-            SQLite::Statement query(*(this->db), std::format("SELECT id FROM {} where {} = ?", this->name, key));
+            SQLite::Statement query(*(this->db), std::format("SELECT id FROM {} WHERE {} = ?", this->name, key));
             query.bind(1, value);
             std::vector<int> res;
             try{
@@ -200,19 +199,7 @@ class Table {
                     res.push_back(query.getColumn("id").getInt());
                 }
             }
-            catch(SQLite::Exception& e){
-                std::string msg;
-                switch(e.getErrorCode()){
-                    case -1:
-                        msg = std::format("Error! no value of '{}' in column: '{}' of table: '{}' exists", value, key, this->name);
-                        break;
-                    default:
-                        msg = "Unknown error!";
-                        break;
-                }
-                print_exception(e, msg);
-                res.push_back(-1);
-            }
+            EXCEPTION_HANDLER;
             return res;
         }
         std::vector<int> get_where(){
@@ -223,22 +210,13 @@ class Table {
                     res.push_back(query.getColumn("id").getInt());
                 }
             }
-            catch(SQLite::Exception& e){
-                std::string msg;
-                switch(e.getErrorCode()){
-                    default:
-                        msg = "Unknown error!";
-                        break;
-                }
-                print_exception(e, msg);
-                res.push_back(-1);
-            }
+            EXCEPTION_HANDLER;
             return res;
         }
 
         Row get(int id){
             Row row;
-            SQLite::Statement query(*(this->db), std::format("SELECT * FROM {} where id = ?", this->name));
+            SQLite::Statement query(*(this->db), std::format("SELECT * FROM {} WHERE id = ?", this->name));
             query.bind(1, id);
             try{
                 query.executeStep();
@@ -247,57 +225,30 @@ class Table {
                     row.put(query.getColumnName(i), query.getColumn(query.getColumnName(i)).getString());
                 }
             }
-            catch(SQLite::Exception& e){
-                std::string msg;
-                switch(e.getErrorCode()){
-                    case -1:
-                        msg = std::format("Error! no row with id: {}", id);
-                        break;
-                    default:
-                        msg = "Unknown error!";
-                        break;
-                }
-                print_exception(e, msg);
-            }
+            EXCEPTION_HANDLER;
             return row;
         }
 
         void delete_item(int id){
-            SQLite::Statement query(*(this->db), std::format("DELETE FROM {} where id = ?", this->name));
+            SQLite::Statement query(*(this->db), std::format("DELETE FROM {} WHERE id = ?", this->name));
             query.bind(1, id);
             try{
                 query.exec();
             }
-            catch(SQLite::Exception& e){
-                std::string msg;
-                switch(e.getErrorCode()){
-                    default:
-                        msg = "Unknown error!";
-                        break;
-                }
-                print_exception(e, msg);
-            }
+            EXCEPTION_HANDLER;
         }
 
         void modify(int id, std::vector<std::string> keys, std::vector<std::string> values){
             for(auto pair : std::views::zip(keys, values)){
                 auto key = std::get<0>(pair);
                 auto value = std::get<1>(pair);
-                SQLite::Statement query(*(this->db), std::format("update {} set {} = ? where id = ?", this->name, key));
+                SQLite::Statement query(*(this->db), std::format("UPDATE {} SET {} = ? WHERE id = ?", this->name, key));
                 query.bind(1, value);
                 query.bind(2, id);
                 try{
                     query.exec();
                 }
-                catch(SQLite::Exception& e){
-                    std::string msg;
-                    switch(e.getErrorCode()){
-                        default:
-                            msg = "Unknown error!";
-                            break;
-                    }
-                    print_exception(e, msg);
-                }
+                EXCEPTION_HANDLER;
             }
         }
 };
