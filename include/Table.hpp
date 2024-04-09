@@ -188,6 +188,7 @@ class Table {
                 id = query2.getColumn("id").getInt();
             }
             EXCEPTION_HANDLER;
+            return id;
         }
 
         std::vector<int> get_where(std::string key, std::string value){
