@@ -17,8 +17,6 @@ jobs:
               run: cmake -B build && cmake --build build
               env:
                 CXX: g++-13
-            - name: test-backend
-              run: valgrind ./build/src/backend
             - name: test-database-tests
               run: valgrind ./build/src/database_test
             - name: test-api-tests

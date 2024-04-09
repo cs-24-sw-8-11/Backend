@@ -166,7 +166,7 @@ class Table {
             return size;
 
         }
-        void add(std::vector<std::string> keys, std::vector<std::string> values){
+        int add(std::vector<std::string> keys, std::vector<std::string> values){
             std::string qs = "?";
             std::string keystring = keys[0];
             for(auto i = 1; i < keys.size(); i++){
@@ -174,15 +174,21 @@ class Table {
                 keystring += ", ";
                 keystring += keys[i];
             }
-            auto sql = std::format("INSERT INTO {} ({}) VALUES ({})", this->name, keystring, qs);
+            auto sql = std::format("INSERT INTO {0} ({1}) VALUES ({2});", this->name, keystring, qs);
+            auto sql2 = std::format("SELECT id FROM {0} ORDER BY id DESC LIMIT 1", this->name);
             SQLite::Statement query(*(this->db), sql);
+            SQLite::Statement query2(*(this->db), sql2);
             for(auto i = 0; i < values.size(); i++){
                 query.bind(i+1, values[i]);
             }
+            int id = -1;
             try{
                 query.exec();
+                query2.executeStep();
+                id = query2.getColumn("id").getInt();
             }
             EXCEPTION_HANDLER;
+            return id;
         }
 
         std::vector<int> get_where(std::string key, std::string value){
