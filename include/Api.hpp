@@ -141,7 +141,6 @@ class API {
             auto comment = z["comment"].get<std::string>();
             auto userid = UserIdFromToken(token);
             if(authedUsers[userid] == token){
-
                 auto data = z.at("data").items();
                 auto journalid = db->journals->add({"comment","userId"}, {comment, std::format("{}",userid)});
                 for(auto i = data.begin(); i != data.end(); ++i){
@@ -163,6 +162,7 @@ class API {
                 return x;
             }
             x["comment"] = db->journals->get(id)["comment"];
+            x["userId"] = db->journals->get(id)["userId"];
             x["answers"] = db->answers->get_where("journalId", std::format("{}",id));
             return x;
         });
