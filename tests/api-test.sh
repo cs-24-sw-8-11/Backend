@@ -56,6 +56,7 @@ curl -X 'POST' -d "{\"token\":\"$token\", \"settings\":{\"key\":\"modified\", \"
 # /settings/get/<uid>
 settings=$(curl -X 'GET' $addr/settings/get/$uid)
 
+pkill backend
 echo "---------------------TEST COMPLETE---------------------"
 # verify if all data is intact
 verify(){
