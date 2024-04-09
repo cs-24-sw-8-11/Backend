@@ -93,7 +93,7 @@ class API {
             auto password = x["password"].s();
             auto alreadyRegistered = db->users->get_where("username",username).size() > 0;
             if(username.size() > 0 && password.size() > 0 && !alreadyRegistered){ // we dont want empty usernames and passwords
-                auto userid = db->users->add({"username", "password"},{username, password});
+                auto userid = db->users->add({"username", "password", "state"},{username, password, db_int(TRAINING)});
                 auto userdataid = db->userdata->add({"agegroup","occupation","userId"},{"18-24","school",std::format("{}", userid)});
                 db->users->modify(userid, {"userdataId"},{std::format("{}", userdataid)});
                 DefaultSettings(userid);
