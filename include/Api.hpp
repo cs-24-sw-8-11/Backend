@@ -191,7 +191,26 @@ class API {
                 return crow::response(403);
             }
         });
-        
+        CROW_ROUTE(app, "/answers/get/<int>/<string>")([&](int answerid, std::string token){
+            crow::json::wvalue x({});
+            if (answerid < 0){
+                x["error"] = "Invalid id";
+                return x;
+            }
+            auto answer = db->answers->get(answerid);
+            auto allowedToGetAnswer = authedUsers[std::stoi(db->journals->get(std::stoi(answer["journalId"]))["userId"])] == token;
+            if(allowedToGetAnswer){
+                x["id"] = answerid;
+                x["answer"] = answer["answer"];
+                x["journalId"] = answer["journalId"];
+                x["questionId"] = answer["questionId"];
+            }
+            else{
+                x["error"] = "Not allowed to get other users' answers!";
+            }
+            
+            return x;
+        });
         CROW_ROUTE(app, "/settings/get/<int>")
         ([&](int userid) {
             std::vector<crow::json::wvalue> vec;
