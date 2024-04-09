@@ -21,6 +21,7 @@ int main(int argc, char* argv[]){
         .nargs(1);
     program.add_argument("--port", "-p")
         .help("Specify the port for the API")
+        .scan<'d', int>()
         .default_value(8080)
         .nargs(1);
 
