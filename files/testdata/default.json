@@ -8,5 +8,5 @@
         "What is your occupation?",
         "Do you have children?"
     ],
-    "addr":"http://localhost:8080"
+    "port":"8080"
 }
