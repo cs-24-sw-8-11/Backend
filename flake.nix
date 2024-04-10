@@ -27,6 +27,10 @@
                 hash = "sha256-/ta8ZseNghLOOKIa4oX0QyxWK/NcNc7s7alNRkddtDI=";
                 fetchSubmodules = true;
             };
+            installPhase = ''
+                mkdir -p $out/bin
+                cp bin/backend $out/bin/backend
+            '';
             nativeBuildInputs = [ pkgs.cmake pkgs.gcc ];
         };
 
