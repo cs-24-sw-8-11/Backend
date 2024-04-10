@@ -18,10 +18,10 @@ jobs:
               env:
                 CXX: g++-13
             - name: test-database-tests
-              run: valgrind ./build/src/database_test
+              run: valgrind ./build/bin/database_test
             - name: test-api-tests
-              run: valgrind ./build/src/api_test
+              run: valgrind ./build/bin/api_test
             - name: test-questionare-tests
-              run: valgrind ./build/src/questionaire_test
+              run: valgrind ./build/bin/questionaire_test
             - name: test-predictions-test
-              run: valgrind ./build/src/predictions_test
+              run: valgrind ./build/bin/predictions_test
