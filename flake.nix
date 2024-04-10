@@ -27,7 +27,7 @@
                 hash = "sha256-lxewBXvm1jCP6lYFtGL57CIknYvEXD+8N0Ktfk4Mgcc=";
                 fetchSubmodules = true;
             };
-            buildInputs = [ pkgs.cmake pkgs.gcc ];
+            nativeBuildInputs = [ pkgs.cmake pkgs.gcc ];
         };
 
     in {
@@ -39,6 +39,7 @@
                 backend
                 pkgs.sqlite
                 pkgs.sqlite-interactive
+                pkgs.cmake
             ];
         };
         packages.default = backend;
