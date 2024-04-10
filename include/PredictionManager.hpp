@@ -48,8 +48,6 @@ std::function<T(T)> calculate_regression(std::vector<T> xs, std::vector<T> ys){
     return [=](T x){ return intercept + (slope * x); };
 }
 
-
-
 class PredictionBuilder {
     double prediction_value = 0.5;
     std::vector<std::pair<std::string, double>> valued_data;
@@ -78,7 +76,6 @@ class PredictionBuilder {
 
             return mean(normalized);
         }
-        
 };
 
 class PredictionManager {
