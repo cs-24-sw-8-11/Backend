@@ -42,6 +42,6 @@
                 pkgs.cmake
             ];
         };
-        packages.default = backend;
+        packages.${system}.default = backend;
     };
 }
