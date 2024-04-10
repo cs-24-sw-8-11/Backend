@@ -42,9 +42,11 @@
                 pkgs.cmake
             ];
         };
-        packages.${system}.default = backend;
-        packages.${system}.compile = compile;
-        packages.${system}.run = run;
-        packages.${system}.test = test;
+        packages.${system} = {
+            default = backend;
+            compile = compile;
+            run = run;
+            test = test;
+        };
     };
 }
