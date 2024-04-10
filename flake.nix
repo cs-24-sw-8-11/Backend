@@ -22,9 +22,9 @@
             name = "Backend";
             pname = "Backend";
             src = pkgs.fetchgit {
-                rev = "6fe8a6c";
+                rev = "5e8face";
                 url = "https://github.com/cs-24-sw-8-11/Backend";
-                hash = "sha256-lxewBXvm1jCP6lYFtGL57CIknYvEXD+8N0Ktfk4Mgcc=";
+                hash = "sha256-/ta8ZseNghLOOKIa4oX0QyxWK/NcNc7s7alNRkddtDI=";
                 fetchSubmodules = true;
             };
             nativeBuildInputs = [ pkgs.cmake pkgs.gcc ];
@@ -42,6 +42,9 @@
                 pkgs.cmake
             ];
         };
-        packages.default = backend;
+        packages.${system}.default = backend;
+        packages.${system}.compile = compile;
+        packages.${system}.run = run;
+        packages.${system}.test = test;
     };
 }
