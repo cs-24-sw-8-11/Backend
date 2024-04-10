@@ -44,7 +44,9 @@ int main(){
     PredictionTest test;
     test.add_test("add-valued-data", [&](){ 
         auto uid = 1;
-        auto data = make_range<std::pair<std::string, double>>(num_entries, [](int i){return std::make_pair(std::format("{}", i), i/num_entries);});
+        auto data = make_range<std::pair<std::string, double>>(num_entries, [](int i){
+            return std::make_pair(std::format("{}", i), i/num_entries);
+        });
         auto predictionBuilder = test.manager.create_new_prediction(uid);
         for(auto [name, value] : data){
             predictionBuilder.add_valued_data(name, value);
@@ -53,7 +55,9 @@ int main(){
     });
     test.add_test("add-boolean-data", [&](){
         auto uid = 1;
-        auto data = make_range<std::pair<std::string, bool>>(num_entries, [](int i){return std::make_pair(std::format("{}", i), i%2==0);});
+        auto data = make_range<std::pair<std::string, bool>>(num_entries, [](int i){
+            return std::make_pair(std::format("{}", i), i%2==0);
+        });
         auto predictionBuilder = test.manager.create_new_prediction(uid);
         for(auto [name, value] : data){
             predictionBuilder.add_boolean_data(name, value);
@@ -62,7 +66,9 @@ int main(){
     });
     test.add_test("run-prediction", [&](){
         auto uid = 1;
-        auto data = make_range<std::pair<std::string, bool>>(num_entries, [](int i){return std::make_pair(std::format("{}", i), true);});
+        auto data = make_range<std::pair<std::string, bool>>(num_entries, [](int i){
+            return std::make_pair(std::format("{}", i), true);
+        });
 
         auto predictionBuilder = test.manager.create_new_prediction(uid);
         for(auto [name, value] : data){
