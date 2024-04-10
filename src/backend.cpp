@@ -1,7 +1,12 @@
 #include <iostream>
 #include <argparse/argparse.hpp>
 
-#include "Database.hpp"
+#include "Api.hpp"
+void DefaultQuestion(std::string path){
+    std::shared_ptr<Database> db;
+    db = std::make_shared<Database>(path);
+    db->questions->add({"type", "tags", "question"},{"1","default","How stressed were you today?"});
+}
 
 int main(int argc, char* argv[]){
     argparse::ArgumentParser program("backend");
@@ -12,9 +17,14 @@ int main(int argc, char* argv[]){
 
     program.add_argument("--database", "-d")
         .help("Specify the path to the SQLite database")
-        .default_value("/tmp/db.db3")
+        .default_value("db.db3")
         .nargs(1);
-    
+    program.add_argument("--port", "-p")
+        .help("Specify the port for the API")
+        .scan<'d', int>()
+        .default_value(8080)
+        .nargs(1);
+
     try{
         program.parse_args(argc, argv);
     }
@@ -27,5 +37,8 @@ int main(int argc, char* argv[]){
     }
 
     auto path = program.get<std::string>("--database");
-    Database db(path);
+    auto port = program.get<int>("--port");
+    DefaultQuestion(path);
+    API api(path);
+    api.Run(port);
 }

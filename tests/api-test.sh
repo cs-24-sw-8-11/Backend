@@ -1,27 +1,39 @@
-addr="$(cat ./files/testdata/default.json | jq -r .addr)"
+addr="http://localhost:$(cat ./files/testdata/default.json | jq -r .port)"
 username="$(cat ./files/testdata/default.json | jq -r .user.username)"
 password="$(cat ./files/testdata/default.json | jq -r .user.password)"
-authjson="{"username":"$username", "password": "$password"}"
+authjson="{\"username\":\"$username\", \"password\": \"$password\"}"
+
+# start phase
+build/src/backend --port "$(cat ./files/testdata/default.json | jq -r .port)" &
+sleep 1
+
 
 # /register
-curl -X 'POST' -d "$authjson" $addr/register
+curl -X 'POST' -d "$authjson" $addr/user/register
 
 # /auth
-token=$(curl -X 'POST' -d "$authjson" $addr/auth)
+token=$(curl -X 'POST' -d "$authjson" $addr/user/auth)
 
 # /user/ids/<n-m>
-ids=$(curl -X 'GET' $addr/ids)
+ids=$(curl -X 'GET' $addr/user/ids)
 # get the one user id
 uid=$(echo "$ids" | jq -r .[0])
 
 # /user/data/update
-curl -X 'POST' -d "{\"token\":\"$token\", \"data\":{}}" $addr/user/data/update
+curl -X 'POST' -d "{\"token\":\"$token\", \"data\":{\"agegroup\":\"42-69\", \"occupation\":\"school\"}}" $addr/user/data/update
 
 # /user/get/<uid>
 userdata=$(curl -X 'GET' $addr/user/get/$uid)
 
+# /questions/defaults
+questions=$(curl -X 'GET' $addr/questions/defaults)
+qid=$(echo $questions | jq -r .[0].id)
+
+# /questions/get/<tags>
+default_questions=$(curl -X 'GET' $addr/questions/get/default)
+
 # /journals/new
-curl -X 'POST' -d "{\"token\":\"$token\", \"data\":[{\"question\":\"q1\", \"answer\":\"a1\"}]}" $addr/journals/new
+curl -X 'POST' -d "{\"token\":\"$token\", \"comment\":\"Too many exams today.\", \"data\":[{\"question\":\"$qid\", \"answer\":\"Very stressed\"},{\"question\":\"2\", \"answer\":\"a2\"}]}" $addr/journals/new
 
 # /journals/ids/<uid>
 jids=$(curl -X 'GET' $addr/journals/ids/$uid)
@@ -31,21 +43,20 @@ jid=$(echo "$jids" | jq -r .[0])
 # /journals/get/<jid>
 journal=$(curl -X 'GET' $addr/journals/get/$jid)
 
+# /answers/get/<aid>/<token>
+aid=$(echo "$journal" | jq -r .answers[0])
+answer=$(curl -X 'GET' $addr/answers/get/$aid/$token)
+
 # /journals/delete/<uid>/<jid>
-curl -X 'DELETE' $addr/journals/delete/$uid/$jid
+curl -X 'DELETE' $addr/journals/delete/$uid/$jid/$token
 
 # /settings/update
-curl -X 'POST' -d "{\"token\":\"$token\", \"settings\":{\"key\":\"value\", \"key1\": \"value1\"}}" $addr/settings/update
+curl -X 'POST' -d "{\"token\":\"$token\", \"settings\":{\"key\":\"modified\", \"key1\": \"modified1\",\"someKeyThatDoesntExist\": \"somevalue\"}}" $addr/settings/update
 
 # /settings/get/<uid>
 settings=$(curl -X 'GET' $addr/settings/get/$uid)
 
-# /questions/defaults
-questions=$(curl -X 'GET' $addr/questions/defaults)
-
-# /questions/get/<tags>
-default_questions=$(curl -X 'GET' $addr/questions/get/default)
-
+pkill backend
 echo "---------------------TEST COMPLETE---------------------"
 # verify if all data is intact
 verify(){
@@ -63,25 +74,29 @@ verify $password
 echo "authjson:          $authjson"
 verify $authjson
 echo "token:             $token"
-#verify $token
+verify $token
 echo "ids:               $ids"
-#verify $ids
+verify $ids
 echo "uid:               $uid"
-#verify $uid
+verify $uid
 echo "userdata:          $userdata"
-#verify $userdata
+verify $userdata
 echo "jids:              $jids"
-#verify $jids
+verify $jids
 echo "jid:               $jid"
-#verify $jid
+verify $jid
 echo "journal:           $journal"
-#verify $journal
+verify $journal
+echo "answer:            $answer"
+verify $answer
 echo "settings:          $settings"
-#verify $settings
+verify $settings
 echo "questions:         $questions"
-#verify $questions
+verify $questions
 echo "default questions: $default_questions"
-#verify $default_questions
+verify $default_questions
+echo "qid:               $qid"
+verify $qid
 
 echo "all tests passed!"
 exit 0
