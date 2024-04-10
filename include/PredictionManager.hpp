@@ -3,7 +3,6 @@
 #include <vector>
 #include <cmath>
 #include <ranges>
-#include <iostream>
 
 // these will be used in later implementations
 #define LOW_STRESS 0
