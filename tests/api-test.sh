@@ -4,7 +4,7 @@ password="$(cat ./files/testdata/default.json | jq -r .user.password)"
 authjson="{\"username\":\"$username\", \"password\": \"$password\"}"
 
 # start phase
-build/src/backend --port "$(cat ./files/testdata/default.json | jq -r .port)" &
+build/bin/backend --port "$(cat ./files/testdata/default.json | jq -r .port)" &
 sleep 1
 
 

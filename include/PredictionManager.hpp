@@ -2,29 +2,50 @@
 #include <string>
 #include <vector>
 #include <cmath>
+#include <ranges>
 
 // these will be used in later implementations
 #define LOW_STRESS 0
 #define MODERATE_STRESS 14
 #define HIGH_STRESS 27
 
-std::vector<double> normalizeCDF(std::vector<double> values){ // https://stackoverflow.com/questions/2328258/cumulative-normal-distribution-function-in-c-c lmao
-    std::vector<double> results;
+template<typename T = double>
+T sum(std::vector<T> values){
+    T result;
+    for(auto value : values){
+        result += value;
+    }
+    return result;
+}
+
+template<typename T = double>
+T mean(std::vector<T> values){
+    return sum(values)/values.size();
+}
+
+template<typename T = double>
+std::vector<T> normalizeCDF(std::vector<T> values){ // https://stackoverflow.com/questions/2328258/cumulative-normal-distribution-function-in-c-c lmao
+    std::vector<T> results;
     for(auto value : values){
         results.push_back(0.5 * erfc(-value * M_SQRT1_2));
     }
     return results;
 }
 
-double sum(std::vector<double> values){
-    double result;
-    for(auto value : values){
-        result += value;
+template<typename T = double>
+std::function<T(T)> calculate_regression(std::vector<T> xs, std::vector<T> ys){
+    auto x_mean = mean(xs);
+    auto y_mean = mean(ys);
+    auto numerator = 0.0;
+    auto denominator = 0.0;
+    for(auto [x, y] : std::ranges::zip_view(xs, ys)){
+        numerator += (x-x_mean) * (y-y_mean);
+        denominator += pow(x - x_mean, 2);
     }
-    return result;
-}
-double mean(std::vector<double> values){
-    return sum(values)/values.size();
+    auto slope = numerator / denominator;
+    auto intercept = y_mean - slope * x_mean;
+
+    return [=](T x){ return intercept + (slope * x); };
 }
 
 class PredictionBuilder {
