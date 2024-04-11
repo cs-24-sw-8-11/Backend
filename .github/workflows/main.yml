@@ -21,6 +21,7 @@ jobs:
           uses: lukka/run-cmake@v3
 
     test-all:
+        needs: build
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4.1.1
@@ -33,6 +34,7 @@ jobs:
             - name: test-all
               run: ctest --test-dir build
     valgrind:
+        needs: build
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4.1.1
@@ -47,6 +49,7 @@ jobs:
             - name: test-predictions-test
               run: valgrind ./build/bin/predictions_test
     api-test:
+        needs: build
         runs-on: ubuntu-latest
         steps:
             - uses: actions-checkout@v4.1.1
