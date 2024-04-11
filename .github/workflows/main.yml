@@ -18,7 +18,7 @@ jobs:
           with:
               create-symlink: true
         - name: build
-          uses: lukka/run-cmake@v3
+          run: cmake -B ccache && cmake --build ccache
 
     test-all:
         needs: build
@@ -27,12 +27,13 @@ jobs:
             - uses: actions/checkout@v4.1.1
               with:
                 submodules: recursive
+            - uses: hendrikmuhs/ccache-action@v1.2.11
             - name: setup-env
               run: sudo apt install cmake sqlite3 gcc
             - name: build
-              uses: lukka/run-cmake@v3
+              run: cmake -B ccache && cmake --build ccache
             - name: test-all
-              run: ctest --test-dir build
+              run: ctest --test-dir ccache
     valgrind:
         needs: build
         runs-on: ubuntu-latest
@@ -40,14 +41,19 @@ jobs:
             - uses: actions/checkout@v4.1.1
               with:
                 submodules: recursive
+            - uses: hendrikmuhs/ccache-action@v1.2.11
             - name: setup-env
-              uses: lukka/run-cmake@v3
+              run: sudo apt install cmake sqlite3 gcc valgrind
+            - name: build
+              run: cmake -B ccache && cmake --build ccache
+              env:
+                CXX: g++-13
             - name: test-database-tests
-              run: valgrind ./build/bin/database_test
+              run: valgrind ./ccache/bin/database_test
             - name: test-questionaire-tests
-              run: valgrind ./build/bin/questionaire_test
+              run: valgrind ./ccache/bin/questionaire_test
             - name: test-predictions-test
-              run: valgrind ./build/bin/predictions_test
+              run: valgrind ./ccache/bin/predictions_test
     api-test:
         needs: build
         runs-on: ubuntu-latest
@@ -55,9 +61,12 @@ jobs:
             - uses: actions/checkout@v4.1.1
               with:
                 submodules: recursive
+            - uses: hendrikmuhs/ccache-action@v1.2.11
             - name: setup-env
               run: sudo apt install cmake sqlite3 gcc curl jq
             - name: build
-              uses: lukka/run-cmake@v3
+              run: cmake -B ccache && cmake --build ccache
+              env:
+                  CXX: g++-13
             - name: run-test
-              run: bash ./tests/api-test.sh
+              run: bash ./tests/api-test.sh ccache
