@@ -21,6 +21,8 @@ jobs:
               create-symlink: true
         - name: build
           run: cmake -B ccache && cmake --build ccache
+          env:
+              CXX: g++-13
 
     test-all:
         needs: build
