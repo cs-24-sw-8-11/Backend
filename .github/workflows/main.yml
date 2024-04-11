@@ -29,8 +29,6 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4.1.1
-              with:
-                submodules: recursive
             - uses: hendrikmuhs/ccache-action@v1.2.11
               with:
                 create-symlink: true
@@ -43,8 +41,6 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4.1.1
-              with:
-                submodules: recursive
             - uses: hendrikmuhs/ccache-action@v1.2.11
               with:
                 create-symlink: true
@@ -61,8 +57,6 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4.1.1
-              with:
-                submodules: recursive
             - uses: hendrikmuhs/ccache-action@v1.2.11
               with:
                 create-symlink: true
