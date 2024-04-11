@@ -27,6 +27,9 @@ class API {
                 return x;
             }
             for(auto key : user.keys()){
+                if(key == "password"){
+                    continue;
+                }
                 x[key] = user[key];
             }
             for(auto key : userdata.keys()){
