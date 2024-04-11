@@ -7,6 +7,19 @@ on:
         branches: [main]
 
 jobs:
+    build:
+      runs-on: ubuntu-latest
+      steps:
+        - name: install dependencies
+          run: sudo apt install cmake sqlite3 gcc
+        - uses: actions/checkout@v4.1.1
+        - name: ccache
+          uses: hendrikmuhs/ccache-action@v1.2.11
+          with:
+              create-symlink: true
+        - name: build
+          uses: lukka/run-cmake@v3
+
     test-all:
         runs-on: ubuntu-latest
         steps:
@@ -16,8 +29,32 @@ jobs:
             - name: setup-env
               run: sudo apt install cmake sqlite3 gcc
             - name: build
-              run: cmake -B build && cmake --build build
-              env:
-                CXX: g++-13
+              uses: lukka/run-cmake@v3
             - name: test-all
               run: ctest --test-dir build
+    valgrind:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4.1.1
+              with:
+                submodules: recursive
+            - name: setup-env
+              uses: lukka/run-cmake@v3
+            - name: test-database-tests
+              run: valgrind ./build/bin/database_test
+            - name: test-questionaire-tests
+              run: valgrind ./build/bin/questionaire_test
+            - name: test-predictions-test
+              run: valgrind ./build/bin/predictions_test
+    api-test:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions-checkout@v4.1.1
+              with:
+                submodules: recursive
+            - name: setup-env
+              run: sudo apt install cmake sqlite3 gcc curl jq
+            - name: build
+              uses: lukka/run-cmake@v3
+            - name: run-test
+              run: bash ./tests/api-test.sh
