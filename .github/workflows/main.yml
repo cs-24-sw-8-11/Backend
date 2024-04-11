@@ -32,6 +32,7 @@ jobs:
             - uses: hendrikmuhs/ccache-action@v1.2.11
               with:
                 create-symlink: true
+                save: false
             - name: setup-env
               run: sudo apt install sqlite3
             - name: test-all
@@ -44,6 +45,7 @@ jobs:
             - uses: hendrikmuhs/ccache-action@v1.2.11
               with:
                 create-symlink: true
+                save: false
             - name: setup-env
               run: sudo apt install sqlite3 valgrind
             - name: test-database-tests
@@ -60,6 +62,7 @@ jobs:
             - uses: hendrikmuhs/ccache-action@v1.2.11
               with:
                 create-symlink: true
+                save: false
             - name: setup-env
               run: sudo apt install sqlite3 curl jq
             - name: run-test
