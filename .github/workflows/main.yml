@@ -13,6 +13,8 @@ jobs:
         - name: install dependencies
           run: sudo apt install cmake sqlite3 gcc
         - uses: actions/checkout@v4.1.1
+          with:
+              submodules: recursive
         - name: ccache
           uses: hendrikmuhs/ccache-action@v1.2.11
           with:
