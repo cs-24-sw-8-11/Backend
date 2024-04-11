@@ -35,7 +35,7 @@ jobs:
               with:
                 create-symlink: true
             - name: setup-env
-              run: sudo apt install cmake sqlite3 gcc
+              run: sudo apt install sqlite3
             - name: test-all
               run: ctest --test-dir .ccache
     valgrind:
@@ -49,7 +49,7 @@ jobs:
               with:
                 create-symlink: true
             - name: setup-env
-              run: sudo apt install cmake sqlite3 gcc valgrind
+              run: sudo apt install sqlite3 valgrind
             - name: test-database-tests
               run: valgrind ./.ccache/bin/database_test
             - name: test-questionaire-tests
@@ -67,6 +67,6 @@ jobs:
               with:
                 create-symlink: true
             - name: setup-env
-              run: sudo apt install cmake sqlite3 gcc curl jq
+              run: sudo apt install sqlite3 curl jq
             - name: run-test
               run: bash ./tests/api-test.sh .ccache
