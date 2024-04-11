@@ -19,8 +19,6 @@ jobs:
           uses: hendrikmuhs/ccache-action@v1.2.11
           with:
             create-symlink: true
-        - name: ls
-          run: ls -l && ccache --help
         - name: build
           run: cmake -B .ccache && cmake --build .ccache
           env:
@@ -36,8 +34,6 @@ jobs:
             - uses: hendrikmuhs/ccache-action@v1.2.11
               with:
                 create-symlink: true
-            - name: ls
-              run: ls -l
             - name: setup-env
               run: sudo apt install cmake sqlite3 gcc
             - name: test-all
@@ -52,8 +48,6 @@ jobs:
             - uses: hendrikmuhs/ccache-action@v1.2.11
               with:
                 create-symlink: true
-            - name: ls
-              run: ls -l
             - name: setup-env
               run: sudo apt install cmake sqlite3 gcc valgrind
             - name: test-database-tests
@@ -72,8 +66,6 @@ jobs:
             - uses: hendrikmuhs/ccache-action@v1.2.11
               with:
                 create-symlink: true
-            - name: ls
-              run: ls -l
             - name: setup-env
               run: sudo apt install cmake sqlite3 gcc curl jq
             - name: run-test
