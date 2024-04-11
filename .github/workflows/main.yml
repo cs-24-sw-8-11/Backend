@@ -34,10 +34,6 @@ jobs:
             - uses: hendrikmuhs/ccache-action@v1.2.11
             - name: setup-env
               run: sudo apt install cmake sqlite3 gcc
-            - name: build
-              run: cmake -B ccache && cmake --build ccache
-              env:
-                CXX: g++-13
             - name: test-all
               run: ctest --test-dir ccache
     valgrind:
@@ -50,10 +46,6 @@ jobs:
             - uses: hendrikmuhs/ccache-action@v1.2.11
             - name: setup-env
               run: sudo apt install cmake sqlite3 gcc valgrind
-            - name: build
-              run: cmake -B ccache && cmake --build ccache
-              env:
-                CXX: g++-13
             - name: test-database-tests
               run: valgrind ./ccache/bin/database_test
             - name: test-questionaire-tests
@@ -70,9 +62,5 @@ jobs:
             - uses: hendrikmuhs/ccache-action@v1.2.11
             - name: setup-env
               run: sudo apt install cmake sqlite3 gcc curl jq
-            - name: build
-              run: cmake -B ccache && cmake --build ccache
-              env:
-                  CXX: g++-13
             - name: run-test
               run: bash ./tests/api-test.sh ccache
