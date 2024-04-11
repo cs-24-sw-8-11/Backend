@@ -36,6 +36,8 @@ jobs:
               run: sudo apt install cmake sqlite3 gcc
             - name: build
               run: cmake -B ccache && cmake --build ccache
+              env:
+                CXX: g++-13
             - name: test-all
               run: ctest --test-dir ccache
     valgrind:
