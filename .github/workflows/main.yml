@@ -32,6 +32,8 @@ jobs:
               with:
                 submodules: recursive
             - uses: hendrikmuhs/ccache-action@v1.2.11
+              with:
+                create-symlink: true
             - name: setup-env
               run: sudo apt install cmake sqlite3 gcc
             - name: test-all
@@ -44,6 +46,8 @@ jobs:
               with:
                 submodules: recursive
             - uses: hendrikmuhs/ccache-action@v1.2.11
+              with:
+                create-symlink: true
             - name: setup-env
               run: sudo apt install cmake sqlite3 gcc valgrind
             - name: test-database-tests
@@ -60,6 +64,8 @@ jobs:
               with:
                 submodules: recursive
             - uses: hendrikmuhs/ccache-action@v1.2.11
+              with:
+                create-symlink: true
             - name: setup-env
               run: sudo apt install cmake sqlite3 gcc curl jq
             - name: run-test
