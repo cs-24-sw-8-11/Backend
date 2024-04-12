@@ -30,7 +30,7 @@ class API {
             auto user = db->users->get(id);
             auto userdata = db->userdata->get(db->userdata->get_where(
                 "userId",
-                std::format("{}", id)).front());
+                db_int(id)).front());
             if (id < 0) {
                 x["error"] = "Invalid id";
                 return x;
@@ -127,8 +127,8 @@ class API {
                 auto userdataid = db->userdata->add({
                     "agegroup",
                     "occupation",
-                    "userId"},
-                    {"18-24",
+                    "userId"}, {
+                    "18-24",
                     "school",
                     db_int(userid)});
                 db->users->modify(userid, {"userdataId"}, {db_int(userdataid)});
@@ -178,7 +178,7 @@ class API {
                     "comment",
                     "userId"}, {
                     comment,
-                    std::format("{}", userid)});
+                    db_int(userid)});
                 for (auto i = data.begin(); i != data.end(); ++i) {
                     auto questionId = i.value().back().get<std::string>();
                     auto answer = i.value().front().get<std::string>();
@@ -187,8 +187,7 @@ class API {
                         "journalId",
                         "questionId"}, {
                         answer,
-                        std::format("{}",
-                        journalid), questionId});
+                        db_int(journalid), questionId});
                 }
                 return crow::response(200, "Successfully created new journal.");
             } else {
@@ -210,7 +209,7 @@ class API {
             }
             x["answers"] = db->answers->get_where(
                 "journalId",
-                std::format("{}", jid));
+                db_int(jid));
             return x;
         });
         // user id
@@ -223,7 +222,7 @@ class API {
             }
             auto journals = db->journals->get_where(
                 "userId",
-                std::format("{}", uid));
+                db_int(uid));
             // Funky solution to make it only return json array
             x = std::move(journals);
             return std::move(x);
@@ -268,7 +267,7 @@ class API {
             }
             auto settings = db->settings->get_where(
                 "userId",
-                std::format("{}", userid));
+                db_int(userid));
             for (auto setting : settings) {
                 crow::json::wvalue z({});
                 auto row = db-> settings->get(setting);
