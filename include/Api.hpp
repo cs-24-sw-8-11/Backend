@@ -108,7 +108,7 @@ class API {
                 return crow::response(200, "Successfully registered!");
             }
             else{
-                return crow::response(400, "Empty username/password or already registered username.");
+                return crow::response(400, "Username already taken!");
             }
         });
         CROW_ROUTE(app, "/user/data/update")
