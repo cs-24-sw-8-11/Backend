@@ -1,8 +1,11 @@
+#pragma once
+
+#include <ranges>
 #include <cstddef>
 #include <string>
 #include <vector>
 #include <cmath>
-#include <ranges>
+#include <utility>
 
 // these will be used in later implementations
 #define LOW_STRESS 0
@@ -10,35 +13,35 @@
 #define HIGH_STRESS 27
 
 template<typename T = double>
-T sum(std::vector<T> values){
+T sum(std::vector<T> values) {
     T result;
-    for(auto value : values){
+    for (auto value : values) {
         result += value;
     }
     return result;
 }
 
 template<typename T = double>
-T mean(std::vector<T> values){
+T mean(std::vector<T> values) {
     return sum(values)/values.size();
 }
 
 template<typename T = double>
-std::vector<T> normalizeCDF(std::vector<T> values){ // https://stackoverflow.com/questions/2328258/cumulative-normal-distribution-function-in-c-c lmao
+std::vector<T> normalizeCDF(std::vector<T> values) {
     std::vector<T> results;
-    for(auto value : values){
+    for (auto value : values) {
         results.push_back(0.5 * erfc(-value * M_SQRT1_2));
     }
     return results;
 }
 
 template<typename T = double>
-std::function<T(T)> calculate_regression(std::vector<T> xs, std::vector<T> ys){
+std::function<T(T)> calculate_regression(std::vector<T> xs, std::vector<T> ys) {
     auto x_mean = mean(xs);
     auto y_mean = mean(ys);
     auto numerator = 0.0;
     auto denominator = 0.0;
-    for(auto [x, y] : std::ranges::zip_view(xs, ys)){
+    for (auto [x, y] : std::ranges::zip_view(xs, ys)) {
         numerator += (x-x_mean) * (y-y_mean);
         denominator += pow(x - x_mean, 2);
     }
@@ -52,36 +55,37 @@ class PredictionBuilder {
     double prediction_value = 0.5;
     std::vector<std::pair<std::string, double>> valued_data;
     std::vector<std::pair<std::string, bool>> boolean_data;
-    public:
-        void add_valued_data(std::string qid, double data){
-            valued_data.push_back(std::make_pair(qid, data));
-        }
-        void add_boolean_data(std::string qid, bool data){
-            boolean_data.push_back(std::make_pair(qid, data));
-        }
-        size_t size(){
-            return valued_data.size() + boolean_data.size();
-        }
-        double build(){
-            // The most important step here is to normalize the data such that the stress factor is within the range
-            std::vector<double> final_data;
-            for(auto pair : valued_data){
-                final_data.push_back(pair.second);
-            }
-            for(auto pair : boolean_data){
-                final_data.push_back(pair.second ? 1.0 : 0.0);
-            }
-            // now we normalize
-            auto normalized = normalizeCDF(final_data);
 
-            return mean(normalized);
+ public:
+    void add_valued_data(std::string qid, double data) {
+        valued_data.push_back(std::make_pair(qid, data));
+    }
+    void add_boolean_data(std::string qid, bool data) {
+        boolean_data.push_back(std::make_pair(qid, data));
+    }
+    size_t size() {
+        return valued_data.size() + boolean_data.size();
+    }
+    double build() {
+        // The most important step here is to normalize the data
+        // such that the stress factor is within the range
+        std::vector<double> final_data;
+        for (auto pair : valued_data) {
+            final_data.push_back(pair.second);
         }
+        for (auto pair : boolean_data) {
+            final_data.push_back(pair.second ? 1.0 : 0.0);
+        }
+        // now we normalize
+        auto normalized = normalizeCDF(final_data);
+        return mean(normalized);
+    }
 };
 
 class PredictionManager {
-    public:
-        PredictionBuilder create_new_prediction(int uid){
-            PredictionBuilder builder;
-            return builder;
-        }
+ public:
+    PredictionBuilder create_new_prediction(int uid) {
+        PredictionBuilder builder;
+        return builder;
+    }
 };

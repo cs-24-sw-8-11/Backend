@@ -2,15 +2,21 @@
 #include <argparse/argparse.hpp>
 
 #include "Api.hpp"
-void DefaultQuestion(std::string path){
+
+void DefaultQuestion(std::string path) {
     std::shared_ptr<Database> db;
     db = std::make_shared<Database>(path);
-    if(db->questions->get_where("tags","default").size() == 0){
-        db->questions->add({"type", "tags", "question"},{"1","default","How stressed were you today?"});
+    if (db->questions->get_where("tags", "default").size() == 0) {
+        db->questions->add({"type",
+            "tags",
+            "question"}, {
+            "1",
+            "default",
+            "How stressed were you today?"});
     }
 }
 
-int main(int argc, char* argv[]){
+int main(int argc, char* argv[]) {
     argparse::ArgumentParser program("backend");
     program.add_argument("-v", "--verbose")
         .help("Increase verbosity")
@@ -27,14 +33,14 @@ int main(int argc, char* argv[]){
         .default_value(8080)
         .nargs(1);
 
-    try{
+    try {
         program.parse_args(argc, argv);
     }
-    catch(const std::exception& e){
+    catch (const std::exception& e) {
         std::cerr << "argparse pooped itself, exiting..." << std::endl;
         exit(1);
     }
-    if(program["--verbose"] == true){
+    if (program["--verbose"] == true) {
         std::cout << "Verbosity enabled" << std::endl;
     }
 

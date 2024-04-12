@@ -17,6 +17,10 @@
         test = pkgs.writeScriptBin "test-project" ''
             ${pkgs.cmake}/bin/ctest --test-dir ${build-dir} $@
         '';
+        fmt-project = pkgs.writeScriptBin "fmt-project" ''
+            ${pkgs.cpplint}/bin/cpplint --filter='-legal/copyright' --recursive include src
+
+        '';
 
         backend = pkgs.stdenv.mkDerivation {
             name = "Backend";
@@ -40,6 +44,7 @@
                 compile
                 run
                 test
+                fmt-project
                 backend
                 pkgs.sqlite
                 pkgs.sqlite-interactive
