@@ -85,6 +85,9 @@ class API {
             }
             auto username = x["username"].s();
             auto password = x["password"].s();
+            if(db->users->get_where("username",username).size() == 0){
+                return crow::response(403, "Invalid Credentials!");
+            }
             auto dbpassword = db->users->get(db->users->get_where(
                 "username",
                 username).front())["password"];
