@@ -5,12 +5,14 @@
 #include <string>
 #include "Database.hpp"
 #include <nlohmann/json.hpp>
+#include "PredictionManager.hpp"
 
 class API {
    public:
     crow::SimpleApp app;
     std::shared_ptr<Database> db;
     std::map<int, std::string> authedUsers;
+    PredictionManager manager;
 
     API(std::string path) {
         db = std::make_shared<Database>(path);
@@ -106,7 +108,7 @@ class API {
                 return crow::response(200, "Successfully registered!");
             }
             else{
-                return crow::response(400, "Empty username/password or already registered username.");
+                return crow::response(400, "Username already taken!");
             }
         });
         CROW_ROUTE(app, "/user/data/update")
@@ -159,17 +161,17 @@ class API {
             }
         });
         CROW_ROUTE(app, "/journals/get/<int>") //journal id
-        ([&](int id) {
+        ([&](int jid) {
             crow::json::wvalue x({});
-            if (id < 0){
+            if (jid < 0){
                 x["error"] = "Invalid id";
                 return x;
             }
-            auto journal = db->journals->get(id);
+            auto journal = db->journals->get(jid);
             for(auto key : journal.keys()){
                 x[key] = journal[key];
             }
-            x["answers"] = db->answers->get_where("journalId", std::format("{}",id));
+            x["answers"] = db->answers->get_where("journalId", std::format("{}",jid));
             return x;
         });
         
@@ -299,6 +301,57 @@ class API {
             crow::json::wvalue wv;
             wv = std::move(vec);
             return std::move(wv);
+        });
+        CROW_ROUTE(app, "/predictions/get/<int>/<string>")
+        ([&](int uid, std::string token) {
+            if (uid < 0){
+                return crow::json::wvalue({{"error","Invalid id"}});
+            }
+            std::vector<crow::json::wvalue> vec;
+            auto predictions = db->predictions->get_where("userId", std::format("{}",uid));
+            if(authedUsers[uid] == token){
+                for(auto prediction : predictions){
+                    auto row = db->predictions->get(prediction);
+                    crow::json::wvalue x({});
+                    for(auto key : row.keys()){
+                        x[key] = row[key];
+                    }
+                    vec.push_back(x);
+                }
+            }
+            else{
+                return crow::json::wvalue({{"error","Not allowed to access other users' predictions!"}});
+            }
+            crow::json::wvalue wv;
+            wv = std::move(vec);
+            return std::move(wv);
+        });
+        CROW_ROUTE(app, "/predictions/add")
+        .methods("POST"_method)([&](const crow::request& req){
+            auto x = crow::json::load(req.body);
+            auto z = nlohmann::json::parse(req.body);
+            if (!x){
+                return crow::response(400, "Unable to load/parse JSON.");
+            }
+            auto token = z["token"].get<std::string>();
+            auto qid = z["questionid"].get<std::string>();
+            auto userid = UserIdFromToken(token);
+            if(authedUsers[userid] == token){
+                auto prediction = manager.create_new_prediction(userid);
+                auto answers = db->answers->get_where("questionId",qid);
+                auto journals = db->journals->get_where("userId", std::format("{}",userid));
+                for (auto answer : answers){
+                    if(std::count(journals.begin(), journals.end(), std::stoi(db->answers->get(answer)["journalId"])) > 0){
+                        prediction.add_valued_data(qid,std::stod(db->answers->get(answer)["answer"]));
+                    }
+                }
+                auto predictionValue = prediction.build();
+                db->predictions->add({"userId","value"},{std::format("{}",userid),std::format("{}",predictionValue)});
+                return crow::response(200,"Successfully added prediction");
+            }
+            else{
+                return crow::response(403, "Token does not match expected value!");
+            }
         });
 
         app.port(port).multithreaded().run();

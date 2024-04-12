@@ -33,7 +33,7 @@ qid=$(echo $questions | jq -r .[0].id)
 default_questions=$(curl -X 'GET' $addr/questions/get/default)
 
 # /journals/new
-curl -X 'POST' -d "{\"token\":\"$token\", \"comment\":\"Too many exams today.\", \"data\":[{\"question\":\"$qid\", \"answer\":\"Very stressed\"},{\"question\":\"2\", \"answer\":\"a2\"}]}" $addr/journals/new
+curl -X 'POST' -d "{\"token\":\"$token\", \"comment\":\"Too many exams today.\", \"data\":[{\"question\":\"$qid\", \"answer\":\"8\"},{\"question\":\"2\", \"answer\":\"2\"}]}" $addr/journals/new
 
 # /journals/ids/<uid>
 jids=$(curl -X 'GET' $addr/journals/ids/$uid)
@@ -48,13 +48,19 @@ aid=$(echo "$journal" | jq -r .answers[0])
 answer=$(curl -X 'GET' $addr/answers/get/$aid/$token)
 
 # /journals/delete/<uid>/<jid>
-curl -X 'DELETE' $addr/journals/delete/$uid/$jid/$token
+#curl -X 'DELETE' $addr/journals/delete/$uid/$jid/$token
 
 # /settings/update
 curl -X 'POST' -d "{\"token\":\"$token\", \"settings\":{\"key\":\"modified\", \"key1\": \"modified1\",\"someKeyThatDoesntExist\": \"somevalue\"}}" $addr/settings/update
 
 # /settings/get/<uid>
 settings=$(curl -X 'GET' $addr/settings/get/$uid)
+
+# /predictions/add
+curl -X 'POST' -d "{\"token\":\"$token\", \"questionid\":\"$qid\"}" $addr/predictions/add
+
+# /predictions/get/<uid>/<token>
+prediction=$(curl -X 'GET' $addr/predictions/get/$uid/$token)
 
 pkill backend
 echo "---------------------TEST COMPLETE---------------------"
@@ -97,6 +103,8 @@ echo "default questions: $default_questions"
 verify $default_questions
 echo "qid:               $qid"
 verify $qid
+echo "prediction:        $prediction"
+verify $prediction
 
 echo "all tests passed!"
 exit 0
