@@ -4,6 +4,8 @@
 
 #include "Table.hpp"
 
+using namespace std;
+
 
 enum QuestionType {
     VALUED,
@@ -15,20 +17,20 @@ enum UserState {
     STANDARD
 };
 // wrappers to make db access easy while keeping types
-std::string db_int(int e) {
-    return std::format("{}", e);
+string db_int(int e) {
+    return format("{}", e);
 }
 
 class Database {
  public:
-    std::shared_ptr<Table> users;
-    std::shared_ptr<Table> journals;
-    std::shared_ptr<Table> answers;
-    std::shared_ptr<Table> questions;
-    std::shared_ptr<Table> settings;
-    std::shared_ptr<Table> userdata;
-    std::shared_ptr<Table> predictions;
-    explicit Database(std::string path){
+    shared_ptr<Table> users;
+    shared_ptr<Table> journals;
+    shared_ptr<Table> answers;
+    shared_ptr<Table> questions;
+    shared_ptr<Table> settings;
+    shared_ptr<Table> userdata;
+    shared_ptr<Table> predictions;
+    explicit Database(string path){
         TableFactory factory{path};
         this->users = factory.create("users", {
             "username VARCHAR UNIQUE NOT NULL",

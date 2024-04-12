@@ -14,19 +14,23 @@
 #include "Database.hpp"
 #include "PredictionManager.hpp"
 
+using namespace crow::json;
+using namespace crow;
+using namespace std;
+
 class API {
  public:
-    crow::SimpleApp app;
-    std::shared_ptr<Database> db;
-    std::map<int, std::string> authedUsers;
+    SimpleApp app;
+    shared_ptr<Database> db;
+    map<int, std::string> authedUsers;
     PredictionManager manager;
-    explicit API(std::string path) {
+    explicit API(string path) {
         db = std::make_shared<Database>(path);
     }
     void Run(int port) {
         CROW_ROUTE(app, "/user/get/<int>")
         ([&](int id) {
-            crow::json::wvalue x({});
+            wvalue x({});
             auto user = db->users->get(id);
             auto userdata = db->userdata->get(db->userdata->get_where(
                 "userId",
@@ -48,7 +52,7 @@ class API {
         });
         CROW_ROUTE(app, "/user/ids/<int>-<int>")
         ([&](int min, int max) {
-            crow::json::wvalue x;
+            wvalue x;
             if (min < 0 || max < 0 || (max-min < 0)) {
                 x["difference"] = max-min;
                 x["max"] = max;
@@ -57,7 +61,7 @@ class API {
                 return x;
             }
             auto users = db->users->get_where();
-            std::vector<int> filteredUsers;
+            vector<int> filteredUsers;
             for (const auto & user : users) {
                 if (user <= max && user >= min) {
                     filteredUsers.push_back(user);
@@ -71,17 +75,17 @@ class API {
         });
         CROW_ROUTE(app, "/user/ids")
         ([&]() {
-            crow::json::wvalue x;
+            wvalue x;
             auto users = db->users->get_where();
             x = std::move(users);
             return std::move(x);
         });
         CROW_ROUTE(app, "/user/auth")
         .methods("POST"_method)
-        ([&](const crow::request& req) {
-            auto x = crow::json::load(req.body);
+        ([&](const request& req) {
+            auto x = load(req.body);
             if (!x) {
-                return crow::response(400, "Unable to load/parse json");
+                return response(400, "Unable to load/parse json");
             }
             auto username = x["username"].s();
             auto password = x["password"].s();
@@ -93,20 +97,20 @@ class API {
                 auto userid = db->users->get_where(
                     "username",
                     username).front();
-                auto hash = Hash((std::string)username, (std::string)password);
-                auto token = std::format("{}", hash);
+                auto hash = Hash((string)username, (string)password);
+                auto token = format("{}", hash);
                 authedUsers[userid] = token;
-                return crow::response(200, token);
+                return response(200, token);
             } else {
-                return crow::response(403, "Invalid Token");
+                return response(403, "Invalid Token");
             }
         });
         CROW_ROUTE(app, "/user/register")
         .methods("POST"_method)
-        ([&](const crow::request& req) {
-            auto x = crow::json::load(req.body);
+        ([&](const request& req) {
+            auto x = load(req.body);
             if (!x) {
-                return crow::response(400, "Unable to load/parse JSON.");
+                return response(400, "Unable to load/parse JSON.");
             }
             auto username = x["username"].s();
             auto password = x["password"].s();
@@ -133,26 +137,26 @@ class API {
                     db_int(userid)});
                 db->users->modify(userid, {"userdataId"}, {db_int(userdataid)});
                 DefaultSettings(userid);
-                return crow::response(200, "Successfully registered!");
+                return response(200, "Successfully registered!");
             } else {
-                return crow::response(400, "Username already taken!");
+                return response(400, "Username already taken!");
             }
         });
         CROW_ROUTE(app, "/user/data/update")
         .methods("POST"_method)
-        ([&](const crow::request& req) {
-            auto x = crow::json::load(req.body);
+        ([&](const request& req) {
+            auto x = load(req.body);
             auto z = nlohmann::json::parse(req.body);
             if (!x) {
-                return crow::response(400, "Unable to load/parse JSON.");
+                return response(400, "Unable to load/parse JSON.");
             }
-            auto token = z["token"].get<std::string>();
+            auto token = z["token"].get<string>();
             auto userid = UserIdFromToken(token);
             if (authedUsers[userid] == token) {
                 auto data = z.at("data");
                 for (auto i = data.begin(); i != data.end(); ++i) {
                     auto key = i.key();
-                    auto value = i.value().front().get<std::string>();
+                    auto value = i.value().front().get<string>();
                     db->userdata->modify(userid, {key}, {value});
                 }
                 return crow::response(200, "Successfully updated user data.");
@@ -163,14 +167,14 @@ class API {
         });
         CROW_ROUTE(app, "/journals/new")
         .methods("POST"_method)
-        ([&](const crow::request& req) {
-            auto x = crow::json::load(req.body);
+        ([&](const request& req) {
+            auto x = load(req.body);
             nlohmann::json z = nlohmann::json::parse(req.body);
             if (!x) {
-                return crow::response(400, "Unable to load/parse JSON.");
+                return response(400, "Unable to load/parse JSON.");
             }
-            auto token = z["token"].get<std::string>();
-            auto comment = z["comment"].get<std::string>();
+            auto token = z["token"].get<string>();
+            auto comment = z["comment"].get<string>();
             auto userid = UserIdFromToken(token);
             if (authedUsers[userid] == token) {
                 auto data = z.at("data").items();
@@ -180,8 +184,8 @@ class API {
                     comment,
                     db_int(userid)});
                 for (auto i = data.begin(); i != data.end(); ++i) {
-                    auto questionId = i.value().back().get<std::string>();
-                    auto answer = i.value().front().get<std::string>();
+                    auto questionId = i.value().back().get<string>();
+                    auto answer = i.value().front().get<string>();
                     db->answers->add({
                         "answer",
                         "journalId",
@@ -189,16 +193,16 @@ class API {
                         answer,
                         db_int(journalid), questionId});
                 }
-                return crow::response(200, "Successfully created new journal.");
+                return response(200, "Successfully created new journal.");
             } else {
-                return crow::response(403,
+                return response(403,
                     "Token does not match expected value!");
             }
         });
         // journal id
         CROW_ROUTE(app, "/journals/get/<int>")
         ([&](int jid) {
-            crow::json::wvalue x({});
+            wvalue x({});
             if (jid < 0) {
                 x["error"] = "Invalid id";
                 return x;
@@ -215,7 +219,7 @@ class API {
         // user id
         CROW_ROUTE(app, "/journals/ids/<int>")
         ([&](int uid) {
-            crow::json::wvalue x({});
+            wvalue x({});
             if (uid < 0) {
                 x["error"] = "Invalid id";
                 return x;
@@ -229,25 +233,25 @@ class API {
         });
         CROW_ROUTE(app, "/journals/delete/<int>/<int>/<string>")
         .methods("DELETE"_method)
-        ([&](int userid, int journalid, std::string token) {
+        ([&](int userid, int journalid, string token) {
             if (authedUsers[userid] == token) {
                 db->journals->delete_item(journalid);
-                return crow::response(202, "Successfully deleted journal.");
+                return response(202, "Successfully deleted journal.");
             } else {
-                return crow::response(403,
+                return response(403,
                     "Token does not match expected value!");
             }
         });
         CROW_ROUTE(app, "/answers/get/<int>/<string>")(
-            [&](int answerid, std::string token){
-            crow::json::wvalue x({});
+            [&](int answerid, string token){
+            wvalue x({});
             if (answerid < 0) {
                 x["error"] = "Invalid id";
                 return x;
             }
             auto answer = db->answers->get(answerid);
-            auto allowedToGetAnswer = authedUsers[std::stoi(db->journals->get(
-                std::stoi(answer["journalId"]))["userId"])] == token;
+            auto allowedToGetAnswer = authedUsers[stoi(db->journals->get(
+                stoi(answer["journalId"]))["userId"])] == token;
             if (allowedToGetAnswer) {
                 for (auto key : answer.keys()) {
                     x[key] = answer[key];
@@ -259,8 +263,8 @@ class API {
         });
         CROW_ROUTE(app, "/settings/get/<int>")
         ([&](int userid) {
-            std::vector<crow::json::wvalue> vec;
-            crow::json::wvalue x({});
+            vector<wvalue> vec;
+            wvalue x({});
             if (userid < 0) {
                 x["error"] = "Invalid id";
                 return x;
@@ -269,26 +273,26 @@ class API {
                 "userId",
                 db_int(userid));
             for (auto setting : settings) {
-                crow::json::wvalue z({});
+                wvalue z({});
                 auto row = db-> settings->get(setting);
                 for (auto key : row.keys()) {
                     z[key] = row[key];
                 }
                 vec.push_back(z);
             }
-            crow::json::wvalue wv;
+            wvalue wv;
             wv = std::move(vec);
             return std::move(wv);
         });
         CROW_ROUTE(app, "/settings/update")
         .methods("POST"_method)
-        ([&](const crow::request& req) {
-            auto x = crow::json::load(req.body);
+        ([&](const request& req) {
+            auto x = json::load(req.body);
             auto z = nlohmann::json::parse(req.body);
             if (!x) {
-                return crow::response(400, "Unable to load/parse JSON.");
+                return response(400, "Unable to load/parse JSON.");
             }
-            auto token = z["token"].get<std::string>();
+            auto token = z["token"].get<string>();
             auto userid = UserIdFromToken(token);
             if (authedUsers[userid] == token) {
                 auto data = z.at("settings");
@@ -297,7 +301,7 @@ class API {
                     db_int(userid));
                 for (auto i = data.begin(); i != data.end(); ++i) {
                     auto key = i.key();
-                    auto value = i.value().front().get<std::string>();
+                    auto value = i.value().front().get<string>();
                     if (!SettingExists(userSettings, key)) {
                         db->settings->add({
                             "key",
@@ -314,79 +318,79 @@ class API {
                         }
                     }
                 }
-                return crow::response(200, "Successfully updated settings.");
+                return response(200, "Successfully updated settings.");
             } else{
-                return crow::response(403,
+                return response(403,
                     "Token does not match expected value!");
             }
         });
         CROW_ROUTE(app, "/questions/defaults")
         ([&]() {
             auto questions = db->questions->get_where("tags", "default");
-            std::vector<crow::json::wvalue> vec;
+            vector<wvalue> vec;
             for (auto i : questions) {
                 auto question = db->questions->get(i);
-                crow::json::wvalue x({});
+                wvalue x({});
                 for (auto key : question.keys()) {
                     x[key] = question[key];
                 }
                 vec.push_back(x);
             }
-            crow::json::wvalue wv;
+            wvalue wv;
             wv = std::move(vec);
             return std::move(wv);
         });
         CROW_ROUTE(app, "/questions/get/<string>")
-        ([&](std::string tag) {
+        ([&](string tag) {
             auto questions = db->questions->get_where("tags", tag);
-            std::vector<crow::json::wvalue> vec;
+            vector<wvalue> vec;
             for (auto i : questions) {
                 auto question = db->questions->get(i);
-                crow::json::wvalue x({});
+                wvalue x({});
                 for (auto key : question.keys()) {
                     x[key] = question[key];
                 }
                 vec.push_back(x);
             }
-            crow::json::wvalue wv;
+            wvalue wv;
             wv = std::move(vec);
             return std::move(wv);
         });
         CROW_ROUTE(app, "/predictions/get/<int>/<string>")
-        ([&](int uid, std::string token) {
+        ([&](int uid, string token) {
             if (uid < 0) {
-                return crow::json::wvalue({{"error", "Invalid id"}});
+                return wvalue({{"error", "Invalid id"}});
             }
-            std::vector<crow::json::wvalue> vec;
+            vector<wvalue> vec;
             auto predictions = db->predictions->get_where(
                 "userId",
                 db_int(uid));
             if (authedUsers[uid] == token) {
                 for (auto prediction : predictions) {
                     auto row = db->predictions->get(prediction);
-                    crow::json::wvalue x({});
+                    wvalue x({});
                     for (auto key : row.keys()) {
                         x[key] = row[key];
                     }
                     vec.push_back(x);
                 }
             } else {
-                return crow::json::wvalue({{"error",
+                return wvalue({{"error",
                     "Not allowed to access other users' predictions!"}});
             }
-            crow::json::wvalue wv;
+            wvalue wv;
             wv = std::move(vec);
             return std::move(wv);
         });
         CROW_ROUTE(app, "/predictions/add")
-        .methods("POST"_method)([&](const crow::request& req){
-            auto x = crow::json::load(req.body);
+        .methods("POST"_method)([&](const request& req){
+            auto x = load(req.body);
             auto z = nlohmann::json::parse(req.body);
             if (!x) {
-                return crow::response(400, "Unable to load/parse JSON.");
+                return response(400, "Unable to load/parse JSON.");
             }
-            auto token = z["token"].get<std::string>();
-            auto qid = z["questionid"].get<std::string>();
+            auto token = z["token"].get<string>();
+            auto qid = z["questionid"].get<string>();
             auto userid = UserIdFromToken(token);
             if (authedUsers[userid] == token) {
                 auto prediction = manager.create_new_prediction(userid);
@@ -398,9 +402,9 @@ class API {
                     if (std::count(
                         journals.begin(),
                         journals.end(),
-                        std::stoi(db->answers->get(answer)["journalId"])) > 0) {
+                        stoi(db->answers->get(answer)["journalId"])) > 0) {
                         prediction.add_valued_data(qid,
-                            std::stod(db->answers->get(answer)["answer"]));
+                            stod(db->answers->get(answer)["answer"]));
                     }
                 }
                 auto predictionValue = prediction.build();
@@ -408,10 +412,10 @@ class API {
                     "userId",
                     "value"}, {
                     db_int(userid),
-                    std::format("{}", predictionValue)});
-                return crow::response(200, "Successfully added prediction");
+                    format("{}", predictionValue)});
+                return response(200, "Successfully added prediction");
             } else {
-                return crow::response(403,
+                return response(403,
                     "Token does not match expected value!");
             }
         });
@@ -439,13 +443,13 @@ class API {
             db_int(userId)});
         // add more settings here
     }
-    int64_t Hash(std::string username, std::string password) {
-        auto hash1 = std::hash<std::string>{}(username);
-        auto hash2 = std::hash<std::string>{}(password);
+    int64_t Hash(string username, string password) {
+        auto hash1 = hash<string>{}(username);
+        auto hash2 = hash<string>{}(password);
         auto combinedhash = hash1 ^ (hash2 << 1);
         return combinedhash;
     }
-    int UserIdFromToken(std::string token) {
+    int UserIdFromToken(string token) {
         for (auto user : authedUsers) {
             if (user.second == token) {
                 return user.first;
@@ -453,7 +457,7 @@ class API {
         }
         return 0;
     }
-    bool SettingExists(std::vector<int> ids, std::string key) {
+    bool SettingExists(vector<int> ids, string key) {
         for (auto id : ids) {
             auto row = db->settings->get(id);
             if (row["key"] == key) {

@@ -10,10 +10,11 @@
 #include <algorithm>
 #include <memory>
 
-
+using namespace std;
+using namespace std::ranges;
 
 #define EXCEPTION_HANDLER catch(SQLite::Exception& e) { \
-    std::string msg;                                    \
+    string msg;                                         \
     switch (e.getErrorCode()) {                         \
         case 19:                                        \
             msg = "Error! A keyword not followed!";     \
@@ -22,41 +23,18 @@
             msg = "Error! Unknown error!";              \
             break;                                      \
     }                                                   \
-    std::cerr                                           \
+    cerr                                                \
         << "\033[38;2;255;0;0m"                         \
         << msg                                          \
         << "\033[0m"                                    \
-        << std::endl;                                   \
-    std::cerr                                           \
+        << endl;                                        \
+    cerr                                                \
         << "\t"                                         \
         << e.getErrorCode()                             \
         << ":\t\033[38;2;100;100;100m"                  \
         << e.what() << "\033[0m"                        \
-        << std::endl;                                   \
+        << endl;                                        \
 }
-
-/*
-This is a custom data structure, a key value pair of strings that we can use for the database.
-*/
-class Pair {
- private:
-    std::string _key;
-    std::string _value;
- public:
-    Pair(std::string key, std::string value) {
-        this->_key = key;
-        this->_value = value;
-    }
-    std::string key() const {
-        return this->_key;
-    }
-    std::string value() const {
-        return this->_value;
-    }
-    void set(std::string value){
-        this->_value = value;
-    }
-};
 
 /*
 This is the row class, it is an abstraction of the rows in the database.
@@ -76,56 +54,56 @@ it has 4 public methods along with 3 overloaded operators
 */
 class Row {
  private:
-    std::vector<Pair> data;
+    vector<pair<string, string>> data;
 
  public:
-    std::vector<std::string> keys() {
-        std::vector<std::string> keys;
-        for (auto pair : data) {
-            keys.push_back(pair.key());
+    vector<string> keys() {
+        vector<string> keys;
+        for (auto [key, value] : data) {
+            keys.push_back(key);
         }
         return keys;
     }
-    std::vector<std::string> values() {
-        std::vector<std::string> values;
-        for (auto pair : data) {
-            values.push_back(pair.value());
+    vector<string> values() {
+        vector<string> values;
+        for (auto [key, value] : data) {
+            values.push_back(value);
         }
         return values;
     }
-    void put(std::string key, std::string value) {
-        if (this->has(key)) {
+    void put(string target_key, string target_value) {
+        if (this->has(target_key)) {
             for (auto pair : this->data) {
-                if (pair.key() == key) {
-                    pair.set(value);
+                if (pair.first == target_key) {
+                    pair.second = target_value;
                 }
             }
         } else {
-            this->data.push_back(Pair{key, value});
+            this->data.push_back(make_pair(target_key, target_value));
         }
     }
-    std::string operator[](std::string key) {
-        for (auto pair : data) {
-            if (pair.key() == key) {
-                return pair.value();
+    string operator[](string target_key) {
+        for (auto [key, value] : data) {
+            if (key == target_key) {
+                return value;
             }
         }
-        throw std::exception();
+        throw exception();
     }
-    inline bool has(std::string key) {
-        for (auto pair : data) {
-            if (pair.key() == key) {
+    inline bool has(string target_key) {
+        for (auto [key, value] : data) {
+            if (key == target_key) {
                 return true;
             }
         }
         return false;
     }
     inline bool operator!=(const Row& rhs) {
-        for (auto pair : rhs.data) {
-            if (!(this->has(pair.key()))) {
+        for (auto [key, value] : rhs.data) {
+            if (!(this->has(key))) {
                 return true;
             }
-            if (this->operator[](pair.key()) != pair.value()) {
+            if (this->operator[](key) != value) {
                 return true;
             }
         }
@@ -138,23 +116,23 @@ class Row {
 
 class Table {
  private:
-    std::string name;
-    std::vector<std::string> columns;
-    std::shared_ptr<SQLite::Database> db;
+    string name;
+    vector<string> columns;
+    shared_ptr<SQLite::Database> db;
 
  public:
-    Table(std::string name,
-          std::vector<std::string> columns,
-          std::shared_ptr<SQLite::Database> db) {
+    Table(string name,
+          vector<string> columns,
+          shared_ptr<SQLite::Database> db) {
         this->name = name;
         this->columns = columns;
         this->db = db;
-        std::string qs;
+        string qs;
         for (auto i = 0; i < columns.size(); i++) {
             qs += ", ";
             qs += columns[i];
         }
-        auto sql = std::format(
+        auto sql = format(
             "CREATE TABLE IF NOT EXISTS {} (id INTEGER PRIMARY KEY{})",
             this->name,
             qs);
@@ -172,19 +150,19 @@ class Table {
         while (query.executeStep()) size++;
         return size;
     }
-    int add(std::vector<std::string> keys, std::vector<std::string> values) {
-        std::string qs = "?";
-        std::string keystring = keys[0];
+    int add(vector<string> keys, vector<string> values) {
+        string qs = "?";
+        string keystring = keys[0];
         for (auto i = 1; i < keys.size(); i++) {
             qs += ", ?";
             keystring += ", ";
             keystring += keys[i];
         }
-        auto sql = std::format(
+        auto sql = format(
             "INSERT INTO {0} ({1}) VALUES ({2});",
             this->name,
             keystring, qs);
-        auto sql2 = std::format(
+        auto sql2 = format(
             "SELECT id FROM {0} ORDER BY id DESC LIMIT 1",
             this->name);
         SQLite::Statement query(*(this->db), sql);
@@ -201,13 +179,13 @@ class Table {
         EXCEPTION_HANDLER;
         return id;
     }
-    std::vector<int> get_where(std::string key, std::string value) {
+    vector<int> get_where(string key, string value) {
         SQLite::Statement query(*(this->db),
-            std::format("SELECT id FROM {} WHERE {} = ?",
+            format("SELECT id FROM {} WHERE {} = ?",
             this->name,
             key));
         query.bind(1, value);
-        std::vector<int> res;
+        vector<int> res;
         try {
             while (query.executeStep()) {
                 res.push_back(query.getColumn("id").getInt());
@@ -216,11 +194,11 @@ class Table {
         EXCEPTION_HANDLER;
         return res;
     }
-    std::vector<int> get_where() {
+    vector<int> get_where() {
         SQLite::Statement query(*(this->db),
-            std::format("SELECT id FROM {}",
+            format("SELECT id FROM {}",
             this->name));
-        std::vector<int> res;
+        vector<int> res;
         try {
             while (query.executeStep()) {
                 res.push_back(query.getColumn("id").getInt());
@@ -248,7 +226,7 @@ class Table {
     }
     void delete_item(int id) {
         SQLite::Statement query(*(this->db),
-            std::format("DELETE FROM {} WHERE id = ?",
+            format("DELETE FROM {} WHERE id = ?",
             this->name));
         query.bind(1, id);
         try {
@@ -257,13 +235,11 @@ class Table {
         EXCEPTION_HANDLER;
     }
     void modify(int id,
-                std::vector<std::string> keys,
-                std::vector<std::string> values){
-        for (auto pair : std::views::zip(keys, values)) {
-            auto key = std::get<0>(pair);
-            auto value = std::get<1>(pair);
+                vector<string> keys,
+                vector<string> values){
+        for (auto [key, value] : zip_view(keys, values)) {
             SQLite::Statement query(*(this->db),
-                std::format("UPDATE {} SET {} = ? WHERE id = ?",
+                format("UPDATE {} SET {} = ? WHERE id = ?",
                 this->name,
                 key));
             query.bind(1, value);
@@ -278,15 +254,15 @@ class Table {
 
 class TableFactory {
  private:
-    std::shared_ptr<SQLite::Database> db;
+    shared_ptr<SQLite::Database> db;
  public:
-    explicit TableFactory(std::string path) {
-        this->db = std::make_shared<SQLite::Database>(path,
+    explicit TableFactory(string path) {
+        this->db = make_shared<SQLite::Database>(path,
             SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE);
     }
-    std::shared_ptr<Table> create(std::string name,
-                                  std::vector<std::string> columns){
-        std::shared_ptr<Table> t = std::make_shared<Table>(
+    shared_ptr<Table> create(string name,
+                                  vector<string> columns){
+        shared_ptr<Table> t = make_shared<Table>(
             name,
             columns,
             this->db);

@@ -14,15 +14,18 @@ nlohmann::json config;
 
 auto num_additions = 100;
 
-class DBTest : public Test<std::function<void()>> {
+using namespace std;
+using namespace nlohmann;
+
+class DBTest : public Test<function<void()>> {
     void init() {
         std::remove("/tmp/db.db3");
         db = std::make_shared<Database>("/tmp/db.db3");
-        std::ifstream file("files/testdata/default.json");
-        config = nlohmann::json::parse(file);
-        default_username = config["user"]["username"].get<std::string>();
-        default_password = config["user"]["password"].get<std::string>();
-        default_questions = config["questions"].get<std::vector<std::string>>();
+        ifstream file("files/testdata/default.json");
+        config = json::parse(file);
+        default_username = config["user"]["username"].get<string>();
+        default_password = config["user"]["password"].get<string>();
+        default_questions = config["questions"].get<vector<string>>();
 
         // add temporary data
         db->users->add({"username",
@@ -45,10 +48,10 @@ class DBTest : public Test<std::function<void()>> {
         question_id = db->questions->get_where()[0];
     }
     public:
-        std::shared_ptr<Database> db;
-        std::string default_username;
-        std::string default_password;
-        std::vector<std::string> default_questions;
+        shared_ptr<Database> db;
+        string default_username;
+        string default_password;
+        vector<string> default_questions;
         int user_id;
         int journal_id;
         int question_id;
@@ -63,7 +66,7 @@ int main() {
                 "password",
                 "state"
             }, {
-                std::format("user{}", i),
+                format("user{}", i),
                 users.default_password,
                 db_int(TRAINING)
             });
@@ -145,7 +148,7 @@ int main() {
                 "answer",
                 "journalId",
                 "questionId"}, {
-                std::format("answer{}", i),
+                format("answer{}", i),
                 db_int(answers.journal_id),
                 db_int(answers.question_id)});
         }
@@ -190,8 +193,8 @@ int main() {
                 "key",
                 "value"}, {
                 db_int(settings.user_id),
-                std::format("setting {}", i),
-                std::format("value {}", i)});
+                format("setting {}", i),
+                format("value {}", i)});
         }
         assert(settings.db->settings->size() == num_additions);
     });

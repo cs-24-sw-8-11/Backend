@@ -23,12 +23,11 @@ This is a template test, it functions as an abstraction of running a test, and p
 template<typename Functor>
 class Test {
  protected:
-    std::vector<std::tuple<std::string, Functor>> tests;
+    vector<pair<string, Functor>> tests;
     virtual void init() {}
  public:
     void add_test(std::string name, Functor test) {
-        std::tuple<std::string, Functor> t{name, test};
-        tests.push_back(t);
+        tests.push_back(make_pair(name, test));
     }
     void run(){
         for (auto [name, functor] : tests) {

@@ -3,9 +3,12 @@
 
 #include "Api.hpp"
 
-void DefaultQuestion(std::string path) {
-    std::shared_ptr<Database> db;
-    db = std::make_shared<Database>(path);
+using namespace argparse;
+using namespace std;
+
+void DefaultQuestion(string path) {
+    shared_ptr<Database> db;
+    db = make_shared<Database>(path);
     if (db->questions->get_where("tags", "default").size() == 0) {
         db->questions->add({"type",
             "tags",
@@ -17,7 +20,7 @@ void DefaultQuestion(std::string path) {
 }
 
 int main(int argc, char* argv[]) {
-    argparse::ArgumentParser program("backend");
+    ArgumentParser program("backend");
     program.add_argument("-v", "--verbose")
         .help("Increase verbosity")
         .default_value(false)
@@ -36,15 +39,15 @@ int main(int argc, char* argv[]) {
     try {
         program.parse_args(argc, argv);
     }
-    catch (const std::exception& e) {
-        std::cerr << "argparse pooped itself, exiting..." << std::endl;
+    catch (const exception& e) {
+        cerr << "argparse pooped itself, exiting..." << endl;
         exit(1);
     }
     if (program["--verbose"] == true) {
-        std::cout << "Verbosity enabled" << std::endl;
+        cout << "Verbosity enabled" << endl;
     }
 
-    auto path = program.get<std::string>("--database");
+    auto path = program.get<string>("--database");
     auto port = program.get<int>("--port");
     DefaultQuestion(path);
     API api(path);
