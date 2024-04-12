@@ -7,17 +7,63 @@ on:
         branches: [main]
 
 jobs:
+    build:
+      runs-on: ubuntu-latest
+      steps:
+        - name: install dependencies
+          run: sudo apt install cmake sqlite3 gcc
+        - uses: actions/checkout@v4.1.1
+          with:
+              submodules: recursive
+        - name: ccache
+          uses: hendrikmuhs/ccache-action@v1.2.11
+          with:
+            create-symlink: true
+        - name: build
+          run: cmake -B .ccache && cmake --build .ccache
+          env:
+              CXX: g++-13
+
     test-all:
+        needs: build
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4.1.1
+            - uses: hendrikmuhs/ccache-action@v1.2.11
               with:
-                submodules: recursive
+                create-symlink: true
+                save: false
             - name: setup-env
-              run: sudo apt install cmake sqlite3 gcc
-            - name: build
-              run: cmake -B build && cmake --build build
-              env:
-                CXX: g++-13
+              run: sudo apt install sqlite3
             - name: test-all
-              run: ctest --test-dir build
+              run: ctest --test-dir .ccache
+    valgrind:
+        needs: build
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4.1.1
+            - uses: hendrikmuhs/ccache-action@v1.2.11
+              with:
+                create-symlink: true
+                save: false
+            - name: setup-env
+              run: sudo apt install sqlite3 valgrind
+            - name: test-database-tests
+              run: valgrind ./.ccache/bin/database_test
+            - name: test-questionaire-tests
+              run: valgrind ./.ccache/bin/questionaire_test
+            - name: test-predictions-test
+              run: valgrind ./.ccache/bin/predictions_test
+    api-test:
+        needs: build
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4.1.1
+            - uses: hendrikmuhs/ccache-action@v1.2.11
+              with:
+                create-symlink: true
+                save: false
+            - name: setup-env
+              run: sudo apt install sqlite3 curl jq
+            - name: run-test
+              run: bash ./tests/api-test.sh .ccache
