@@ -23,7 +23,18 @@ jobs:
           run: cmake -B .ccache && cmake --build .ccache
           env:
               CXX: g++-13
-
+    format:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4.1.1
+        - uses: hendrikmuhs/ccache-action@v1.2.11
+          with: 
+            create-symlink: true
+            save: false
+        - name: setup env
+          run: sudo apt install cpplint
+        - name:
+          run: cpplint --filter='-legal/copyright' --recursive src include
     test-all:
         needs: build
         runs-on: ubuntu-latest
