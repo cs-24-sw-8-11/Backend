@@ -98,7 +98,7 @@ class API {
                 authedUsers[userid] = token;
                 return crow::response(200, token);
             } else {
-                return crow::response(403, "Invalid Token");
+                return crow::response(403, "Invalid Credentials!");
             }
         });
         CROW_ROUTE(app, "/user/register")
@@ -135,7 +135,7 @@ class API {
                 DefaultSettings(userid);
                 return crow::response(200, "Successfully registered!");
             } else {
-                return crow::response(400, "Username already taken!");
+                return crow::response(400, "Username is already taken!");
             }
         });
         CROW_ROUTE(app, "/user/data/update")
