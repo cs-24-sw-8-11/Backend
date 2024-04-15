@@ -14,16 +14,16 @@
 #include "Database.hpp"
 #include "PredictionManager.hpp"
 
-class API {
+class Api {
  public:
     crow::SimpleApp app;
     std::shared_ptr<Database> db;
     std::map<int, std::string> authedUsers;
     PredictionManager manager;
-    explicit API(std::string path) {
+    explicit Api(std::string path) {
         db = std::make_shared<Database>(path);
     }
-    void Run(int port) {
+    void run(int port) {
         CROW_ROUTE(app, "/user/get/<int>")
         ([&](int id) {
             crow::json::wvalue x({});
@@ -96,7 +96,7 @@ class API {
                 auto userid = db->users->get_where(
                     "username",
                     username).front();
-                auto hash = Hash((std::string)username, (std::string)password);
+                auto hash = hash((std::string)username, (std::string)password);
                 auto token = std::format("{}", hash);
                 authedUsers[userid] = token;
                 return crow::response(200, token);
@@ -135,7 +135,7 @@ class API {
                     "school",
                     db_int(userid)});
                 db->users->modify(userid, {"userdataId"}, {db_int(userdataid)});
-                DefaultSettings(userid);
+                default_settings(userid);
                 return crow::response(200, "Successfully registered!");
             } else {
                 return crow::response(400, "Username is already taken!");
@@ -150,7 +150,7 @@ class API {
                 return crow::response(400, "Unable to load/parse JSON.");
             }
             auto token = z["token"].get<std::string>();
-            auto userid = UserIdFromToken(token);
+            auto userid = user_id_from_token(token);
             if (authedUsers[userid] == token) {
                 auto data = z.at("data");
                 for (auto i = data.begin(); i != data.end(); ++i) {
@@ -174,7 +174,7 @@ class API {
             }
             auto token = z["token"].get<std::string>();
             auto comment = z["comment"].get<std::string>();
-            auto userid = UserIdFromToken(token);
+            auto userid = user_id_from_token(token);
             if (authedUsers[userid] == token) {
                 auto data = z.at("data").items();
                 auto journalid = db->journals->add({
@@ -292,7 +292,7 @@ class API {
                 return crow::response(400, "Unable to load/parse JSON.");
             }
             auto token = z["token"].get<std::string>();
-            auto userid = UserIdFromToken(token);
+            auto userid = user_id_from_token(token);
             if (authedUsers[userid] == token) {
                 auto data = z.at("settings");
                 auto userSettings = db->settings->get_where(
@@ -301,7 +301,7 @@ class API {
                 for (auto i = data.begin(); i != data.end(); ++i) {
                     auto key = i.key();
                     auto value = i.value().front().get<std::string>();
-                    if (!SettingExists(userSettings, key)) {
+                    if (!setting_exists(userSettings, key)) {
                         db->settings->add({
                             "key",
                             "value",
@@ -390,7 +390,7 @@ class API {
             }
             auto token = z["token"].get<std::string>();
             auto qid = z["questionid"].get<std::string>();
-            auto userid = UserIdFromToken(token);
+            auto userid = user_id_from_token(token);
             if (authedUsers[userid] == token) {
                 auto prediction = manager.create_new_prediction(userid);
                 auto answers = db->answers->get_where("questionId", qid);
@@ -425,7 +425,7 @@ class API {
 
  private:
     // Called whenever a user is registered to prevent empty settings
-    void DefaultSettings(int userId) {
+    void default_settings(int userId) {
         db->settings->add({
             "key",
             "value",
@@ -442,13 +442,13 @@ class API {
             db_int(userId)});
         // add more settings here
     }
-    int64_t Hash(std::string username, std::string password) {
+    int64_t hash(std::string username, std::string password) {
         auto hash1 = std::hash<std::string>{}(username);
         auto hash2 = std::hash<std::string>{}(password);
         auto combinedhash = hash1 ^ (hash2 << 1);
         return combinedhash;
     }
-    int UserIdFromToken(std::string token) {
+    int user_id_from_token(std::string token) {
         for (auto user : authedUsers) {
             if (user.second == token) {
                 return user.first;
@@ -456,7 +456,7 @@ class API {
         }
         return 0;
     }
-    bool SettingExists(std::vector<int> ids, std::string key) {
+    bool setting_exists(std::vector<int> ids, std::string key) {
         for (auto id : ids) {
             auto row = db->settings->get(id);
             if (row["key"] == key) {
