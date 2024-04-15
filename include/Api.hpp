@@ -339,5 +339,5 @@ class API : public std::enable_shared_from_this<API> {
     }
 
  private:
-    std::list<std::weak_ptr<Users>> children;
+    std::vector<std::weak_ptr<Users>> children;
 };
