@@ -5,7 +5,7 @@ set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin )
 
 enable_testing()
 
-include_directories(include ./lib/asio/asio/include)
+include_directories(include include/Routes ./lib/asio/asio/include)
 
 add_subdirectory(src)
 

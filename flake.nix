@@ -41,6 +41,7 @@
     in {
         devShells.${system}.default = pkgs.mkShell {
             packages = [
+                pkgs.gcc
                 compile
                 run
                 test
@@ -49,6 +50,7 @@
                 pkgs.sqlite
                 pkgs.sqlite-interactive
                 pkgs.cmake
+                pkgs.jq
             ];
         };
         packages.${system} = {
