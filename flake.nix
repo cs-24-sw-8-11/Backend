@@ -17,10 +17,31 @@
         test = pkgs.writeScriptBin "test-project" ''
             ${pkgs.cmake}/bin/ctest --test-dir ${build-dir} $@
         '';
-        fmt-project = pkgs.writeScriptBin "fmt-project" ''
+        chk-project = pkgs.writeScriptBin "chk-project" ''
             ${pkgs.cpplint}/bin/cpplint --filter='-legal/copyright' --recursive include src
 
         '';
+        ncc = let
+            py = pkgs.python311.withPackages (py: with py; [libclang pyyaml]);
+        in pkgs.stdenv.mkDerivation {
+            pname = "ncc";
+            name = "ncc";
+            src = pkgs.fetchFromGitHub {
+                owner = "nithinn";
+                repo = "ncc";
+                rev = "master";
+                sha256 = "sha256-WL7rMJezxy4Vuvx5F7NavftIPAV19q8qStEIXLWrkno=";
+            };
+            installPhase = ''
+                mkdir -p $out/{share/ncc,bin}
+                cp -r $src/* $out/share/ncc
+                cat > $out/bin/ncc << EOF
+                    ${py.interpreter} $out/share/ncc/ncc.py \$@
+                    rm log.txt
+                EOF
+                chmod +x $out/bin/ncc
+            '';
+        };
 
         backend = pkgs.stdenv.mkDerivation {
             name = "Backend";
@@ -44,7 +65,8 @@
                 compile
                 run
                 test
-                fmt-project
+                chk-project
+                ncc
                 backend
                 pkgs.sqlite
                 pkgs.sqlite-interactive
@@ -56,6 +78,7 @@
             compile = compile;
             run = run;
             test = test;
+            ncc = ncc;
         };
     };
 }

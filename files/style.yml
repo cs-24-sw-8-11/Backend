@@ -1,0 +1,4 @@
+# Function names:
+FunctionName: '^[a-z]+(_[a-z]+)*$' # snake case
+CppMethod: '^([a-z]+(_[a-z]+)*)|operator*$' # snake case and operator
+ClassName: '^[A-Z][a-z]+(?:[A-Z][a-z]+)*$' # pascal case
