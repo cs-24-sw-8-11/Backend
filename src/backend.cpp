@@ -47,6 +47,6 @@ int main(int argc, char* argv[]) {
     auto path = program.get<std::string>("--database");
     auto port = program.get<int>("--port");
     default_question(path);
-    API api(path);
-    api.Run(port);
+    Api api(path);
+    api.run(port);
 }
