@@ -96,7 +96,7 @@ class Api {
                 auto userid = db->users->get_where(
                     "username",
                     username).front();
-                auto hash = hash((std::string)username, (std::string)password);
+                auto hash = generate_hash((std::string)username, (std::string)password);
                 auto token = std::format("{}", hash);
                 authedUsers[userid] = token;
                 return crow::response(200, token);
@@ -442,7 +442,7 @@ class Api {
             db_int(userId)});
         // add more settings here
     }
-    int64_t hash(std::string username, std::string password) {
+    int64_t generate_hash(std::string username, std::string password) {
         auto hash1 = std::hash<std::string>{}(username);
         auto hash2 = std::hash<std::string>{}(password);
         auto combinedhash = hash1 ^ (hash2 << 1);
