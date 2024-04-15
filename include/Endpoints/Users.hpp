@@ -11,7 +11,7 @@
 
 #include <nlohmann/json.hpp>
 
-#include <Api.hpp>
+#include "Api.hpp"
 #include "Database.hpp"
 #include "PredictionManager.hpp"
 
@@ -19,11 +19,17 @@ class Users{
     public:
     std::shared_ptr<Database> db;
     std::map<int, std::string> authedUsers;
+    //API api;
 
-    explicit Users(std::shared_ptr<Database> dbptr, std::shared_ptr<API> api){
+    void setParent(std::shared_ptr<API> parent)
+    {
+        this->parent = parent;
+    }
+
+    explicit Users(std::shared_ptr<Database> dbptr){
         db = dbptr;
-        authedUsers = api->authedUsers;
-        CROW_ROUTE(api->app, "/user/get/<int>")
+        authedUsers = parent->authedUsers;
+        CROW_ROUTE(parent->app, "/user/get/<int>")
         ([&](int id) {
             crow::json::wvalue x({});
             auto user = db->users->get(id);
@@ -45,7 +51,7 @@ class Users{
             }
             return x;
         });
-        CROW_ROUTE(api->app, "/user/ids/<int>-<int>")
+        CROW_ROUTE(parent->app, "/user/ids/<int>-<int>")
         ([&](int min, int max) {
             crow::json::wvalue x;
             if (min < 0 || max < 0 || (max-min < 0)) {
@@ -68,14 +74,14 @@ class Users{
             // if not done
             return std::move(x);
         });
-        CROW_ROUTE(api->app, "/user/ids")
+        CROW_ROUTE(parent->app, "/user/ids")
         ([&]() {
             crow::json::wvalue x;
             auto users = db->users->get_where();
             x = std::move(users);
             return std::move(x);
         });
-        CROW_ROUTE(api->app, "/user/auth")
+        CROW_ROUTE(parent->app, "/user/auth")
         .methods("POST"_method)
         ([&](const crow::request& req) {
             auto x = crow::json::load(req.body);
@@ -95,7 +101,7 @@ class Users{
                 auto userid = db->users->get_where(
                     "username",
                     username).front();
-                auto hash = api->Hash((std::string)username, (std::string)password);
+                auto hash = parent->Hash((std::string)username, (std::string)password);
                 auto token = std::format("{}", hash);
                 authedUsers[userid] = token;
                 return crow::response(200, token);
@@ -103,7 +109,7 @@ class Users{
                 return crow::response(403, "Invalid Credentials!");
             }
         });
-        CROW_ROUTE(api->app, "/user/register")
+        CROW_ROUTE(parent->app, "/user/register")
         .methods("POST"_method)
         ([&](const crow::request& req) {
             auto x = crow::json::load(req.body);
@@ -134,13 +140,13 @@ class Users{
                     "school",
                     db_int(userid)});
                 db->users->modify(userid, {"userdataId"}, {db_int(userdataid)});
-                api->DefaultSettings(userid);
+                parent->DefaultSettings(userid);
                 return crow::response(200, "Successfully registered!");
             } else {
                 return crow::response(400, "Username is already taken!");
             }
         });
-        CROW_ROUTE(api->app, "/user/data/update")
+        CROW_ROUTE(parent->app, "/user/data/update")
         .methods("POST"_method)
         ([&](const crow::request& req) {
             auto x = crow::json::load(req.body);
@@ -149,7 +155,7 @@ class Users{
                 return crow::response(400, "Unable to load/parse JSON.");
             }
             auto token = z["token"].get<std::string>();
-            auto userid = api->UserIdFromToken(token);
+            auto userid = parent->UserIdFromToken(token);
             if (authedUsers[userid] == token) {
                 auto data = z.at("data");
                 for (auto i = data.begin(); i != data.end(); ++i) {
@@ -167,5 +173,5 @@ class Users{
 
 
     private:
-
+        std::shared_ptr<API> parent;
 };

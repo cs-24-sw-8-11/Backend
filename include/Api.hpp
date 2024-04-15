@@ -13,21 +13,32 @@
 
 #include "Database.hpp"
 #include "PredictionManager.hpp"
-#include "Users.hpp"
+#include "Endpoints/Users.hpp"
 
-class API {
+class API : public std::enable_shared_from_this<API> {
  public:
     crow::SimpleApp app;
     std::shared_ptr<Database> db;
     std::map<int, std::string> authedUsers;
     PredictionManager manager;
+    std::string dbPath;
+
+    std::shared_ptr<Users> users;
+
     explicit API(std::string path) {
+        dbPath = path;
         db = std::make_shared<Database>(path);
     }
-    void Run(int port) {
-        auto thiz = std::make_shared<API>(this); //Mads moment
-        auto users = Users(db, thiz);
+    void addChild(std::shared_ptr<Users> child)
+    {
+        children.push_back(child);
 
+        // like this
+        child->setParent(shared_from_this());  // ok
+        //               ^^^^^^^^^^^^^^^^^^
+    }
+    void Run(int port) {
+        addChild(std::make_shared<Users>(db));
         CROW_ROUTE(app, "/journals/new")
         .methods("POST"_method)
         ([&](const crow::request& req) {
@@ -328,5 +339,5 @@ class API {
     }
 
  private:
-
+    std::list<std::weak_ptr<Users>> children;
 };
