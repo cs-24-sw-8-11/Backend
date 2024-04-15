@@ -1,52 +1,52 @@
 #include "Route.hpp"
 #include <nlohmann/json.hpp>
 
+using namespace httplib;
+using namespace std;
+using namespace nlohmann;
+
 class Predictions : public Route {
     using Route::Route;
  public:
     virtual void init() override {
-        CROW_PTR_ROUTE(app, "/predictions/get/<int>/<string>")
-        ([&](int uid, std::string token) {
-            if (uid < 0) {
-                return crow::json::wvalue({{"error", "Invalid id"}});
-            }
-            std::vector<crow::json::wvalue> vec;
+        this->server->Get("/predictions/get/:uid/:token", [&](Request request, Response response){
+            auto uid = stoi(request.path_params.at("uid"));
+            auto token = request.path_params.at("token");
+            json response_data;
+            vector<json> result;
             auto predictions = db->predictions->get_where(
                 "userId",
-                db_int(uid));
-            if (authedUsers[uid] == token) {
+                db_int(uid)
+            );
+            if(authedUsers[uid] == token){
                 for (auto prediction : predictions) {
                     auto row = db->predictions->get(prediction);
-                    crow::json::wvalue x({});
+                    json data;
                     for (auto key : row.keys()) {
-                        x[key] = row[key];
+                        data[key] = row[key];
                     }
-                    vec.push_back(x);
+                    result.push_back(data);
                 }
-            } else {
-                return crow::json::wvalue({{"error",
-                    "Not allowed to access other users' predictions!"}});
             }
-            crow::json::wvalue wv;
-            wv = std::move(vec);
-            return std::move(wv);
+            else {
+                response_data["error"] = "Invalid id";
+                response.set_content(response_data, "application/json");
+                return;
+            }
+            response_data = std::move(result);
+            response.set_content(std::move(response_data), "application/json");
         });
-        CROW_PTR_ROUTE(app, "/predictions/add")
-        .methods("POST"_method)([&](const crow::request& req){
-            auto x = crow::json::load(req.body);
-            auto z = nlohmann::json::parse(req.body);
-            if (!x) {
-                return crow::response(400, "Unable to load/parse JSON.");
-            }
-            auto token = z["token"].get<std::string>();
-            auto qid = z["questionid"].get<std::string>();
-            auto userid = UserIdFromToken(token);
-            if (authedUsers[userid] == token) {
-                auto prediction = manager.create_new_prediction(userid);
+        this->server->Post("/predictions/add", [&](Request request, Response response){
+            auto body = json::parse(request.body);
+            auto token = body["token"].get<std::string>();
+            auto qid = body["questionid"].get<std::string>();
+            auto uid = UserIdFromToken(token);
+            if (authedUsers[uid] == token) {
+                auto prediction = manager.create_new_prediction(uid);
                 auto answers = db->answers->get_where("questionId", qid);
                 auto journals = db->journals->get_where(
                     "userId",
-                    db_int(userid));
+                    db_int(uid));
                 for (auto answer : answers) {
                     if (std::count(
                         journals.begin(),
@@ -60,12 +60,13 @@ class Predictions : public Route {
                 db->predictions->add({
                     "userId",
                     "value"}, {
-                    db_int(userid),
+                    db_int(uid),
                     std::format("{}", predictionValue)});
-                return crow::response(200, "Successfully added prediction");
+                response.status = 200;
+                response.set_content("Successfully added prediction", "text/plain");
             } else {
-                return crow::response(403,
-                    "Token does not match expected value!");
+                response.status = 403;
+                response.set_content("Toekn does not match expected value!", "text/plain");
             }
         });
     }

@@ -1,22 +1,18 @@
 #include "Route.hpp"
 #include <nlohmann/json.hpp>
 
+using namespace httplib;
+
 class Journals : public Route {
     using Route::Route;
     virtual void init() override {
-        CROW_PTR_ROUTE(app, "/journals/new")
-        .methods("POST"_method)
-        ([&](const crow::request& req) {
-            auto x = crow::json::load(req.body);
-            nlohmann::json z = nlohmann::json::parse(req.body);
-            if (!x) {
-                return crow::response(400, "Unable to load/parse JSON.");
-            }
-            auto token = z["token"].get<std::string>();
-            auto comment = z["comment"].get<std::string>();
+        this->server->Post("/journals/new", [&](Request request, Response response){
+            auto body = nlohmann::json::parse(request.body);
+            auto token = body["token"].get<std::string>();
+            auto comment = body["comment"].get<std::string>();
             auto userid = UserIdFromToken(token);
             if (authedUsers[userid] == token) {
-                auto data = z.at("data").items();
+                auto data = body.at("data").items();
                 auto journalid = db->journals->add({
                     "comment",
                     "userId"}, {
@@ -32,53 +28,56 @@ class Journals : public Route {
                         answer,
                         db_int(journalid), questionId});
                 }
-                return crow::response(200, "Successfully created new journal.");
+                response.status = 200;
+                response.set_content("Successfully created new journal.", "text/plain");
             } else {
-                return crow::response(403,
-                    "Token does not match expected value!");
+                response.status = 403;
+                response.set_content("Token does not match expected value!", "text/plain");
             }
         });
-        // journal id
-        CROW_PTR_ROUTE(app, "/journals/get/<int>")
-        ([&](int jid) {
-            crow::json::wvalue x({});
-            if (jid < 0) {
-                x["error"] = "Invalid id";
-                return x;
+        this->server->Get("/journals/get/:jid", [&](Request request, Response response){
+            auto body = nlohmann::json::parse(request.body);
+            auto jid = stoi(request.path_params.at("jid"));
+            nlohmann::json response_data;
+            if(jid < 0){
+                response_data["error"] = "Invalid id";
+                response.set_content(response_data, "application/json");
+                return;
             }
             auto journal = db->journals->get(jid);
             for (auto key : journal.keys()) {
-                x[key] = journal[key];
+                response_data[key] = journal[key];
             }
-            x["answers"] = db->answers->get_where(
+            response_data["answers"] = db->answers->get_where(
                 "journalId",
                 db_int(jid));
-            return x;
+            response.set_content(response_data, "application/json");
         });
-        // user id
-        CROW_PTR_ROUTE(app, "/journals/ids/<int>")
-        ([&](int uid) {
-            crow::json::wvalue x({});
+        this->server->Get("/journals/ids/:uid", [&](Request request, Response response){
+            nlohmann::json response_data;
+            auto uid = stoi(request.path_params.at("uid"));
             if (uid < 0) {
-                x["error"] = "Invalid id";
-                return x;
+                response_data["error"] = "Invalid id";
+                response.set_content(response_data, "application/json");
+                return;
             }
             auto journals = db->journals->get_where(
                 "userId",
                 db_int(uid));
-            // Funky solution to make it only return json array
-            x = std::move(journals);
-            return std::move(x);
+            response_data = std::move(journals);
+            response.set_content(std::move(response_data), "application/json");
         });
-        CROW_PTR_ROUTE(app, "/journals/delete/<int>/<int>/<string>")
-        .methods("DELETE"_method)
-        ([&](int userid, int journalid, std::string token) {
-            if (authedUsers[userid] == token) {
-                db->journals->delete_item(journalid);
-                return crow::response(202, "Successfully deleted journal.");
+        this->server->Delete("/journals/delete/:uid/:jid/:token", [&](Request request, Response response){
+            auto uid = stoi(request.path_params.at("uid"));
+            auto jid = stoi(request.path_params.at("jid"));
+            auto token = request.path_params.at("token");
+            if (authedUsers[uid] == token) {
+                db->journals->delete_item(jid);
+                response.status = 202;
+                response.set_content("Successfully deleted journal.", "text/plain");
             } else {
-                return crow::response(403,
-                    "Token does not match expected value!");
+                response.status = 403;
+                response.set_content("Token does not match expected value!", "text/plain");
             }
         });
     }

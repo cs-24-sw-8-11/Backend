@@ -1,26 +1,30 @@
 #include "Route.hpp"
+#include <nlohmann/json.hpp>
+
+using namespace std;
 
 class Answers : public Route {
     using Route::Route;
+ public:
     virtual void init() override {
-        CROW_PTR_ROUTE(app, "/answers/get/<int>/<string>")(
-            [&](int answerid, std::string token){
-            crow::json::wvalue x({});
-            if (answerid < 0) {
-                x["error"] = "Invalid id";
-                return x;
+        this->server->Get("/answers/get/:answerId/:token", [&](const httplib::Request& request, httplib::Response& response){
+            auto answerId = stoi(request.path_params.at("answerId"));
+            auto token = request.path_params.at("token");
+            nlohmann::json response_data;
+            if(answerId < 0){
+                response_data["error"] = "Invalid id";
             }
-            auto answer = db->answers->get(answerid);
+            auto answer = db->answers->get(answerId);
             auto allowedToGetAnswer = authedUsers[std::stoi(db->journals->get(
                 std::stoi(answer["journalId"]))["userId"])] == token;
             if (allowedToGetAnswer) {
                 for (auto key : answer.keys()) {
-                    x[key] = answer[key];
+                    response_data[key] = answer[key];
                 }
             } else {
-                x["error"] = "Not allowed to access other users' answers!";
-            }
-            return x;
+                response_data["error"] = "Not allowed to access other users' answers!";
+            }            
+            response.set_content(response_data, "application/json");
         });
     }
 };

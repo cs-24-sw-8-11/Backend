@@ -12,6 +12,6 @@ add_subdirectory(src)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/lib/SQLiteCpp)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/lib/argparse)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/lib/json)
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/lib/cpp-httplib)
 
 set(ASIO_INCLUDE_DIR ./lib/asio/asio/include)
-add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/lib/Crow)

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <crow.h>
+#include <httplib.h>
 
 #include "Database.hpp"
 #include "PredictionManager.hpp"
@@ -11,7 +11,7 @@
 class Route {
  protected:
     std::shared_ptr<Database> db;
-    std::shared_ptr<crow::SimpleApp> app;
+    std::shared_ptr<httplib::Server> server;
     std::map<int, std::string> authedUsers;
     PredictionManager manager;
 
@@ -53,9 +53,9 @@ class Route {
 
 
  public:
-    Route(Database db, crow::SimpleApp app){
+    Route(Database db, std::shared_ptr<httplib::Server> server){
         this->db = std::make_shared<Database>(db);
-        this->app = std::make_shared<crow::SimpleApp>(app);
+        this->server = server;
     }
     virtual void init(){
         std::cerr << "Error, called unimplemented run method" << std::endl;

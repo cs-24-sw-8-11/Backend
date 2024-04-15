@@ -1,48 +1,45 @@
 #include "Route.hpp"
 #include <nlohmann/json.hpp>
 
+using namespace std;
+using namespace httplib;
+using namespace nlohmann;
+
 class Settings : public Route {
     using Route::Route;
  public:
     virtual void init() override {
-        CROW_PTR_ROUTE(app, "/settings/get/<int>")
-        ([&](int userid) {
-            std::vector<crow::json::wvalue> vec;
-            crow::json::wvalue x({});
-            if (userid < 0) {
-                x["error"] = "Invalid id";
-                return x;
+        this->server->Get("/settings/get/:uid", [&](Request request, Response response){
+            auto uid = stoi(request.path_params.at("uid"));
+            vector<json> vec;
+            json response_data;
+            if (uid < 0) {
+                response_data["error"] = "Invalid id";
+                return response.set_content(response_data, "application/json");
             }
             auto settings = db->settings->get_where(
                 "userId",
-                db_int(userid));
+                db_int(uid));
             for (auto setting : settings) {
-                crow::json::wvalue z({});
+                json data({});
                 auto row = db-> settings->get(setting);
                 for (auto key : row.keys()) {
-                    z[key] = row[key];
+                    data[key] = row[key];
                 }
-                vec.push_back(z);
+                vec.push_back(data);
             }
-            crow::json::wvalue wv;
-            wv = std::move(vec);
-            return std::move(wv);
+            response_data = move(vec);
+            response.set_content(move(response_data), "application/json");
         });
-        CROW_PTR_ROUTE(app, "/settings/update")
-        .methods("POST"_method)
-        ([&](const crow::request& req) {
-            auto x = crow::json::load(req.body);
-            auto z = nlohmann::json::parse(req.body);
-            if (!x) {
-                return crow::response(400, "Unable to load/parse JSON.");
-            }
-            auto token = z["token"].get<std::string>();
-            auto userid = UserIdFromToken(token);
-            if (authedUsers[userid] == token) {
-                auto data = z.at("settings");
+        this->server->Post("/settings/update", [&](Request request, Response response){
+            auto body = json::parse(request.body);
+            auto token = body["token"].get<std::string>();
+            auto uid = UserIdFromToken(token);
+            if (authedUsers[uid] == token) {
+                auto data = body.at("settings");
                 auto userSettings = db->settings->get_where(
                     "userId",
-                    db_int(userid));
+                    db_int(uid));
                 for (auto i = data.begin(); i != data.end(); ++i) {
                     auto key = i.key();
                     auto value = i.value().front().get<std::string>();
@@ -53,7 +50,7 @@ class Settings : public Route {
                             "userId"}, {
                             key,
                             value,
-                            db_int(userid)});
+                            db_int(uid)});
                     }
                     for (auto setting : userSettings) {
                         auto settingsRow = db->settings->get(setting);
@@ -62,10 +59,11 @@ class Settings : public Route {
                         }
                     }
                 }
-                return crow::response(200, "Successfully updated settings.");
+                response.status = 200;
+                response.set_content("Successfully updated settings", "text/plain");
             } else{
-                return crow::response(403,
-                    "Token does not match expected value!");
+                response.status = 403;
+                response.set_content("Token does not match expected value!", "text/plain");
             }
         });
     }

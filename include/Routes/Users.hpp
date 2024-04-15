@@ -1,7 +1,10 @@
 #include "Route.hpp"
 
-#include <crow.h>
 #include <nlohmann/json.hpp>
+
+using namespace httplib;
+using namespace std;
+using namespace nlohmann;
 
 int64_t make_hash(std::string username, std::string password) {
     auto hash1 = std::hash<std::string>{}(username);
@@ -15,57 +18,89 @@ class Users : public Route {
     using Route::Route;
 
     virtual void init() override {
-        CROW_PTR_ROUTE(app, "/user/get/<int>")([&](int id){
-            crow::json::wvalue x({});
-            auto user = db->users->get(id);
+        this->server->Get("/user/get/:uid", [&](Request request, Response response){
+            json response_data;
+            auto uid = stoi(request.path_params.at("uid"));
+            auto user = db->users->get(uid);
             auto userdata = db->userdata->get(db->userdata->get_where(
                 "userId",
-                db_int(id)).front());
-            if (id < 0) {
-                x["error"] = "Invalid id";
-                return x;
+                db_int(uid)).front());
+            if (uid < 0) {
+                response_data["error"] = "Invalid id";
+                response.set_content(response_data, "application/json");
+                return;
             }
             for (auto key : user.keys()) {
                 if (key == "password") {
                     continue;
                 }
-                x[key] = user[key];
+                response_data[key] = user[key];
             }
             for (auto key : userdata.keys()) {
-                x[key] = userdata[key];
+                response_data[key] = userdata[key];
             }
-            return x;
+            response.set_content(response_data, "application/json");
         });
-        CROW_PTR_ROUTE(app, "/user/ids/<int>-<int>")([&](int min, int max) {
-            crow::json::wvalue x;
+        this->server->Get("/user/get/:uid", [&](Request request, Response response){
+            json response_data;
+            auto uid = stoi(request.path_params.at("uid"));
+            auto user = db->users->get(uid);
+            auto userdata = db->userdata->get(db->userdata->get_where(
+                "userId",
+                db_int(uid)).front());
+            if (uid < 0) {
+                response_data["error"] = "Invalid id";
+                response.set_content(response_data, "application/json");
+            }
+            for (auto key : user.keys()) {
+                if (key == "password") {
+                    continue;
+                }
+                response_data[key] = user[key];
+            }
+            for (auto key : userdata.keys()) {
+                response_data[key] = userdata[key];
+            }
+            response.set_content(response_data, "application/json");
+
+        });
+        this->server->Get("/user/ids/:min-:max", [&](Request request, Response response){
+            json response_data;
+            auto min = stoi(request.path_params.at("min"));
+            auto max = stoi(request.path_params.at("max"));
             if (min < 0 || max < 0 || (max-min < 0)) {
-                x["difference"] = max-min;
-                x["max"] = max;
-                x["min"] = min;
-                x["error"] = "Invalid Range";
-                return x;
+                response_data["difference"] = max-min;
+                response_data["max"] = max;
+                response_data["min"] = min;
+                response_data["error"] = "Invalid Range";
+                return response.set_content(response_data, "application/json");
             }
             auto users = db->users->get_where();
-            std::vector<int> filteredUsers;
+            vector<int> filteredUsers;
             for (const auto & user : users) {
                 if (user <= max && user >= min) {
                     filteredUsers.push_back(user);
                 }
             }
             // Funky solution to make it only return json array
-            x = std::move(filteredUsers);
+            response_data = move(filteredUsers);
             // This is done due to "inconsistent type" errors appearing
             // if not done
-            return std::move(x);
+            response.set_content(move(response_data), "application/json");
         });
-        CROW_PTR_ROUTE(app, "/user/ids")
+        this->server->Get("/user/ids", [&](Request request, Response& response){
+            json data = db->users->get_where();
+            string result = to_string(data);
+            return response.set_content(result, "application/json");
+        });
+        /*this->app->route_dynamic("/user/ids")
         ([&]() {
             crow::json::wvalue x;
             auto users = db->users->get_where();
             x = std::move(users);
             return std::move(x);
         });
-        CROW_PTR_ROUTE(app, "/user/auth")
+        this->app->route_dynamic("/user/auth")
         .methods("POST"_method)
         ([&](const crow::request& req) {
             auto x = crow::json::load(req.body);
@@ -93,7 +128,7 @@ class Users : public Route {
                 return crow::response(403, "Invalid Credentials!");
             }
         });
-        CROW_PTR_ROUTE(app, "/user/register")
+        this->app->route_dynamic("/user/register")
         .methods("POST"_method)
         ([&](const crow::request& req) {
             auto x = crow::json::load(req.body);
@@ -130,7 +165,7 @@ class Users : public Route {
                 return crow::response(400, "Username is already taken!");
             }
         });
-        CROW_PTR_ROUTE(app, "/user/data/update")
+        this->app->route_dynamic("/user/data/update")
         .methods("POST"_method)
         ([&](const crow::request& req) {
             auto x = crow::json::load(req.body);
@@ -152,6 +187,6 @@ class Users : public Route {
                 return crow::response(403,
                     "Token does not match expected value!");
             }
-        });
+        });*/
     }
 };
