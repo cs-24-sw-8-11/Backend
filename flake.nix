@@ -36,8 +36,13 @@
                 mkdir -p $out/{share/ncc,bin}
                 cp -r $src/* $out/share/ncc
                 cat > $out/bin/ncc << EOF
-                    ${py.interpreter} $out/share/ncc/ncc.py \$@
+                    result=\$(${py.interpreter} $out/share/ncc/ncc.py \$@)
+                    echo \$result
                     rm log.txt
+                    if [[ -z \$result ]]; then
+                        exit 0
+                    fi
+                    exit 1
                 EOF
                 chmod +x $out/bin/ncc
             '';
