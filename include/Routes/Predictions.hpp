@@ -65,7 +65,7 @@ class Predictions : public Route {
                     "value"}, {
                     db_int(uid),
                     to_string(predictionValue)});
-                respond(&response, string("Successfully added prediction"));
+                respond(&response, string("Successfully added prediction."));
             } else {
                 respond(&response, string("Token does not match expected value!"), 403);
             }
