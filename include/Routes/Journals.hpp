@@ -37,7 +37,7 @@ class Journals : public Route {
                 }
                 respond(&response, string("Successfully created new journal."));
             } else {
-                respond(&response, string("Token does not match expected value"), 403);
+                respond(&response, string("Token does not match expected value!"), 403);
             }
         });
         this->server->Get("/journals/get/:jid", [&](Request request, Response& response){
