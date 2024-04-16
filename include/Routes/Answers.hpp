@@ -17,7 +17,7 @@ class Answers : public Route {
             auto token = request.path_params["token"];
             json response_data;
             if (answerId < 0) {
-                response_data["error"] = "Invalid id";
+                response_data["error"] = "Invalid Id.";
                 return respond(&response, response_data);
             }
             auto answer = db->answers->get(answerId);
