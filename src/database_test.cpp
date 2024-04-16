@@ -14,7 +14,7 @@ nlohmann::json config;
 
 auto num_additions = 100;
 
-class DBTest : public Test<std::function<void()>> {
+class DbTest : public Test<std::function<void()>> {
     void init() {
         std::remove("/tmp/db.db3");
         db = std::make_shared<Database>("/tmp/db.db3");
@@ -55,7 +55,7 @@ class DBTest : public Test<std::function<void()>> {
 };
 
 int main() {
-    DBTest users;
+    DbTest users;
     users.add_test("add-user", [&](){
         for (auto i = 0; i < num_additions; i++) {
             users.db->users->add({
@@ -86,7 +86,7 @@ int main() {
         assert(current_data != new_data);
     });
 
-    DBTest journals;
+    DbTest journals;
     journals.add_test("add-journal", [&](){
         for (auto i = 0; i < num_additions; i++) {
             journals.db->journals->add({"userId"}, {db_int(journals.user_id)});
@@ -112,7 +112,7 @@ int main() {
         assert(current_data != new_data);
     });
 
-    DBTest questions;
+    DbTest questions;
     questions.add_test("add-question", [&](){
         assert(questions.db->questions->size() ==
                questions.default_questions.size());
@@ -138,7 +138,7 @@ int main() {
         auto new_data = questions.db->questions->get(questions.question_id);
         assert(current_data != new_data);
     });
-    DBTest answers;
+    DbTest answers;
     answers.add_test("add-answer", [&](){
         for (auto i = 0; i < num_additions; i++) {
             answers.db->answers->add({
@@ -182,7 +182,7 @@ int main() {
         assert(current_data != new_data);
     });
 
-    DBTest settings;
+    DbTest settings;
     settings.add_test("add-setting", [&](){
         for (auto i = 0; i < num_additions; i++) {
             settings.db->settings->add({
@@ -224,7 +224,7 @@ int main() {
         assert(current_data != new_data);
     });
 
-    DBTest userdata;
+    DbTest userdata;
     userdata.add_test("delete-userdata", [&](){
         userdata.db->userdata->add({
             "agegroup",
@@ -254,7 +254,7 @@ int main() {
         assert(current_data != new_data);
     });
 
-    DBTest predictions;
+    DbTest predictions;
     predictions.add_test("add-prediction", [&](){
         for (auto i = 0; i < num_additions; i++) {
             predictions.db->predictions->add({

@@ -120,7 +120,7 @@ class Users : public Route {
                     "school",
                     db_int(userid)});
                 db->users->modify(userid, {"userdataId"}, {db_int(userdataid)});
-                DefaultSettings(userid);
+                default_settings(userid);
                 respond(&response, string("Successfully registered!"));
             } else {
                 respond(&response, string("Username is already taken!"), 400);
@@ -129,7 +129,7 @@ class Users : public Route {
         this->server->Post("/user/data/update", [&](Request request, Response& response){
             auto body = json::parse(request.body);
             auto token = body["token"].get<std::string>();
-            auto uid = UserIdFromToken(token);
+            auto uid = user_id_from_token(token);
             if (authedUsers[uid] == token) {
                 auto data = body["data"];
                 for (auto [key, value] : data.items()) {

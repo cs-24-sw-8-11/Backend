@@ -6,3 +6,4 @@ test.cpp
 # nix
 .direnv
 result
+venv

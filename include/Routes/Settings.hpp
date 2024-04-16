@@ -37,14 +37,14 @@ class Settings : public Route {
         this->server->Post("/settings/update", [&](Request request, Response& response){
             auto body = json::parse(request.body);
             auto token = body["token"].get<std::string>();
-            auto uid = UserIdFromToken(token);
+            auto uid = user_id_from_token(token);
             if (authedUsers[uid] == token) {
                 auto data = body["settings"].get<map<string, string>>();
                 auto userSettings = db->settings->get_where(
                     "userId",
                     db_int(uid));
                 for (auto [key, value] : data) {
-                    if (!SettingExists(userSettings, key)) {
+                    if (!setting_exists(userSettings, key)) {
                         db->settings->add({
                             "key",
                             "value",
