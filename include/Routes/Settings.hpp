@@ -1,3 +1,7 @@
+#pragma once
+
+#include <string>
+
 #include "Route.hpp"
 #include <nlohmann/json.hpp>
 
@@ -7,14 +11,15 @@ using namespace nlohmann;
 
 class Settings : public Route {
     using Route::Route;
+
  public:
-    virtual void init() override {
+    void init() override {
         this->server->Get("/settings/get/:uid", [&](Request request, Response& response){
             auto uid = stoi(request.path_params["uid"]);
             json response_data;
             if (uid < 0) {
                 response_data["error"] = "Invalid Id.";
-                return respond(response, response_data, 400);
+                return respond(&response, response_data, 400);
             }
             auto settings = db->settings->get_where(
                 "userId",
@@ -27,7 +32,7 @@ class Settings : public Route {
                 }
                 response_data.push_back(data);
             }
-            respond(response, response_data);
+            respond(&response, response_data);
         });
         this->server->Post("/settings/update", [&](Request request, Response& response){
             auto body = json::parse(request.body);
@@ -38,7 +43,7 @@ class Settings : public Route {
                 auto userSettings = db->settings->get_where(
                     "userId",
                     db_int(uid));
-                for(auto [key, value] : data){
+                for (auto [key, value] : data) {
                     if (!SettingExists(userSettings, key)) {
                         db->settings->add({
                             "key",
@@ -55,9 +60,9 @@ class Settings : public Route {
                         }
                     }
                 }
-                respond(response, string("Successfully updated settings"));
+                respond(&response, string("Successfully updated settings"));
             } else {
-                respond(response, string("Token does not match expected value!"), 403);
+                respond(&response, string("Token does not match expected value!"), 403);
             }
         });
     }

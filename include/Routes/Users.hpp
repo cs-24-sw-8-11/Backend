@@ -1,3 +1,8 @@
+#pragma once
+
+#include <string>
+#include <vector>
+
 #include "Route.hpp"
 
 #include <nlohmann/json.hpp>
@@ -17,7 +22,7 @@ class Users : public Route {
  public:
     using Route::Route;
 
-    virtual void init() override {
+    void init() override {
         this->server->Get("/user/get/:uid", [&](Request request, Response& response){
             json response_data;
             auto uid = stoi(request.path_params["uid"]);
@@ -27,19 +32,19 @@ class Users : public Route {
                 db_int(uid)).front());
             if (uid < 0) {
                 response_data["error"] = "Invalid Id.";
-                respond(response, response_data, 400);
+                respond(&response, response_data, 400);
                 return;
             }
             for (auto key : user.keys()) {
-                if (key == "password") 
+                if (key == "password")
                     continue;
-                
+
                 response_data[key] = user[key];
             }
-            for (auto key : userdata.keys()) 
+            for (auto key : userdata.keys())
                 response_data[key] = userdata[key];
-            
-            respond(response, response_data);
+
+            respond(&response, response_data);
         });
         this->server->Get("/user/ids/:min/:max", [&](Request request, Response& response){
             json response_data;
@@ -51,28 +56,27 @@ class Users : public Route {
                 response_data["max"] = max;
                 response_data["min"] = min;
                 response_data["error"] = "Invalid Range.";
-                return respond(response, response_data);
+                return respond(&response, response_data);
             }
             auto users = db->users->get_where();
             vector<int> filteredUsers;
             for (const auto & user : users) {
-                if (user <= max && user >= min) 
+                if (user <= max && user >= min)
                     filteredUsers.push_back(user);
-                
             }
             response_data = filteredUsers;
-            respond(response, response_data);
+            respond(&response, response_data);
         });
         this->server->Get("/user/ids", [&](Request request, Response& response){
             json data = db->users->get_where();
-            respond(response, data);
+            respond(&response, data);
         });
         this->server->Post("/user/auth", [&](Request request, Response& response){
             auto body = json::parse(request.body);
             auto username = body["username"].get<string>();
             auto password = body["password"].get<string>();
             if (db->users->get_where("username", username).size() == 0) {
-                return respond(response, string("Invalid Credentials!"), 403);
+                return respond(&response, string("Invalid Credentials!"), 403);
             }
             auto dbpassword = db->users->get(db->users->get_where(
                 "username",
@@ -85,11 +89,10 @@ class Users : public Route {
                 auto hash = make_hash((string)username, (string)password);
                 auto token = std::format("{}", hash);
                 authedUsers[userid] = token;
-                respond(response, token);
-            } else 
-                respond(response, string("Invalid Credentials!"), 403);
-            
-
+                respond(&response, token);
+            } else {
+                respond(&response, string("Invalid Credentials!"), 403);
+            }
         });
         this->server->Post("/user/register", [&](Request request, Response& response){
             auto body = json::parse(request.body);
@@ -118,10 +121,10 @@ class Users : public Route {
                     db_int(userid)});
                 db->users->modify(userid, {"userdataId"}, {db_int(userdataid)});
                 DefaultSettings(userid);
-                respond(response, string("Successfully registered!"));
-            } else 
-                respond(response, string("Username is already taken!"), 400);
-            
+                respond(&response, string("Successfully registered!"));
+            } else {
+                respond(&response, string("Username is already taken!"), 400);
+            }
         });
         this->server->Post("/user/data/update", [&](Request request, Response& response){
             auto body = json::parse(request.body);
@@ -129,14 +132,13 @@ class Users : public Route {
             auto uid = UserIdFromToken(token);
             if (authedUsers[uid] == token) {
                 auto data = body["data"];
-                for(auto [key, value] : data.items()){
+                for (auto [key, value] : data.items()) {
                     db->userdata->modify(uid, {key}, {value});
                 }
-                respond(response, string("Successfully updated user data."));
+                respond(&response, string("Successfully updated user data."));
             } else {
-                respond(response, string("Token does not match expected value!"), 403);
+                respond(&response, string("Token does not match expected value!"), 403);
             }
-
         });
     }
 };

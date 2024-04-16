@@ -1,7 +1,9 @@
 #pragma once
 
-#include <memory>
 #include <httplib.h>
+#include <memory>
+#include <vector>
+#include <string>
 #include <nlohmann/json.hpp>
 
 #include "Database.hpp"
@@ -55,23 +57,23 @@ class Route {
         return false;
     }
 
-    void respond(Response& response, json data, int status = 200){
-        response.status = status;
-        response.set_content(to_string(data), "application/json");
+    void respond(Response* response, json data, int status = 200) {
+        response->status = status;
+        response->set_content(to_string(data), "application/json");
     }
 
-    void respond(Response& response, string data, int status = 200){
-        response.status = status;
-        response.set_content(data, "text/plain");
+    void respond(Response* response, string data, int status = 200) {
+        response->status = status;
+        response->set_content(data, "text/plain");
     }
 
 
  public:
-    Route(Database db, shared_ptr<Server> server){
+    Route(Database db, shared_ptr<Server> server) {
         this->db = make_shared<Database>(db);
         this->server = server;
     }
-    virtual void init(){
+    virtual void init() {
         cerr << "Error, called unimplemented run method" << endl;
         throw exception();
     }

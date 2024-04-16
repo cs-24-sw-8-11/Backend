@@ -1,3 +1,8 @@
+#pragma once
+
+#include <string>
+#include <vector>
+
 #include "Route.hpp"
 #include <nlohmann/json.hpp>
 
@@ -7,8 +12,9 @@ using namespace nlohmann;
 
 class Predictions : public Route {
     using Route::Route;
+
  public:
-    virtual void init() override {
+    void init() override {
         this->server->Get("/predictions/get/:uid/:token", [&](Request request, Response& response){
             auto uid = stoi(request.path_params["uid"]);
             auto token = request.path_params["token"];
@@ -16,9 +22,8 @@ class Predictions : public Route {
             vector<json> result;
             auto predictions = db->predictions->get_where(
                 "userId",
-                db_int(uid)
-            );
-            if(authedUsers[uid] == token){
+                db_int(uid));
+            if (authedUsers[uid] == token) {
                 for (auto prediction : predictions) {
                     auto row = db->predictions->get(prediction);
                     json data;
@@ -27,13 +32,12 @@ class Predictions : public Route {
                     }
                     result.push_back(data);
                 }
-            }
-            else {
+            } else {
                 response_data["error"] = "Invalid id";
-                return respond(response, response_data, 400);
+                return respond(&response, response_data, 400);
             }
             response_data = result;
-            respond(response, response_data);
+            respond(&response, response_data);
         });
         this->server->Post("/predictions/add", [&](Request request, Response& response){
             auto body = json::parse(request.body);
@@ -61,9 +65,9 @@ class Predictions : public Route {
                     "value"}, {
                     db_int(uid),
                     to_string(predictionValue)});
-                respond(response, string("Successfully added prediction"));
+                respond(&response, string("Successfully added prediction"));
             } else {
-                respond(response, string("Token does not match expected value!"), 403);
+                respond(&response, string("Token does not match expected value!"), 403);
             }
         });
     }

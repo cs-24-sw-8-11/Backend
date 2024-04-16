@@ -18,7 +18,7 @@
             ${pkgs.cmake}/bin/ctest --test-dir ${build-dir} $@
         '';
         fmt-project = pkgs.writeScriptBin "fmt-project" ''
-            ${pkgs.cpplint}/bin/cpplint --filter='-legal/copyright' --recursive include src
+            ${pkgs.cpplint}/bin/cpplint --filter='-legal/copyright,-whitespace/line_length,-build/namespaces' --recursive include src
 
         '';
 

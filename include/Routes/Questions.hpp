@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Route.hpp"
 #include <nlohmann/json.hpp>
 
@@ -7,8 +9,9 @@ using namespace nlohmann;
 
 class Questions : public Route {
     using Route::Route;
+
  public:
-    virtual void init() override {
+    void init() override {
         this->server->Get("/questions/defaults", [&](Request request, Response& response){
             auto questions = db->questions->get_where("tags", "default");
             auto response_data = json::array();
@@ -20,7 +23,7 @@ class Questions : public Route {
                 }
                 response_data.push_back(data);
             }
-            respond(response, response_data);
+            respond(&response, response_data);
         });
         this->server->Get("/questions/get/:tag", [&](Request request, Response& response){
             auto tag = request.path_params["tag"];
@@ -34,7 +37,7 @@ class Questions : public Route {
                 }
                 response_data.push_back(data);
             }
-            respond(response, response_data);
+            respond(&response, response_data);
         });
     }
 };

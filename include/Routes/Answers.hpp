@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Route.hpp"
 #include <nlohmann/json.hpp>
 
@@ -7,15 +9,16 @@ using namespace nlohmann;
 
 class Answers : public Route {
     using Route::Route;
+
  public:
-    virtual void init() override {
+    void init() override {
         this->server->Get("/answers/get/:answerId/:token", [&](Request request, Response& response){
             auto answerId = stoi(request.path_params["answerId"]);
             auto token = request.path_params["token"];
             json response_data;
-            if(answerId < 0){
+            if (answerId < 0) {
                 response_data["error"] = "Invalid id";
-                return respond(response, response_data);
+                return respond(&response, response_data);
             }
             auto answer = db->answers->get(answerId);
             auto allowedToGetAnswer = authedUsers[stoi(db->journals->get(
@@ -26,8 +29,8 @@ class Answers : public Route {
                 }
             } else {
                 response_data["error"] = "Not allowed to access other users' answers!";
-            }            
-            return respond(response, response_data);
+            }
+            return respond(&response, response_data);
         });
     }
 };
