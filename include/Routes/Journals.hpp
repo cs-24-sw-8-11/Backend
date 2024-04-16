@@ -60,7 +60,7 @@ class Journals : public Route {
             json response_data;
             auto uid = stoi(request.path_params["uid"]);
             if (uid < 0) {
-                response_data["error"] = "Invalid id";
+                response_data["error"] = "Invalid Id.";
                 return respond(&response, response_data, 400);
             }
             auto journals = db->journals->get_where(
