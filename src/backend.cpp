@@ -3,7 +3,7 @@
 
 #include "Api.hpp"
 
-void DefaultQuestion(std::string path) {
+void default_question(std::string path) {
     auto db = std::make_shared<Database>(path);
     if (db->questions->get_where("tags", "default").size() == 0) {
         db->questions->add({"type",
@@ -45,6 +45,6 @@ int main(int argc, char* argv[]) {
 
     auto path = program.get<std::string>("--database");
     auto port = program.get<int>("--port");
-    DefaultQuestion(path);
+    default_question(path);
     Api api(path, port);
 }

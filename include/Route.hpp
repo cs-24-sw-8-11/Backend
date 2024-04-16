@@ -21,7 +21,7 @@ class Route {
     shared_ptr<Server> server;
     PredictionManager manager;
 
-    void DefaultSettings(int userId) {
+    void default_settings(int userId) {
         db->settings->add({
             "key",
             "value",
@@ -39,7 +39,7 @@ class Route {
         // add more settings here
     }
 
-    int UserIdFromToken(string token) {
+    int user_id_from_token(string token) {
         for (auto [uid, utoken] : authedUsers) {
             if (utoken == token) {
                 return uid;
@@ -47,7 +47,7 @@ class Route {
         }
         return 0;
     }
-    bool SettingExists(vector<int> ids, string key) {
+    bool setting_exists(vector<int> ids, string key) {
         for (auto id : ids) {
             auto row = db->settings->get(id);
             if (row["key"] == key) {

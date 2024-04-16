@@ -43,7 +43,7 @@ class Predictions : public Route {
             auto body = json::parse(request.body);
             auto token = body["token"].get<string>();
             auto qid = body["questionid"].get<string>();
-            auto uid = UserIdFromToken(token);
+            auto uid = user_id_from_token(token);
             if (authedUsers[uid] == token) {
                 auto prediction = manager.create_new_prediction(uid);
                 auto answers = db->answers->get_where("questionId", qid);

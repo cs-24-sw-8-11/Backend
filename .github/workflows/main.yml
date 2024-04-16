@@ -40,10 +40,8 @@ jobs:
             nix_path: nixpkgs=channel:nixos-23.11
         - name: build
           run: nix build .#packages.x86_64-linux.ncc
-        - name: run test include
-          run: ./result/bin/ncc --style files/style.yml --recurse --path include
-        - name: run test src
-          run: ./result/bin/ncc --style files/style.yml --recurse --path src
+        - name: run test
+          run: ./result/bin/ncc --style files/style.yml --recurse --path include src
 
     test-all:
         needs: build

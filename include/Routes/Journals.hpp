@@ -17,7 +17,7 @@ class Journals : public Route {
             auto body = json::parse(request.body);
             auto token = body["token"].get<string>();
             auto comment = body["comment"].get<string>();
-            auto userid = UserIdFromToken(token);
+            auto userid = user_id_from_token(token);
             if (authedUsers[userid] == token) {
                 auto list = body["data"].get<vector<json>>();
                 auto jid = db->journals->add({
