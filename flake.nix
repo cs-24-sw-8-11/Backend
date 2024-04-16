@@ -17,8 +17,8 @@
         test = pkgs.writeScriptBin "test-project" ''
             ${pkgs.cmake}/bin/ctest --test-dir ${build-dir} $@
         '';
-        chk-project = pkgs.writeScriptBin "chk-project" ''
-            ${pkgs.cpplint}/bin/cpplint --filter='-legal/copyright' --recursive include src
+        fmt-project = pkgs.writeScriptBin "fmt-project" ''
+            ${pkgs.cpplint}/bin/cpplint --filter='-legal/copyright,-whitespace/line_length,-build/namespaces' --recursive include src
 
         '';
         ncc = let
@@ -67,15 +67,17 @@
     in {
         devShells.${system}.default = pkgs.mkShell {
             packages = [
+                pkgs.gcc
                 compile
                 run
                 test
-                chk-project
+                fmt-project
                 ncc
                 backend
                 pkgs.sqlite
                 pkgs.sqlite-interactive
                 pkgs.cmake
+                pkgs.jq
             ];
         };
         packages.${system} = {

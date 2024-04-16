@@ -16,7 +16,7 @@ target_link_libraries(backend
     SQLiteCpp
     sqlite3
     argparse
-    Crow
+    httplib
     nlohmann_json
 )
 
