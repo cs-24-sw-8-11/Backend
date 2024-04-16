@@ -9,58 +9,58 @@ sleep 1
 
 
 # /register
-curl -X 'POST' -d "$authjson" $addr/user/register
+curl -s -X 'POST' -d "$authjson" $addr/user/register >> /dev/null
 
 # /auth
-token=$(curl -X 'POST' -d "$authjson" $addr/user/auth)
+token=$(curl -s -X 'POST' -d "$authjson" $addr/user/auth)
 
 # /user/ids/<n-m>
-ids=$(curl -X 'GET' $addr/user/ids)
+ids=$(curl -s -X 'GET' $addr/user/ids)
 # get the one user id
 uid=$(echo "$ids" | jq -r .[0])
 
 # /user/data/update
-curl -X 'POST' -d "{\"token\":\"$token\", \"data\":{\"agegroup\":\"42-69\", \"occupation\":\"school\"}}" $addr/user/data/update
+curl -s -X 'POST' -d "{\"token\":\"$token\", \"data\":{\"agegroup\":\"42-69\", \"occupation\":\"school\"}}" $addr/user/data/update >> /dev/null
 
 # /user/get/<uid>
-userdata=$(curl -X 'GET' $addr/user/get/$uid)
+userdata=$(curl -s -X 'GET' $addr/user/get/$uid)
 
 # /questions/defaults
-questions=$(curl -X 'GET' $addr/questions/defaults)
+questions=$(curl -s -X 'GET' $addr/questions/defaults)
 qid=$(echo $questions | jq -r .[0].id)
 
 # /questions/get/<tags>
-default_questions=$(curl -X 'GET' $addr/questions/get/default)
+default_questions=$(curl -s -X 'GET' $addr/questions/get/default)
 
 # /journals/new
-curl -X 'POST' -d "{\"token\":\"$token\", \"comment\":\"Too many exams today.\", \"data\":[{\"question\":\"$qid\", \"answer\":\"8\"},{\"question\":\"2\", \"answer\":\"2\"}]}" $addr/journals/new
+curl -s -X 'POST' -d "{\"token\":\"$token\", \"comment\":\"Too many exams today.\", \"data\":[{\"question\":\"$qid\", \"answer\":\"8\"},{\"question\":\"2\", \"answer\":\"2\"}]}" $addr/journals/new >> /dev/null
 
 # /journals/ids/<uid>
-jids=$(curl -X 'GET' $addr/journals/ids/$uid)
+jids=$(curl -s -X 'GET' $addr/journals/ids/$uid)
 # get the one journal
 jid=$(echo "$jids" | jq -r .[0])
 
 # /journals/get/<jid>
-journal=$(curl -X 'GET' $addr/journals/get/$jid)
+journal=$(curl -s -X 'GET' $addr/journals/get/$jid)
 
 # /answers/get/<aid>/<token>
 aid=$(echo "$journal" | jq -r .answers[0])
-answer=$(curl -X 'GET' $addr/answers/get/$aid/$token)
+answer=$(curl -s -X 'GET' $addr/answers/get/$aid/$token)
 
 # /journals/delete/<uid>/<jid>
-#curl -X 'DELETE' $addr/journals/delete/$uid/$jid/$token
+#curl -s -X 'DELETE' $addr/journals/delete/$uid/$jid/$token
 
 # /settings/update
-curl -X 'POST' -d "{\"token\":\"$token\", \"settings\":{\"key\":\"modified\", \"key1\": \"modified1\",\"someKeyThatDoesntExist\": \"somevalue\"}}" $addr/settings/update
+curl -s -X 'POST' -d "{\"token\":\"$token\", \"settings\":{\"key\":\"modified\", \"key1\": \"modified1\",\"someKeyThatDoesntExist\": \"somevalue\"}}" $addr/settings/update >> /dev/null
 
 # /settings/get/<uid>
-settings=$(curl -X 'GET' $addr/settings/get/$uid)
+settings=$(curl -s -X 'GET' $addr/settings/get/$uid)
 
 # /predictions/add
-curl -X 'POST' -d "{\"token\":\"$token\", \"questionid\":\"$qid\"}" $addr/predictions/add
+curl -s -X 'POST' -d "{\"token\":\"$token\", \"questionid\":\"$qid\"}" $addr/predictions/add >> /dev/null
 
 # /predictions/get/<uid>/<token>
-prediction=$(curl -X 'GET' $addr/predictions/get/$uid/$token)
+prediction=$(curl -s -X 'GET' $addr/predictions/get/$uid/$token)
 
 pkill backend
 echo "---------------------TEST COMPLETE---------------------"

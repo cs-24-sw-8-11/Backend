@@ -7,9 +7,9 @@
 [submodule "lib/json"]
 	path = lib/json
 	url = https://github.com/nlohmann/json
-[submodule "lib/Crow"]
-	path = lib/Crow
-	url = https://github.com/CrowCpp/Crow
 [submodule "lib/asio"]
 	path = lib/asio
 	url = https://github.com/chriskohlhoff/asio/
+[submodule "lib/cpp-httplib"]
+	path = lib/cpp-httplib
+	url = https://github.com/yhirose/cpp-httplib

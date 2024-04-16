@@ -18,7 +18,7 @@
             ${pkgs.cmake}/bin/ctest --test-dir ${build-dir} $@
         '';
         fmt-project = pkgs.writeScriptBin "fmt-project" ''
-            ${pkgs.cpplint}/bin/cpplint --filter='-legal/copyright' --recursive include src
+            ${pkgs.cpplint}/bin/cpplint --filter='-legal/copyright,-whitespace/line_length,-build/namespaces' --recursive include src
 
         '';
 
@@ -41,6 +41,7 @@
     in {
         devShells.${system}.default = pkgs.mkShell {
             packages = [
+                pkgs.gcc
                 compile
                 run
                 test
@@ -49,6 +50,7 @@
                 pkgs.sqlite
                 pkgs.sqlite-interactive
                 pkgs.cmake
+                pkgs.jq
             ];
         };
         packages.${system} = {

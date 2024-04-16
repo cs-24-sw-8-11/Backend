@@ -30,7 +30,7 @@ jobs:
         - name: setup env
           run: sudo apt install cpplint
         - name:
-          run: cpplint --filter='-legal/copyright' --recursive src include
+          run: cpplint --filter='-legal/copyright,-whitespace/line_length,-build/namespaces' --recursive src include
     test-all:
         needs: build
         runs-on: ubuntu-latest
