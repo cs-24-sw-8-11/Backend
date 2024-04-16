@@ -13,7 +13,7 @@ using namespace std;
 using namespace httplib;
 using namespace nlohmann;
 
-static map<int, string> authedUsers;
+map<int, string> authedUsers;
 
 class Route {
  protected:
