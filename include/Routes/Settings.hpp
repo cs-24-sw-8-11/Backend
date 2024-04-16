@@ -9,40 +9,36 @@ class Settings : public Route {
     using Route::Route;
  public:
     virtual void init() override {
-        this->server->Get("/settings/get/:uid", [&](Request request, Response response){
-            auto uid = stoi(request.path_params.at("uid"));
-            vector<json> vec;
+        this->server->Get("/settings/get/:uid", [&](Request request, Response& response){
+            auto uid = stoi(request.path_params["uid"]);
             json response_data;
             if (uid < 0) {
-                response_data["error"] = "Invalid id";
-                return response.set_content(response_data, "application/json");
+                response_data["error"] = "Invalid Id.";
+                return respond(response, response_data, 400);
             }
             auto settings = db->settings->get_where(
                 "userId",
                 db_int(uid));
             for (auto setting : settings) {
-                json data({});
+                json data;
                 auto row = db-> settings->get(setting);
                 for (auto key : row.keys()) {
                     data[key] = row[key];
                 }
-                vec.push_back(data);
+                response_data.push_back(data);
             }
-            response_data = move(vec);
-            response.set_content(move(response_data), "application/json");
+            respond(response, response_data);
         });
-        this->server->Post("/settings/update", [&](Request request, Response response){
+        this->server->Post("/settings/update", [&](Request request, Response& response){
             auto body = json::parse(request.body);
             auto token = body["token"].get<std::string>();
             auto uid = UserIdFromToken(token);
             if (authedUsers[uid] == token) {
-                auto data = body.at("settings");
+                auto data = body["settings"].get<map<string, string>>();
                 auto userSettings = db->settings->get_where(
                     "userId",
                     db_int(uid));
-                for (auto i = data.begin(); i != data.end(); ++i) {
-                    auto key = i.key();
-                    auto value = i.value().front().get<std::string>();
+                for(auto [key, value] : data){
                     if (!SettingExists(userSettings, key)) {
                         db->settings->add({
                             "key",
@@ -59,11 +55,9 @@ class Settings : public Route {
                         }
                     }
                 }
-                response.status = 200;
-                response.set_content("Successfully updated settings", "text/plain");
-            } else{
-                response.status = 403;
-                response.set_content("Token does not match expected value!", "text/plain");
+                respond(response, string("Successfully updated settings"));
+            } else {
+                respond(response, string("Token does not match expected value!"), 403);
             }
         });
     }

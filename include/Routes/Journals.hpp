@@ -2,47 +2,46 @@
 #include <nlohmann/json.hpp>
 
 using namespace httplib;
+using namespace nlohmann;
+using namespace std;
 
 class Journals : public Route {
     using Route::Route;
     virtual void init() override {
-        this->server->Post("/journals/new", [&](Request request, Response response){
-            auto body = nlohmann::json::parse(request.body);
-            auto token = body["token"].get<std::string>();
-            auto comment = body["comment"].get<std::string>();
+        this->server->Post("/journals/new", [&](Request request, Response& response){
+            auto body = json::parse(request.body);
+            auto token = body["token"].get<string>();
+            auto comment = body["comment"].get<string>();
             auto userid = UserIdFromToken(token);
             if (authedUsers[userid] == token) {
-                auto data = body.at("data").items();
-                auto journalid = db->journals->add({
+                auto list = body["data"].get<vector<json>>();
+                auto jid = db->journals->add({
                     "comment",
                     "userId"}, {
                     comment,
                     db_int(userid)});
-                for (auto i = data.begin(); i != data.end(); ++i) {
-                    auto questionId = i.value().back().get<std::string>();
-                    auto answer = i.value().front().get<std::string>();
+                for(auto entry : list){
+                    auto qid = entry["question"].get<string>();
+                    auto answer = entry["answer"].get<string>();
                     db->answers->add({
                         "answer",
                         "journalId",
                         "questionId"}, {
                         answer,
-                        db_int(journalid), questionId});
+                        db_int(jid), qid});
+
                 }
-                response.status = 200;
-                response.set_content("Successfully created new journal.", "text/plain");
+                respond(response, string("Successfully created new journal."));
             } else {
-                response.status = 403;
-                response.set_content("Token does not match expected value!", "text/plain");
+                respond(response, string("Token does not match expected value"), 403);
             }
         });
-        this->server->Get("/journals/get/:jid", [&](Request request, Response response){
-            auto body = nlohmann::json::parse(request.body);
-            auto jid = stoi(request.path_params.at("jid"));
-            nlohmann::json response_data;
+        this->server->Get("/journals/get/:jid", [&](Request request, Response& response){
+            auto jid = stoi(request.path_params["jid"]);
+            json response_data;
             if(jid < 0){
                 response_data["error"] = "Invalid id";
-                response.set_content(response_data, "application/json");
-                return;
+                return respond(response, response_data, 400);
             }
             auto journal = db->journals->get(jid);
             for (auto key : journal.keys()) {
@@ -51,33 +50,30 @@ class Journals : public Route {
             response_data["answers"] = db->answers->get_where(
                 "journalId",
                 db_int(jid));
-            response.set_content(response_data, "application/json");
+            respond(response, response_data);
         });
-        this->server->Get("/journals/ids/:uid", [&](Request request, Response response){
-            nlohmann::json response_data;
-            auto uid = stoi(request.path_params.at("uid"));
+        this->server->Get("/journals/ids/:uid", [&](Request request, Response& response){
+            json response_data;
+            auto uid = stoi(request.path_params["uid"]);
             if (uid < 0) {
                 response_data["error"] = "Invalid id";
-                response.set_content(response_data, "application/json");
-                return;
+                return respond(response, response_data, 400);
             }
             auto journals = db->journals->get_where(
                 "userId",
                 db_int(uid));
-            response_data = std::move(journals);
-            response.set_content(std::move(response_data), "application/json");
+            response_data = journals;
+            respond(response, response_data);
         });
-        this->server->Delete("/journals/delete/:uid/:jid/:token", [&](Request request, Response response){
-            auto uid = stoi(request.path_params.at("uid"));
-            auto jid = stoi(request.path_params.at("jid"));
-            auto token = request.path_params.at("token");
+        this->server->Delete("/journals/delete/:uid/:jid/:token", [&](Request request, Response& response){
+            auto uid = stoi(request.path_params["uid"]);
+            auto jid = stoi(request.path_params["jid"]);
+            auto token = request.path_params["token"];
             if (authedUsers[uid] == token) {
                 db->journals->delete_item(jid);
-                response.status = 202;
-                response.set_content("Successfully deleted journal.", "text/plain");
+                respond(response, string("Successfully deleted journal."), 202);
             } else {
-                response.status = 403;
-                response.set_content("Token does not match expected value!", "text/plain");
+                respond(response, string("Token does not match expected value!"), 403);
             }
         });
     }

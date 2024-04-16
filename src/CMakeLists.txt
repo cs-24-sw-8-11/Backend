@@ -1,5 +1,4 @@
 add_executable(backend backend.cpp)
-add_executable(_test test.cpp)
 add_executable(database_test database_test.cpp)
 add_executable(predictions_test predictions_test.cpp)
 add_executable(questionaire_test questionaire_test.cpp)
@@ -17,11 +16,6 @@ target_link_libraries(backend
     SQLiteCpp
     sqlite3
     argparse
-    httplib
-    nlohmann_json
-)
-
-target_link_libraries(_test
     httplib
     nlohmann_json
 )

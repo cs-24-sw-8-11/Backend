@@ -2,17 +2,21 @@
 
 #include <memory>
 #include <httplib.h>
+#include <nlohmann/json.hpp>
 
 #include "Database.hpp"
 #include "PredictionManager.hpp"
 
-#define CROW_PTR_ROUTE(app, url) app->template route<crow::black_magic::get_parameter_tag(url)>(url)
+using namespace std;
+using namespace httplib;
+using namespace nlohmann;
+
+static map<int, string> authedUsers;
 
 class Route {
  protected:
-    std::shared_ptr<Database> db;
-    std::shared_ptr<httplib::Server> server;
-    std::map<int, std::string> authedUsers;
+    shared_ptr<Database> db;
+    shared_ptr<Server> server;
     PredictionManager manager;
 
     void DefaultSettings(int userId) {
@@ -33,7 +37,7 @@ class Route {
         // add more settings here
     }
 
-    int UserIdFromToken(std::string token) {
+    int UserIdFromToken(string token) {
         for (auto [uid, utoken] : authedUsers) {
             if (utoken == token) {
                 return uid;
@@ -41,7 +45,7 @@ class Route {
         }
         return 0;
     }
-    bool SettingExists(std::vector<int> ids, std::string key) {
+    bool SettingExists(vector<int> ids, string key) {
         for (auto id : ids) {
             auto row = db->settings->get(id);
             if (row["key"] == key) {
@@ -51,14 +55,24 @@ class Route {
         return false;
     }
 
+    void respond(Response& response, json data, int status = 200){
+        response.status = status;
+        response.set_content(to_string(data), "application/json");
+    }
+
+    void respond(Response& response, string data, int status = 200){
+        response.status = status;
+        response.set_content(data, "text/plain");
+    }
+
 
  public:
-    Route(Database db, std::shared_ptr<httplib::Server> server){
-        this->db = std::make_shared<Database>(db);
+    Route(Database db, shared_ptr<Server> server){
+        this->db = make_shared<Database>(db);
         this->server = server;
     }
     virtual void init(){
-        std::cerr << "Error, called unimplemented run method" << std::endl;
-        throw std::exception();
+        cerr << "Error, called unimplemented run method" << endl;
+        throw exception();
     }
 };

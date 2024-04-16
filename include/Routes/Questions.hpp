@@ -9,36 +9,32 @@ class Questions : public Route {
     using Route::Route;
  public:
     virtual void init() override {
-        this->server->Get("/questions/defaults", [&](Request request, Response response){
+        this->server->Get("/questions/defaults", [&](Request request, Response& response){
             auto questions = db->questions->get_where("tags", "default");
-            vector<json> vec;
+            auto response_data = json::array();
             for (auto i : questions) {
                 auto question = db->questions->get(i);
                 json data;
                 for (auto key : question.keys()) {
                     data[key] = question[key];
                 }
-                vec.push_back(data);
+                response_data.push_back(data);
             }
-            json response_data;
-            response_data = move(vec);
-            response.set_content(move(response_data), "application/json");
+            respond(response, response_data);
         });
-        this->server->Get("/questions/get/:tag", [&](Request request, Response response){
-            auto tag = request.path_params.at("tag");
+        this->server->Get("/questions/get/:tag", [&](Request request, Response& response){
+            auto tag = request.path_params["tag"];
             auto questions = db->questions->get_where("tags", tag);
-            vector<json> vec;
+            json response_data;
             for (auto i : questions) {
                 auto question = db->questions->get(i);
-                json data({});
+                json data;
                 for (auto key : question.keys()) {
                     data[key] = question[key];
                 }
-                vec.push_back(data);
+                response_data.push_back(data);
             }
-            json response_data;
-            response_data = move(vec);
-            response.set_content(move(response_data), "application/json");
+            respond(response, response_data);
         });
     }
 };

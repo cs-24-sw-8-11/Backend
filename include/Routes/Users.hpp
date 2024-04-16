@@ -18,99 +18,61 @@ class Users : public Route {
     using Route::Route;
 
     virtual void init() override {
-        this->server->Get("/user/get/:uid", [&](Request request, Response response){
+        this->server->Get("/user/get/:uid", [&](Request request, Response& response){
             json response_data;
-            auto uid = stoi(request.path_params.at("uid"));
+            auto uid = stoi(request.path_params["uid"]);
             auto user = db->users->get(uid);
             auto userdata = db->userdata->get(db->userdata->get_where(
                 "userId",
                 db_int(uid)).front());
             if (uid < 0) {
-                response_data["error"] = "Invalid id";
-                response.set_content(response_data, "application/json");
+                response_data["error"] = "Invalid Id.";
+                respond(response, response_data, 400);
                 return;
             }
             for (auto key : user.keys()) {
-                if (key == "password") {
+                if (key == "password") 
                     continue;
-                }
+                
                 response_data[key] = user[key];
             }
-            for (auto key : userdata.keys()) {
+            for (auto key : userdata.keys()) 
                 response_data[key] = userdata[key];
-            }
-            response.set_content(response_data, "application/json");
+            
+            respond(response, response_data);
         });
-        this->server->Get("/user/get/:uid", [&](Request request, Response response){
+        this->server->Get("/user/ids/:min/:max", [&](Request request, Response& response){
             json response_data;
-            auto uid = stoi(request.path_params.at("uid"));
-            auto user = db->users->get(uid);
-            auto userdata = db->userdata->get(db->userdata->get_where(
-                "userId",
-                db_int(uid)).front());
-            if (uid < 0) {
-                response_data["error"] = "Invalid id";
-                response.set_content(response_data, "application/json");
-            }
-            for (auto key : user.keys()) {
-                if (key == "password") {
-                    continue;
-                }
-                response_data[key] = user[key];
-            }
-            for (auto key : userdata.keys()) {
-                response_data[key] = userdata[key];
-            }
-            response.set_content(response_data, "application/json");
-
-        });
-        this->server->Get("/user/ids/:min-:max", [&](Request request, Response response){
-            json response_data;
-            auto min = stoi(request.path_params.at("min"));
-            auto max = stoi(request.path_params.at("max"));
+            auto min = stoi(request.path_params["min"]);
+            auto max = stoi(request.path_params["max"]);
+            cout << "test" << min << " " << max << endl;
             if (min < 0 || max < 0 || (max-min < 0)) {
                 response_data["difference"] = max-min;
                 response_data["max"] = max;
                 response_data["min"] = min;
-                response_data["error"] = "Invalid Range";
-                return response.set_content(response_data, "application/json");
+                response_data["error"] = "Invalid Range.";
+                return respond(response, response_data);
             }
             auto users = db->users->get_where();
             vector<int> filteredUsers;
             for (const auto & user : users) {
-                if (user <= max && user >= min) {
+                if (user <= max && user >= min) 
                     filteredUsers.push_back(user);
-                }
+                
             }
-            // Funky solution to make it only return json array
-            response_data = move(filteredUsers);
-            // This is done due to "inconsistent type" errors appearing
-            // if not done
-            response.set_content(move(response_data), "application/json");
+            response_data = filteredUsers;
+            respond(response, response_data);
         });
         this->server->Get("/user/ids", [&](Request request, Response& response){
             json data = db->users->get_where();
-            string result = to_string(data);
-            return response.set_content(result, "application/json");
+            respond(response, data);
         });
-        /*this->app->route_dynamic("/user/ids")
-        ([&]() {
-            crow::json::wvalue x;
-            auto users = db->users->get_where();
-            x = std::move(users);
-            return std::move(x);
-        });
-        this->app->route_dynamic("/user/auth")
-        .methods("POST"_method)
-        ([&](const crow::request& req) {
-            auto x = crow::json::load(req.body);
-            if (!x) {
-                return crow::response(400, "Unable to load/parse json");
-            }
-            auto username = x["username"].s();
-            auto password = x["password"].s();
+        this->server->Post("/user/auth", [&](Request request, Response& response){
+            auto body = json::parse(request.body);
+            auto username = body["username"].get<string>();
+            auto password = body["password"].get<string>();
             if (db->users->get_where("username", username).size() == 0) {
-                return crow::response(403, "Invalid Credentials!");
+                return respond(response, string("Invalid Credentials!"), 403);
             }
             auto dbpassword = db->users->get(db->users->get_where(
                 "username",
@@ -120,23 +82,19 @@ class Users : public Route {
                 auto userid = db->users->get_where(
                     "username",
                     username).front();
-                auto hash = make_hash((std::string)username, (std::string)password);
+                auto hash = make_hash((string)username, (string)password);
                 auto token = std::format("{}", hash);
                 authedUsers[userid] = token;
-                return crow::response(200, token);
-            } else {
-                return crow::response(403, "Invalid Credentials!");
-            }
+                respond(response, token);
+            } else 
+                respond(response, string("Invalid Credentials!"), 403);
+            
+
         });
-        this->app->route_dynamic("/user/register")
-        .methods("POST"_method)
-        ([&](const crow::request& req) {
-            auto x = crow::json::load(req.body);
-            if (!x) {
-                return crow::response(400, "Unable to load/parse JSON.");
-            }
-            auto username = x["username"].s();
-            auto password = x["password"].s();
+        this->server->Post("/user/register", [&](Request request, Response& response){
+            auto body = json::parse(request.body);
+            auto username = body["username"].get<string>();
+            auto password = body["password"].get<string>();
             auto alreadyRegistered = db->users->get_where(
                 "username",
                 username).size() > 0;
@@ -160,33 +118,25 @@ class Users : public Route {
                     db_int(userid)});
                 db->users->modify(userid, {"userdataId"}, {db_int(userdataid)});
                 DefaultSettings(userid);
-                return crow::response(200, "Successfully registered!");
-            } else {
-                return crow::response(400, "Username is already taken!");
-            }
+                respond(response, string("Successfully registered!"));
+            } else 
+                respond(response, string("Username is already taken!"), 400);
+            
         });
-        this->app->route_dynamic("/user/data/update")
-        .methods("POST"_method)
-        ([&](const crow::request& req) {
-            auto x = crow::json::load(req.body);
-            auto z = nlohmann::json::parse(req.body);
-            if (!x) {
-                return crow::response(400, "Unable to load/parse JSON.");
-            }
-            auto token = z["token"].get<std::string>();
-            auto userid = UserIdFromToken(token);
-            if (authedUsers[userid] == token) {
-                auto data = z.at("data");
-                for (auto i = data.begin(); i != data.end(); ++i) {
-                    auto key = i.key();
-                    auto value = i.value().front().get<std::string>();
-                    db->userdata->modify(userid, {key}, {value});
+        this->server->Post("/user/data/update", [&](Request request, Response& response){
+            auto body = json::parse(request.body);
+            auto token = body["token"].get<std::string>();
+            auto uid = UserIdFromToken(token);
+            if (authedUsers[uid] == token) {
+                auto data = body["data"];
+                for(auto [key, value] : data.items()){
+                    db->userdata->modify(uid, {key}, {value});
                 }
-                return crow::response(200, "Successfully updated user data.");
+                respond(response, string("Successfully updated user data."));
             } else {
-                return crow::response(403,
-                    "Token does not match expected value!");
+                respond(response, string("Token does not match expected value!"), 403);
             }
-        });*/
+
+        });
     }
 };

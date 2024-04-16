@@ -9,9 +9,9 @@ class Predictions : public Route {
     using Route::Route;
  public:
     virtual void init() override {
-        this->server->Get("/predictions/get/:uid/:token", [&](Request request, Response response){
-            auto uid = stoi(request.path_params.at("uid"));
-            auto token = request.path_params.at("token");
+        this->server->Get("/predictions/get/:uid/:token", [&](Request request, Response& response){
+            auto uid = stoi(request.path_params["uid"]);
+            auto token = request.path_params["token"];
             json response_data;
             vector<json> result;
             auto predictions = db->predictions->get_where(
@@ -30,16 +30,15 @@ class Predictions : public Route {
             }
             else {
                 response_data["error"] = "Invalid id";
-                response.set_content(response_data, "application/json");
-                return;
+                return respond(response, response_data, 400);
             }
-            response_data = std::move(result);
-            response.set_content(std::move(response_data), "application/json");
+            response_data = result;
+            respond(response, response_data);
         });
-        this->server->Post("/predictions/add", [&](Request request, Response response){
+        this->server->Post("/predictions/add", [&](Request request, Response& response){
             auto body = json::parse(request.body);
-            auto token = body["token"].get<std::string>();
-            auto qid = body["questionid"].get<std::string>();
+            auto token = body["token"].get<string>();
+            auto qid = body["questionid"].get<string>();
             auto uid = UserIdFromToken(token);
             if (authedUsers[uid] == token) {
                 auto prediction = manager.create_new_prediction(uid);
@@ -48,12 +47,12 @@ class Predictions : public Route {
                     "userId",
                     db_int(uid));
                 for (auto answer : answers) {
-                    if (std::count(
+                    if (count(
                         journals.begin(),
                         journals.end(),
-                        std::stoi(db->answers->get(answer)["journalId"])) > 0) {
+                        stoi(db->answers->get(answer)["journalId"])) > 0) {
                         prediction.add_valued_data(qid,
-                            std::stod(db->answers->get(answer)["answer"]));
+                            stod(db->answers->get(answer)["answer"]));
                     }
                 }
                 auto predictionValue = prediction.build();
@@ -61,12 +60,10 @@ class Predictions : public Route {
                     "userId",
                     "value"}, {
                     db_int(uid),
-                    std::format("{}", predictionValue)});
-                response.status = 200;
-                response.set_content("Successfully added prediction", "text/plain");
+                    to_string(predictionValue)});
+                respond(response, string("Successfully added prediction"));
             } else {
-                response.status = 403;
-                response.set_content("Toekn does not match expected value!", "text/plain");
+                respond(response, string("Token does not match expected value!"), 403);
             }
         });
     }
