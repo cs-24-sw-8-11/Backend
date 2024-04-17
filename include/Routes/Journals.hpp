@@ -61,7 +61,7 @@ class Journals : public Route {
             auto token = request.path_params["token"];
             auto uid = user_id_from_token(token);
             if (uid < 0) {
-                response_data["error"] = "Invalid Id.";
+                response_data["error"] = "Invalid Token!";
                 return respond(&response, response_data, 400);
             }
             auto journals = db->journals->get_where(
