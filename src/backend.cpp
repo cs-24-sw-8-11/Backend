@@ -3,6 +3,8 @@
 
 #include "Api.hpp"
 
+#include "Globals.hpp"
+
 void default_question(std::string path) {
     auto db = std::make_shared<Database>(path);
     if (db->questions->get_where("tags", "default").size() == 0) {
@@ -41,6 +43,7 @@ int main(int argc, char* argv[]) {
     }
     if (program["--verbose"] == true) {
         std::cout << "Verbosity enabled" << std::endl;
+        VERBOSE = true;
     }
 
     auto path = program.get<std::string>("--database");

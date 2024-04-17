@@ -13,33 +13,46 @@
 #include "Settings.hpp"
 #include "Users.hpp"
 
+#include "Globals.hpp"
+
+using namespace std;
+using namespace httplib;
 
 class Api {
  public:
-    Api(std::string dbPath, int port){
-        std::shared_ptr<httplib::Server> server = make_shared<httplib::Server>();
+    Api(string dbPath, int port){
+        shared_ptr<Server> server = make_shared<Server>();
         Database db(dbPath);
-        std::vector<std::shared_ptr<Route>> routes = {
-            std::make_shared<Answers>(db, server),
-            std::make_shared<Journals>(db, server),
-            std::make_shared<Predictions>(db, server),
-            std::make_shared<Questions>(db, server),
-            std::make_shared<Settings>(db, server),
-            std::make_shared<Users>(db, server)
+        vector<std::shared_ptr<Route>> routes = {
+            make_shared<Answers>(db, server),
+            make_shared<Journals>(db, server),
+            make_shared<Predictions>(db, server),
+            make_shared<Questions>(db, server),
+            make_shared<Settings>(db, server),
+            make_shared<Users>(db, server)
         };
         for (auto route : routes) {
             route->init();
+            if (VERBOSE)
+                cout << "Initialized route: " << typeid(*route).name() << endl;
         }
+        if (VERBOSE)
+            cout << "Initialized routes and endpoints" << endl;
         server->set_logger([](httplib::Request req, const Response& res) {
-            std::cout << "--------------- Got request! ---------------" << std::endl <<
-                "Status:   " << (res.status == 200 ? "\033[38;2;0;255;0m" : "\033[38;2;255;0;0m") << res.status << "\033[0m" << std::endl <<
-                "Path:     " << req.path << std::endl <<
-                "req Body: " << req.body << std::endl <<
-                "res Body: " << res.body << std::endl <<
-                "Params:   " << std::endl;
+            string red = "\033[38;2;255;0;0m";
+            string green = "\033[38;2;0;255;0m";
+            std::cout << "--------------- Got request! ---------------" << endl <<
+                "Status:   " << (res.status == 200 ? green : red) << res.status << "\033[0m" << endl <<
+                "Path:     " << req.path << endl <<
+                "req Body: " << req.body << endl <<
+                "res Body: " << res.body << endl <<
+                "Params:   " << endl;
             for (auto [key, value] : req.path_params)
-                std::cout << "\t" << key << ": " << value << std::endl;
+                cout << "\t" << key << ": " << value << endl;
         });
+        if (VERBOSE)
+            cout << "Initialized logger" << endl;
+        cout << "Starting server on localhost:" << port << endl;
         server->listen("localhost", port);
     }
 };

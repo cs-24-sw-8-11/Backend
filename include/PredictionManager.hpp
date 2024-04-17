@@ -6,6 +6,11 @@
 #include <vector>
 #include <cmath>
 #include <utility>
+#include <iostream>
+
+#include "Globals.hpp"
+
+using namespace std;
 
 // these will be used in later implementations
 #define LOW_STRESS 0
@@ -13,7 +18,7 @@
 #define HIGH_STRESS 27
 
 template<typename T = double>
-T sum(std::vector<T> values) {
+T sum(vector<T> values) {
     T result;
     for (auto value : values) {
         result += value;
@@ -22,13 +27,13 @@ T sum(std::vector<T> values) {
 }
 
 template<typename T = double>
-T mean(std::vector<T> values) {
+T mean(vector<T> values) {
     return sum(values)/values.size();
 }
 
 template<typename T = double>
-std::vector<T> normalizeCDF(std::vector<T> values) {
-    std::vector<T> results;
+vector<T> normalizeCDF(vector<T> values) {
+    vector<T> results;
     for (auto value : values) {
         results.push_back(0.5 * erfc(-value * M_SQRT1_2));
     }
@@ -36,12 +41,12 @@ std::vector<T> normalizeCDF(std::vector<T> values) {
 }
 
 template<typename T = double>
-std::function<T(T)> calculate_regression(std::vector<T> xs, std::vector<T> ys) {
+function<T(T)> calculate_regression(vector<T> xs, vector<T> ys) {
     auto x_mean = mean(xs);
     auto y_mean = mean(ys);
     auto numerator = 0.0;
     auto denominator = 0.0;
-    for (auto [x, y] : std::ranges::zip_view(xs, ys)) {
+    for (auto [x, y] : ranges::zip_view(xs, ys)) {
         numerator += (x-x_mean) * (y-y_mean);
         denominator += pow(x - x_mean, 2);
     }
@@ -53,15 +58,19 @@ std::function<T(T)> calculate_regression(std::vector<T> xs, std::vector<T> ys) {
 
 class PredictionBuilder {
     double prediction_value = 0.5;
-    std::vector<std::pair<std::string, double>> valued_data;
-    std::vector<std::pair<std::string, bool>> boolean_data;
+    vector<pair<string, double>> valued_data;
+    vector<pair<string, bool>> boolean_data;
 
  public:
-    void add_valued_data(std::string qid, double data) {
-        valued_data.push_back(std::make_pair(qid, data));
+    void add_valued_data(string qid, double data) {
+        valued_data.push_back(make_pair(qid, data));
+        if (VERBOSE)
+            cout << "added valued data" << endl;
     }
-    void add_boolean_data(std::string qid, bool data) {
-        boolean_data.push_back(std::make_pair(qid, data));
+    void add_boolean_data(string qid, bool data) {
+        boolean_data.push_back(make_pair(qid, data));
+        if (VERBOSE)
+            cout << "added boolean data" << endl;
     }
     size_t size() {
         return valued_data.size() + boolean_data.size();
@@ -69,7 +78,7 @@ class PredictionBuilder {
     double build() {
         // The most important step here is to normalize the data
         // such that the stress factor is within the range
-        std::vector<double> final_data;
+        vector<double> final_data;
         for (auto pair : valued_data) {
             final_data.push_back(pair.second);
         }
@@ -78,6 +87,8 @@ class PredictionBuilder {
         }
         // now we normalize
         auto normalized = normalizeCDF(final_data);
+        if (VERBOSE)
+            cout << "Built prediction with value: " << mean(normalized) << endl;
         return mean(normalized);
     }
 };
