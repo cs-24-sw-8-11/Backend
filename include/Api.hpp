@@ -42,7 +42,7 @@ class Api {
             string red = "\033[38;2;255;0;0m";
             string green = "\033[38;2;0;255;0m";
             std::cout << "--------------- Got request! ---------------" << endl <<
-                "Status:   " << (res.status == 200 ? green : red) << res.status << "\033[0m" << endl <<
+                "Status:   " << (res.status >= 200 && res.status < 300 ? green : red) << res.status << "\033[0m" << endl <<
                 "Path:     " << req.path << endl <<
                 "req Body: " << req.body << endl <<
                 "res Body: " << res.body << endl <<

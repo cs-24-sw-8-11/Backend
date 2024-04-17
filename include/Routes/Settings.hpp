@@ -14,8 +14,9 @@ class Settings : public Route {
 
  public:
     void init() override {
-        this->server->Get("/settings/get/:uid", [&](Request request, Response& response){
-            auto uid = stoi(request.path_params["uid"]);
+        this->server->Get("/settings/get/:token", [&](Request request, Response& response){
+            auto token = request.path_params["token"];
+            auto uid = user_id_from_token(token);
             json response_data;
             if (uid < 0) {
                 response_data["error"] = "Invalid Id.";
