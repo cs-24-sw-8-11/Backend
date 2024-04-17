@@ -19,7 +19,7 @@ class Settings : public Route {
             auto uid = user_id_from_token(token);
             json response_data;
             if (uid < 0) {
-                response_data["error"] = "Invalid Id.";
+                response_data["error"] = "Invalid Token!";
                 return respond(&response, response_data, 400);
             }
             auto settings = db->settings->get_where(
