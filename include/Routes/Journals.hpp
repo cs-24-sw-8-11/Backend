@@ -56,11 +56,12 @@ class Journals : public Route {
                 db_int(jid));
             respond(&response, response_data);
         });
-        this->server->Get("/journals/ids/:uid", [&](Request request, Response& response){
+        this->server->Get("/journals/ids/:token", [&](Request request, Response& response){
             json response_data;
-            auto uid = stoi(request.path_params["uid"]);
+            auto token = request.path_params["token"];
+            auto uid = user_id_from_token(token);
             if (uid < 0) {
-                response_data["error"] = "Invalid Id.";
+                response_data["error"] = "Invalid Token!";
                 return respond(&response, response_data, 400);
             }
             auto journals = db->journals->get_where(
@@ -69,10 +70,10 @@ class Journals : public Route {
             response_data = journals;
             respond(&response, response_data);
         });
-        this->server->Delete("/journals/delete/:uid/:jid/:token", [&](Request request, Response& response){
-            auto uid = stoi(request.path_params["uid"]);
-            auto jid = stoi(request.path_params["jid"]);
+        this->server->Delete("/journals/delete/:jid/:token", [&](Request request, Response& response){
             auto token = request.path_params["token"];
+            auto uid = user_id_from_token(token);
+            auto jid = stoi(request.path_params["jid"]);
             if (authedUsers[uid] == token) {
                 db->journals->delete_item(jid);
                 respond(&response, string("Successfully deleted journal."), 202);

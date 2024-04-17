@@ -15,9 +15,9 @@ class Predictions : public Route {
 
  public:
     void init() override {
-        this->server->Get("/predictions/get/:uid/:token", [&](Request request, Response& response){
-            auto uid = stoi(request.path_params["uid"]);
+        this->server->Get("/predictions/get/:token", [&](Request request, Response& response){
             auto token = request.path_params["token"];
+            auto uid = user_id_from_token(token);
             json response_data;
             vector<json> result;
             auto predictions = db->predictions->get_where(

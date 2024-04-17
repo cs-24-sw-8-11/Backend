@@ -22,8 +22,8 @@ uid=$(echo "$ids" | jq -r .[0])
 # /user/data/update
 curl -s -X 'POST' -d "{\"token\":\"$token\", \"data\":{\"agegroup\":\"42-69\", \"occupation\":\"school\"}}" $addr/user/data/update >> /dev/null
 
-# /user/get/<uid>
-userdata=$(curl -s -X 'GET' $addr/user/get/$uid)
+# /user/get/<token>
+userdata=$(curl -s -X 'GET' $addr/user/get/$token)
 
 # /questions/defaults
 questions=$(curl -s -X 'GET' $addr/questions/defaults)
@@ -35,8 +35,8 @@ default_questions=$(curl -s -X 'GET' $addr/questions/get/default)
 # /journals/new
 curl -s -X 'POST' -d "{\"token\":\"$token\", \"comment\":\"Too many exams today.\", \"data\":[{\"question\":\"$qid\", \"answer\":\"8\"},{\"question\":\"2\", \"answer\":\"2\"}]}" $addr/journals/new >> /dev/null
 
-# /journals/ids/<uid>
-jids=$(curl -s -X 'GET' $addr/journals/ids/$uid)
+# /journals/ids/<token>
+jids=$(curl -s -X 'GET' $addr/journals/ids/$token)
 # get the one journal
 jid=$(echo "$jids" | jq -r .[0])
 
@@ -47,20 +47,20 @@ journal=$(curl -s -X 'GET' $addr/journals/get/$jid)
 aid=$(echo "$journal" | jq -r .answers[0])
 answer=$(curl -s -X 'GET' $addr/answers/get/$aid/$token)
 
-# /journals/delete/<uid>/<jid>
-#curl -s -X 'DELETE' $addr/journals/delete/$uid/$jid/$token
+# /journals/delete/<jid>/<token>
+curl -s -X 'DELETE' $addr/journals/delete/$jid/$token
 
 # /settings/update
 curl -s -X 'POST' -d "{\"token\":\"$token\", \"settings\":{\"key\":\"modified\", \"key1\": \"modified1\",\"someKeyThatDoesntExist\": \"somevalue\"}}" $addr/settings/update >> /dev/null
 
-# /settings/get/<uid>
-settings=$(curl -s -X 'GET' $addr/settings/get/$uid)
+# /settings/get/<token>
+settings=$(curl -s -X 'GET' $addr/settings/get/$token)
 
 # /predictions/add
 curl -s -X 'POST' -d "{\"token\":\"$token\", \"questionid\":\"$qid\"}" $addr/predictions/add >> /dev/null
 
 # /predictions/get/<uid>/<token>
-prediction=$(curl -s -X 'GET' $addr/predictions/get/$uid/$token)
+prediction=$(curl -s -X 'GET' $addr/predictions/get/$token)
 
 pkill backend
 echo "---------------------TEST COMPLETE---------------------"

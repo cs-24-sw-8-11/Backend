@@ -23,9 +23,10 @@ class Users : public Route {
     using Route::Route;
 
     void init() override {
-        this->server->Get("/user/get/:uid", [&](Request request, Response& response){
+        this->server->Get("/user/get/:token", [&](Request request, Response& response){
             json response_data;
-            auto uid = stoi(request.path_params["uid"]);
+            auto token = request.path_params["token"];
+            auto uid = user_id_from_token(token);
             auto user = db->users->get(uid);
             auto userdata = db->userdata->get(db->userdata->get_where(
                 "userId",
