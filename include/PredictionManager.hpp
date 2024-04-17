@@ -70,7 +70,7 @@ class PredictionBuilder {
     void add_boolean_data(string qid, bool data) {
         boolean_data.push_back(make_pair(qid, data));
         if (VERBOSE)
-            cout << "added boolean data" << endl;
+            cout << "Added boolean data" << endl;
     }
     size_t size() {
         return valued_data.size() + boolean_data.size();
