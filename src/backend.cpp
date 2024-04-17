@@ -2,7 +2,6 @@
 #include <argparse/argparse.hpp>
 
 #include "Api.hpp"
-
 #include "Globals.hpp"
 
 void default_question(std::string path) {
