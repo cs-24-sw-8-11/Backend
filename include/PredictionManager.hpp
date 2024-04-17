@@ -65,7 +65,7 @@ class PredictionBuilder {
     void add_valued_data(string qid, double data) {
         valued_data.push_back(make_pair(qid, data));
         if (VERBOSE)
-            cout << "added valued data" << endl;
+            cout << "Added valued data" << endl;
     }
     void add_boolean_data(string qid, bool data) {
         boolean_data.push_back(make_pair(qid, data));
