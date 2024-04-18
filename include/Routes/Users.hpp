@@ -27,15 +27,15 @@ class Users : public Route {
             json response_data;
             auto token = request.path_params["token"];
             auto uid = user_id_from_token(token);
+            if (uid <= 0) {
+                response_data["error"] = "Invalid Token!";
+                respond(&response, response_data, 400);
+                return;
+            }
             auto user = db->users->get(uid);
             auto userdata = db->userdata->get(db->userdata->get_where(
                 "userId",
                 db_int(uid)).front());
-            if (uid < 0) {
-                response_data["error"] = "Invalid Id.";
-                respond(&response, response_data, 400);
-                return;
-            }
             for (auto key : user.keys()) {
                 if (key == "password")
                     continue;
