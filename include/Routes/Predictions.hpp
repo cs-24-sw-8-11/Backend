@@ -33,8 +33,8 @@ class Predictions : public Route {
                     result.push_back(data);
                 }
             } else {
-                response_data["error"] = "Invalid id";
-                return respond(&response, response_data, 400);
+                response_data["error"] = "Invalid Token!";
+                return respond(&response, response_data, 403);
             }
             response_data = result;
             respond(&response, response_data);
