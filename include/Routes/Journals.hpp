@@ -43,8 +43,8 @@ class Journals : public Route {
         this->server->Get("/journals/get/:jid", [&](Request request, Response& response){
             auto jid = stoi(request.path_params["jid"]);
             json response_data;
-            if (jid < 0) {
-                response_data["error"] = "Invalid id";
+            if (jid <= 0 || db->journals->get_where("id", db_int(jid)).size() == 0) {
+                response_data["error"] = "Invalid Journal Id.";
                 return respond(&response, response_data, 400);
             }
             auto journal = db->journals->get(jid);
@@ -60,7 +60,7 @@ class Journals : public Route {
             json response_data;
             auto token = request.path_params["token"];
             auto uid = user_id_from_token(token);
-            if (uid < 0) {
+            if (uid <= 0) {
                 response_data["error"] = "Invalid Token!";
                 return respond(&response, response_data, 400);
             }

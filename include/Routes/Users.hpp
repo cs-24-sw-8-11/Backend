@@ -122,7 +122,7 @@ class Users : public Route {
                     db_int(userid)});
                 db->users->modify(userid, {"userdataId"}, {db_int(userdataid)});
                 default_settings(userid);
-                respond(&response, string("Successfully registered!"));
+                respond(&response, string("Successfully Registered!"));
             } else {
                 respond(&response, string("Username is already taken!"), 400);
             }

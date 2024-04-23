@@ -11,7 +11,7 @@ sleep 1
 # /register
 curl -s -X 'POST' -d "$authjson" $addr/user/register >> /dev/null
 
-# /auth
+# /user/auth
 token=$(curl -s -X 'POST' -d "$authjson" $addr/user/auth)
 
 # /user/ids/<n-m>
