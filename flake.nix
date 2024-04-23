@@ -12,7 +12,7 @@
             ${pkgs.cmake}/bin/cmake --build ${build-dir}
         '';
         run = pkgs.writeScriptBin "run-project" ''
-            ${build-dir}/src/backend $@
+            ${build-dir}/bin/backend $@
         '';
         test = pkgs.writeScriptBin "test-project" ''
             ${pkgs.cmake}/bin/ctest --test-dir ${build-dir} $@

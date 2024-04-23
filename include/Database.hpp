@@ -36,9 +36,7 @@ class Database {
         this->users = factory.create("users", {
             "username VARCHAR UNIQUE NOT NULL",
             "password VARCHAR NOT NULL",
-            "userdataId INTEGER",
             "state INTEGER NOT NULL",
-            "FOREIGN KEY(userdataId) REFERENCES userdata(id)"
         });
         this->journals = factory.create("journals", {
             "comment varchar",
@@ -64,9 +62,10 @@ class Database {
             "FOREIGN KEY(userId) REFERENCES users(id)"
         });
         this->userdata = factory.create("userdata", {
-            "agegroup VARCHAR NOT NULL",
-            "occupation VARCHAR NOT NULL",
             "userId INTEGER NOT NULL"
+            "agegroup VARCHAR NOT NULL",
+            "major VARCHAR NOT NULL",
+            "FOREIGN KEY(userId) REFERENCES users(id)"
         });
         this->predictions = factory.create("predictions", {
             "userId INTEGER NOT NULL",
