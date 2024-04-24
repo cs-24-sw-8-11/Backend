@@ -16,7 +16,10 @@ class Journals : public Route {
         this->server->Post("/journals/new", [&](Request request, Response& response){
             auto body = json::parse(request.body);
             auto token = body["token"].get<string>();
-            auto comment = body["comment"].get<string>();
+            string comment = "";
+            if(body["comment"].size()){
+                comment = body["comment"].get<string>();
+            }
             auto userid = user_id_from_token(token);
             if (authedUsers[userid] == token) {
                 auto list = body["data"].get<vector<json>>();

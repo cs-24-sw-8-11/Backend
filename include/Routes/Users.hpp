@@ -11,6 +11,10 @@ using namespace httplib;
 using namespace std;
 using namespace nlohmann;
 
+/// @brief Hashing function that makes a combined hash of a username and password.
+/// @param username 
+/// @param password 
+/// @return 
 int64_t make_hash(std::string username, std::string password) {
     auto hash1 = std::hash<std::string>{}(username);
     auto hash2 = std::hash<std::string>{}(password);
@@ -18,11 +22,16 @@ int64_t make_hash(std::string username, std::string password) {
     return combinedhash;
 }
 
+/// @brief This class contains all of the endpoints related to users.
 class Users : public Route {
  public:
+    // Inherit the super class constructor
     using Route::Route;
 
+    /// @brief Adds the user endpoints
     void init() override {
+
+        /// @brief Gets the userdata of a user.
         this->server->Get("/user/get/:token", [&](Request request, Response& response){
             json response_data;
             auto token = request.path_params["token"];
