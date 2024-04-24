@@ -16,7 +16,7 @@ class Questions : public Route {
             if (db->questions->get_where("tags", "default").size() == 0) {
                 json response_data;
                 response_data["error"] = "Somehow there are no default questions???";
-                return respond(&response, response_data, 500);
+                return respond(&response, response_data, 400);
             }
             auto questions = db->questions->get_where("tags", "default");
             auto response_data = json::array();
