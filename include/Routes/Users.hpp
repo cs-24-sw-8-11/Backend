@@ -33,9 +33,13 @@ class Users : public Route {
                 return;
             }
             auto user = db->users->get(uid);
-            auto userdata = db->userdata->get(db->userdata->get_where(
-                "userId",
-                db_int(uid)).front());
+            auto userdata_ids = db->userdata->get_where("userId", db_int(uid));
+            if (userdata_ids.size() == 0) {
+                response_data["error"] = "User has no userdata yet!";
+                respond(&response, response_data, 400);
+                return;
+            }
+            auto userdata = db->userdata->get(userdata_ids[0]);
             for (auto key : user.keys()) {
                 if (key == "password")
                     continue;
