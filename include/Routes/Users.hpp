@@ -33,7 +33,7 @@ class Users : public Route {
                 return;
             }
             auto user = db->users->get(uid);
-            if(!(db->userdata->get_where("userId", db_int(uid)).size())) {
+            if (!(db->userdata->get_where("userId", db_int(uid)).size())) {
                 response_data["error"] = "User has no userdata yet!";
                 respond(&response, response_data, 400);
                 return;
