@@ -113,14 +113,6 @@ class Users : public Route {
                     username,
                     password,
                     db_int(TRAINING)});
-                auto userdataid = db->userdata->add({
-                    "agegroup",
-                    "occupation",
-                    "userId"}, {
-                    "18-24",
-                    "school",
-                    db_int(userid)});
-                db->users->modify(userid, {"userdataId"}, {db_int(userdataid)});
                 default_settings(userid);
                 respond(&response, string("Successfully registered!"));
             } else {

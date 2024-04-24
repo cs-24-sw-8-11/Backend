@@ -62,7 +62,7 @@ class Database {
             "FOREIGN KEY(userId) REFERENCES users(id)"
         });
         this->userdata = factory.create("userdata", {
-            "userId INTEGER NOT NULL"
+            "userId INTEGER NOT NULL",
             "agegroup VARCHAR NOT NULL",
             "major VARCHAR NOT NULL",
             "FOREIGN KEY(userId) REFERENCES users(id)"
