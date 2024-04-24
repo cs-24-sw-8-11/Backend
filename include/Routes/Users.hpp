@@ -90,7 +90,7 @@ class Users : public Route {
                 auto userid = db->users->get_where(
                     "username",
                     username).front();
-                auto hash = make_hash((string)username, (string)password);
+                auto hash = make_hash(username, password);
                 auto token = std::format("{}", hash);
                 authedUsers[userid] = token;
                 respond(&response, token);
@@ -109,12 +109,14 @@ class Users : public Route {
             if (username.size() > 0 &&
                 password.size() > 0 &&
                 !alreadyRegistered) {
+                auto hash = make_hash(username, password);
+                auto token = std::format("{}", hash);
                 auto userid = db->users->add({
                     "username",
                     "password",
                     "state"}, {
                     username,
-                    password,
+                    token,
                     db_int(TRAINING)});
                 default_settings(userid);
                 respond(&response, string("Successfully Registered!"));
