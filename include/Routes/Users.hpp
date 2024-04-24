@@ -79,6 +79,8 @@ class Users : public Route {
             auto body = json::parse(request.body);
             auto username = body["username"].get<string>();
             auto password = body["password"].get<string>();
+            auto hash = make_hash(username, password);
+            auto token = std::format("{}", hash);
             if (db->users->get_where("username", username).size() == 0) {
                 return respond(&response, string("Invalid Credentials!"), 403);
             }
@@ -86,12 +88,10 @@ class Users : public Route {
                 "username",
                 username).front())["password"];
 
-            if (dbpassword == password) {
+            if (dbpassword == token) {
                 auto userid = db->users->get_where(
                     "username",
                     username).front();
-                auto hash = make_hash(username, password);
-                auto token = std::format("{}", hash);
                 authedUsers[userid] = token;
                 respond(&response, token);
             } else {
