@@ -20,7 +20,7 @@ ids=$(curl -s -X 'GET' $addr/user/ids)
 uid=$(echo "$ids" | jq -r .[0])
 
 # /user/data/update
-curl -s -X 'POST' -d "{\"token\":\"$token\", \"data\":{\"agegroup\":\"42-69\", \"occupation\":\"school\"}}" $addr/user/data/update >> /dev/null
+curl -s -X 'POST' -d "{\"token\":\"$token\", \"data\":{\"agegroup\":\"42-69\", \"major\":\"school\"}}" $addr/user/data/update >> /dev/null
 
 # /user/get/<token>
 userdata=$(curl -s -X 'GET' $addr/user/get/$token)
