@@ -144,6 +144,12 @@ class Table {
     vector<string> columns;
     shared_ptr<SQLite::Database> db;
 
+    SQLite::Statement make_statement(string sql) {
+        if (VERBOSE)
+            cout << "\033[38;2;100;100;100mSQL: " << sql << "\033[0m" << endl;
+        return SQLite::Statement(*(this->db), sql);
+    }
+
  public:
     Table(string name,
           vector<string> columns,
@@ -160,14 +166,14 @@ class Table {
             "CREATE TABLE IF NOT EXISTS {} (id INTEGER PRIMARY KEY{})",
             this->name,
             qs);
-        SQLite::Statement query(*(this->db), sql);
+        SQLite::Statement query = make_statement(sql);
         try {
             query.exec();
         }
         EXCEPTION_HANDLER;
     }
     size_t size() {
-        SQLite::Statement query(*(this->db),
+        SQLite::Statement query = make_statement(
             format("SELECT id FROM {}",
             this->name));
         auto size = 0;
@@ -189,8 +195,8 @@ class Table {
         auto sql2 = format(
             "SELECT id FROM {0} ORDER BY id DESC LIMIT 1",
             this->name);
-        SQLite::Statement query(*(this->db), sql);
-        SQLite::Statement query2(*(this->db), sql2);
+        SQLite::Statement query = make_statement(sql);
+        SQLite::Statement query2 = make_statement(sql2);
         for (auto i = 0; i < values.size(); i++) {
             query.bind(i+1, values[i]);
         }
@@ -204,7 +210,7 @@ class Table {
         return id;
     }
     vector<int> get_where(string key, string value) {
-        SQLite::Statement query(*(this->db),
+        SQLite::Statement query = make_statement(
             format("SELECT id FROM {} WHERE {} = ?",
             this->name,
             key));
@@ -219,7 +225,7 @@ class Table {
         return res;
     }
     vector<int> get_where() {
-        SQLite::Statement query(*(this->db),
+        SQLite::Statement query = make_statement(
             format("SELECT id FROM {}",
             this->name));
         vector<int> res;
@@ -233,7 +239,7 @@ class Table {
     }
     Row get(int id) {
         Row row;
-        SQLite::Statement query(*(this->db),
+        SQLite::Statement query = make_statement(
             format("SELECT * FROM {} WHERE id = ?",
             this->name));
         query.bind(1, id);
@@ -249,7 +255,7 @@ class Table {
         return row;
     }
     void delete_item(int id) {
-        SQLite::Statement query(*(this->db),
+        SQLite::Statement query = make_statement(
             format("DELETE FROM {} WHERE id = ?",
             this->name));
         query.bind(1, id);
@@ -262,7 +268,7 @@ class Table {
                 vector<string> keys,
                 vector<string> values){
         for (auto [key, value] : views::zip(keys, values)) {
-            SQLite::Statement query(*(this->db),
+            SQLite::Statement query = make_statement(
                 format("UPDATE {} SET {} = ? WHERE id = ?",
                 this->name,
                 key));

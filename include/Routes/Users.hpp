@@ -51,7 +51,6 @@ class Users : public Route {
             json response_data;
             auto min = stoi(request.path_params["min"]);
             auto max = stoi(request.path_params["max"]);
-            cout << "test" << min << " " << max << endl;
             if (min < 0 || max < 0 || (max-min < 0)) {
                 response_data["difference"] = max-min;
                 response_data["max"] = max;
@@ -113,14 +112,6 @@ class Users : public Route {
                     username,
                     password,
                     db_int(TRAINING)});
-                auto userdataid = db->userdata->add({
-                    "agegroup",
-                    "occupation",
-                    "userId"}, {
-                    "18-24",
-                    "school",
-                    db_int(userid)});
-                db->users->modify(userid, {"userdataId"}, {db_int(userdataid)});
                 default_settings(userid);
                 respond(&response, string("Successfully Registered!"));
             } else {
@@ -133,8 +124,18 @@ class Users : public Route {
             auto uid = user_id_from_token(token);
             if (authedUsers[uid] == token) {
                 auto data = body["data"];
-                for (auto [key, value] : data.items()) {
-                    db->userdata->modify(uid, {key}, {value});
+                if (db->userdata->get_where("userId", db_int(uid)).size() == 0) {
+                    db->userdata->add({
+                        "agegroup",
+                        "major",
+                        "userId"}, {
+                        data["agegroup"].get<string>(),
+                        data["major"].get<string>(),
+                        db_int(uid)});
+                } else {
+                    for (auto [key, value] : data.items()) {
+                        db->userdata->modify(uid, {key}, {value});
+                    }
                 }
                 respond(&response, string("Successfully updated user data."));
             } else {

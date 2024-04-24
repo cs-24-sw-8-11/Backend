@@ -228,7 +228,7 @@ int main() {
     userdata.add_test("delete-userdata", [&](){
         userdata.db->userdata->add({
             "agegroup",
-            "occupation",
+            "major",
             "userId"}, {
             "50-54",
             "unemployed",
@@ -241,7 +241,7 @@ int main() {
     userdata.add_test("modify-userdata", [&](){
         userdata.db->userdata->add({
             "agegroup",
-            "occupation",
+            "major",
             "userId"}, {
             "50-54",
             "unemployed",
