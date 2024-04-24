@@ -114,7 +114,7 @@ class Users : public Route {
                     password,
                     db_int(TRAINING)});
                 default_settings(userid);
-                respond(&response, string("Successfully registered!"));
+                respond(&response, string("Successfully Registered!"));
             } else {
                 respond(&response, string("Username is already taken!"), 400);
             }

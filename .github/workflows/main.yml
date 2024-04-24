@@ -66,7 +66,7 @@ jobs:
                 create-symlink: true
                 save: false
             - name: setup-env
-              run: sudo apt install sqlite3 valgrind
+              run: sudo apt-get update && sudo apt install sqlite3 valgrind
             - name: test-database-tests
               run: valgrind ./.ccache/bin/database_test
             - name: test-questionaire-tests
