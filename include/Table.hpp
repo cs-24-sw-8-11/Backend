@@ -144,7 +144,7 @@ class Table {
     vector<string> columns;
     shared_ptr<SQLite::Database> db;
 
-    SQLite::Statement make_statement(string sql){
+    SQLite::Statement make_statement(string sql) {
         if (VERBOSE)
             cout << "\033[38;2;100;100;100mSQL: " << sql << "\033[0m" << endl;
         return SQLite::Statement(*(this->db), sql);
