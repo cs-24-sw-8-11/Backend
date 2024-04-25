@@ -10,10 +10,13 @@ using namespace httplib;
 using namespace nlohmann;
 
 class Settings : public Route {
+    // Inherits the super class constructor.
     using Route::Route;
 
  public:
+    /// @brief Adds the Settings endpoints.
     void init() override {
+        /// @brief Returns all the settings belonging to a given user.
         this->server->Get("/settings/get/:token", [&](Request request, Response& response){
             auto token = request.path_params["token"];
             auto uid = user_id_from_token(token);
@@ -35,6 +38,7 @@ class Settings : public Route {
             }
             respond(&response, response_data);
         });
+        /// @brief Updates all the specified settings for a given user.
         this->server->Post("/settings/update", [&](Request request, Response& response){
             auto body = json::parse(request.body);
             auto token = body["token"].get<std::string>();

@@ -76,11 +76,15 @@ it has 4 public methods along with 3 overloaded operators
 
 - operator[], operator!= and operator== is overloaded
 */
+
+/// @brief Data structure for a single row in the database.
 class Row {
  private:
     vector<Pair> data;
 
  public:
+    
+    /// @brief Returns all the colomn names of the table the row belongs to.
     vector<string> keys() {
         vector<string> keys;
         for (auto pair : data) {
@@ -88,6 +92,7 @@ class Row {
         }
         return keys;
     }
+    /// @brief Returns all the values in the row object.
     vector<string> values() {
         vector<string> values;
         for (auto pair : data) {
@@ -138,12 +143,15 @@ class Row {
     }
 };
 
+/// @brief Data Structure for a table in the database.
 class Table {
  private:
     string name;
     vector<string> columns;
     shared_ptr<SQLite::Database> db;
 
+    /// @brief Executes a given SQL query and prints it if in verbose mode.
+    /// @param sql
     SQLite::Statement make_statement(string sql) {
         if (VERBOSE)
             cout << "\033[38;2;100;100;100mSQL: " << sql << "\033[0m" << endl;

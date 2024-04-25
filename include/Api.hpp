@@ -20,6 +20,9 @@ using namespace httplib;
 
 class Api {
  public:
+    /// @brief Constructs the API with a give path to the database file and webserver port.
+    /// @param dbPath 
+    /// @param port 
     Api(string dbPath, int port){
         shared_ptr<Server> server = make_shared<Server>();
         Database db(dbPath);
@@ -38,6 +41,8 @@ class Api {
         }
         if (VERBOSE)
             cout << "Initialized routes and endpoints" << endl;
+        
+        /// @brief Initializes the logger that prints out every request.
         server->set_logger([](httplib::Request req, const Response& res) {
             string red = "\033[38;2;255;0;0m";
             string green = "\033[38;2;0;255;0m";

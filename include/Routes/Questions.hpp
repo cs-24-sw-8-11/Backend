@@ -8,10 +8,13 @@ using namespace std;
 using namespace nlohmann;
 
 class Questions : public Route {
+    // Inherits the super class constructor.
     using Route::Route;
 
  public:
+    /// @brief Adds the Questions endpoints.
     void init() override {
+        /// @brief Returns the default questions (those with the tag "default").
         this->server->Get("/questions/defaults", [&](Request request, Response& response){
             if (db->questions->get_where("tags", "default").size() == 0) {
                 json response_data;
@@ -30,6 +33,7 @@ class Questions : public Route {
             }
             respond(&response, response_data);
         });
+        /// @brief Returns all the questions with a given tag.
         this->server->Get("/questions/get/:tag", [&](Request request, Response& response){
             auto tag = request.path_params["tag"];
             if (db->questions->get_where("tags", tag).size() == 0) {

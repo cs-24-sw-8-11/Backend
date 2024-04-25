@@ -8,10 +8,13 @@ using namespace httplib;
 using namespace nlohmann;
 
 class Answers : public Route {
+    // Inherits the super class constructor.
     using Route::Route;
 
  public:
+    /// @brief Adds the Answers endpoints.
     void init() override {
+        /// @brief Returns a specific answer provided that the user has permission to access it.
         this->server->Get("/answers/get/:answerId/:token", [&](Request request, Response& response){
             auto answerId = stoi(request.path_params["answerId"]);
             auto token = request.path_params["token"];
