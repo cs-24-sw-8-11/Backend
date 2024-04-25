@@ -16,13 +16,12 @@ class Journals : public Route {
 
     /// @brief Adds the Journal endpoints.
     void init() override {
-
         /// @brief Submits a new journal to the system
         this->server->Post("/journals/new", [&](Request request, Response& response){
             auto body = json::parse(request.body);
             auto token = body["token"].get<string>();
             string comment = "";
-            if(body["comment"].size()){
+            if (body["comment"].size()) {
                 comment = body["comment"].get<string>();
             }
             auto userid = user_id_from_token(token);

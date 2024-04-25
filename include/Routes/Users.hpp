@@ -12,9 +12,9 @@ using namespace std;
 using namespace nlohmann;
 
 /// @brief Hashing function that makes a combined hash of a username and password.
-/// @param username 
-/// @param password 
-/// @return 
+/// @param username
+/// @param password
+/// @return Hash of username to the power of password bitshifted by 1.
 int64_t make_hash(std::string username, std::string password) {
     auto hash1 = std::hash<std::string>{}(username);
     auto hash2 = std::hash<std::string>{}(password);
@@ -27,10 +27,8 @@ class Users : public Route {
  public:
     // Inherit the super class constructor.
     using Route::Route;
-
     /// @brief Adds the User endpoints.
     void init() override {
-
         /// @brief Gets the userdata of a user.
         this->server->Get("/user/get/:token", [&](Request request, Response& response){
             json response_data;

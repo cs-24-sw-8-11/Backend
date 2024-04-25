@@ -83,7 +83,6 @@ class Row {
     vector<Pair> data;
 
  public:
-    
     /// @brief Returns all the colomn names of the table the row belongs to.
     vector<string> keys() {
         vector<string> keys;

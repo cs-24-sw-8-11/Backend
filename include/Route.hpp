@@ -19,7 +19,6 @@ map<int, string> authedUsers;
 /// @brief Super class for managing all the endpoints of the API.
 class Route {
  protected:
-
     /// @brief Shared pointer to the database.
     shared_ptr<Database> db;
 
@@ -30,7 +29,7 @@ class Route {
     PredictionManager manager;
 
     /// @brief Populates the settings table with default settings for a given user.
-    /// @param userId 
+    /// @param userId
     void default_settings(int userId) {
         db->settings->add({
             "key",
@@ -50,8 +49,8 @@ class Route {
     }
 
     /// @brief Returns the user id from the authedUsers dictionary from a given token.
-    /// @param token 
-    /// @return 
+    /// @param token
+    /// @return User id from token.
     int user_id_from_token(string token) {
         for (auto [uid, utoken] : authedUsers) {
             if (utoken == token) {
@@ -62,9 +61,9 @@ class Route {
     }
 
     /// @brief Checks whether a setting with a given key exists with a given list of setting ids.
-    /// @param ids 
-    /// @param key 
-    /// @return 
+    /// @param ids
+    /// @param key
+    /// @return Whether the setting exists or not.
     bool setting_exists(vector<int> ids, string key) {
         for (auto id : ids) {
             auto row = db->settings->get(id);
@@ -76,18 +75,18 @@ class Route {
     }
 
     /// @brief Responds to the request with json data and status code.
-    /// @param response 
-    /// @param data 
-    /// @param status 
+    /// @param response
+    /// @param data
+    /// @param status
     void respond(Response* response, json data, int status = 200) {
         response->status = status;
         response->set_content(to_string(data), "application/json");
     }
 
     /// @brief Responds to the request with plaintext data and status code.
-    /// @param response 
-    /// @param data 
-    /// @param status 
+    /// @param response
+    /// @param data
+    /// @param status
     void respond(Response* response, string data, int status = 200) {
         response->status = status;
         response->set_content(data, "text/plain");
@@ -95,10 +94,9 @@ class Route {
 
 
  public:
-    
     /// @brief Initializes the http server and database.
-    /// @param db 
-    /// @param server 
+    /// @param db
+    /// @param server
     Route(Database db, shared_ptr<Server> server) {
         this->db = make_shared<Database>(db);
         this->server = server;
