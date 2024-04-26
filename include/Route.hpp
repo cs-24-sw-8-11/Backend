@@ -74,7 +74,7 @@ class Route {
         return false;
     }
 
-    /// @brief Responds to the request with json data and status code.
+    /// @brief Wrapper around response.status and response.set_content, used to determine content-type via overloading
     /// @param response
     /// @param data
     /// @param status
