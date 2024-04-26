@@ -14,7 +14,7 @@ class Journals : public Route {
     // Inherit the super class constructor.
     using Route::Route;
 
-    /// @brief Adds the Journal endpoints.
+    /// @brief Initializes the Journal endpoints.
     void init() override {
         /// @brief Submits a new journal to the system
         this->server->Post("/journals/new", [&](Request request, Response& response){
