@@ -14,7 +14,7 @@ class Settings : public Route {
     using Route::Route;
 
  public:
-    /// @brief Adds the Settings endpoints.
+    /// @brief Initializes the Settings endpoints.
     void init() override {
         /// @brief Returns all the settings belonging to a given user.
         this->server->Get("/settings/get/:token", [&](Request request, Response& response){
