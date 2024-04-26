@@ -135,7 +135,7 @@ class Users : public Route {
                 respond(&response, string("Username is already taken!"), 400);
             }
         });
-        /// @brief Updates a user's userdata with new values.
+        /// @brief Updates or creates a user's userdata with new values.
         this->server->Post("/user/data/update", [&](Request request, Response& response){
             auto body = json::parse(request.body);
             auto token = body["token"].get<std::string>();
