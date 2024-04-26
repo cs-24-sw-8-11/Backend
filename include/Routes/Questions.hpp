@@ -12,7 +12,7 @@ class Questions : public Route {
     using Route::Route;
 
  public:
-    /// @brief Adds the Questions endpoints.
+    /// @brief Initializes the Questions endpoints.
     void init() override {
         /// @brief Returns the default questions (those with the tag "default").
         this->server->Get("/questions/defaults", [&](Request request, Response& response){
