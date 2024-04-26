@@ -11,6 +11,10 @@ using namespace httplib;
 using namespace std;
 using namespace nlohmann;
 
+/// @brief Hashing function that makes a combined hash of a username and password.
+/// @param username
+/// @param password
+/// @return Hash of username to the power of password bitshifted by 1.
 int64_t make_hash(std::string username, std::string password) {
     auto hash1 = std::hash<std::string>{}(username);
     auto hash2 = std::hash<std::string>{}(password);
@@ -18,11 +22,14 @@ int64_t make_hash(std::string username, std::string password) {
     return combinedhash;
 }
 
+/// @brief This class contains all of the endpoints related to users.
 class Users : public Route {
  public:
+    // Inherit the super class constructor.
     using Route::Route;
-
+    /// @brief Initializes the User endpoints.
     void init() override {
+        /// @brief Gets the userdata of a user.
         this->server->Get("/user/get/:token", [&](Request request, Response& response){
             json response_data;
             auto token = request.path_params["token"];
@@ -51,6 +58,7 @@ class Users : public Route {
 
             respond(&response, response_data);
         });
+        /// @brief Get a range of user ids with a given min and max value.
         this->server->Get("/user/ids/:min/:max", [&](Request request, Response& response){
             json response_data;
             auto min = stoi(request.path_params["min"]);
@@ -71,10 +79,12 @@ class Users : public Route {
             response_data = filteredUsers;
             respond(&response, response_data);
         });
+        /// @brief Gets all user ids.
         this->server->Get("/user/ids", [&](Request request, Response& response){
             json data = db->users->get_where();
             respond(&response, data);
         });
+        /// @brief Authenticate a user.
         this->server->Post("/user/auth", [&](Request request, Response& response){
             auto body = json::parse(request.body);
             auto username = body["username"].get<string>();
@@ -98,6 +108,7 @@ class Users : public Route {
                 respond(&response, string("Invalid Credentials!"), 403);
             }
         });
+        /// @brief Register a new user into the system.
         this->server->Post("/user/register", [&](Request request, Response& response){
             auto body = json::parse(request.body);
             auto username = body["username"].get<string>();
@@ -124,6 +135,7 @@ class Users : public Route {
                 respond(&response, string("Username is already taken!"), 400);
             }
         });
+        /// @brief Updates or creates a user's userdata with new values.
         this->server->Post("/user/data/update", [&](Request request, Response& response){
             auto body = json::parse(request.body);
             auto token = body["token"].get<std::string>();

@@ -93,6 +93,7 @@ class PredictionBuilder {
     }
 };
 
+/// @brief Manages the PredictionBuilder objects.
 class PredictionManager {
  public:
     PredictionBuilder create_new_prediction(int uid) {

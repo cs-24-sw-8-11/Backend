@@ -11,12 +11,19 @@ using namespace nlohmann;
 using namespace std;
 
 class Journals : public Route {
+    // Inherit the super class constructor.
     using Route::Route;
+
+    /// @brief Initializes the Journal endpoints.
     void init() override {
+        /// @brief Submits a new journal to the system
         this->server->Post("/journals/new", [&](Request request, Response& response){
             auto body = json::parse(request.body);
             auto token = body["token"].get<string>();
-            auto comment = body["comment"].get<string>();
+            string comment = "";
+            if (body["comment"].size()) {
+                comment = body["comment"].get<string>();
+            }
             auto userid = user_id_from_token(token);
             if (authedUsers[userid] == token) {
                 auto list = body["data"].get<vector<json>>();
@@ -40,6 +47,7 @@ class Journals : public Route {
                 respond(&response, string("Token does not match expected value!"), 403);
             }
         });
+        /// @brief Returns a journal with a given journal id.
         this->server->Get("/journals/get/:jid", [&](Request request, Response& response){
             auto jid = stoi(request.path_params["jid"]);
             json response_data;
@@ -56,6 +64,7 @@ class Journals : public Route {
                 db_int(jid));
             respond(&response, response_data);
         });
+        /// @brief Returns all the journal ids belonging to a specific user.
         this->server->Get("/journals/ids/:token", [&](Request request, Response& response){
             json response_data;
             auto token = request.path_params["token"];
@@ -70,6 +79,7 @@ class Journals : public Route {
             response_data = journals;
             respond(&response, response_data);
         });
+        /// @brief Deletes a journal from the system with a given journal id.
         this->server->Delete("/journals/delete/:jid/:token", [&](Request request, Response& response){
             auto token = request.path_params["token"];
             auto uid = user_id_from_token(token);
