@@ -27,7 +27,7 @@ class Users : public Route {
  public:
     // Inherit the super class constructor.
     using Route::Route;
-    /// @brief Adds the User endpoints.
+    /// @brief Initializes the User endpoints.
     void init() override {
         /// @brief Gets the userdata of a user.
         this->server->Get("/user/get/:token", [&](Request request, Response& response){
