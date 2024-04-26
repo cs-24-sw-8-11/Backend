@@ -13,14 +13,18 @@ using namespace std;
 using namespace httplib;
 using namespace nlohmann;
 
+/// @brief Key/Value pair that maps authorized user ids to their token.
 map<int, string> authedUsers;
 
+/// @brief Super class for managing all the endpoints of the API.
 class Route {
  protected:
     shared_ptr<Database> db;
     shared_ptr<Server> server;
     PredictionManager manager;
 
+    /// @brief Populates the settings table with default settings for a given user.
+    /// @param userId
     void default_settings(int userId) {
         db->settings->add({
             "key",
@@ -39,6 +43,9 @@ class Route {
         // add more settings here
     }
 
+    /// @brief Returns the user id from the authedUsers dictionary from a given token.
+    /// @param token
+    /// @return User id from token.
     int user_id_from_token(string token) {
         for (auto [uid, utoken] : authedUsers) {
             if (utoken == token) {
@@ -47,6 +54,11 @@ class Route {
         }
         return 0;
     }
+
+    /// @brief Checks whether a setting with a given key exists with a given list of setting ids.
+    /// @param ids
+    /// @param key
+    /// @return Whether the setting exists or not.
     bool setting_exists(vector<int> ids, string key) {
         for (auto id : ids) {
             auto row = db->settings->get(id);
@@ -57,11 +69,19 @@ class Route {
         return false;
     }
 
+    /// @brief Wrapper around response.status and response.set_content, used to determine content-type via overloading
+    /// @param response
+    /// @param data
+    /// @param status
     void respond(Response* response, json data, int status = 200) {
         response->status = status;
         response->set_content(to_string(data), "application/json");
     }
 
+    /// @brief Wrapper around response.status and response.set_content, used to determine content-type via overloading
+    /// @param response
+    /// @param data
+    /// @param status
     void respond(Response* response, string data, int status = 200) {
         response->status = status;
         response->set_content(data, "text/plain");
@@ -69,10 +89,15 @@ class Route {
 
 
  public:
+    /// @brief Constructs a route object with references to the http server and the database.
+    /// @param db
+    /// @param server
     Route(Database db, shared_ptr<Server> server) {
         this->db = make_shared<Database>(db);
         this->server = server;
     }
+
+    /// @brief Template virtual method that is overwritten in each route to add all their endpoints.
     virtual void init() {
         cerr << "Error, called unimplemented run method" << endl;
         throw exception();

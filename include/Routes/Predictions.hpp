@@ -11,10 +11,13 @@ using namespace std;
 using namespace nlohmann;
 
 class Predictions : public Route {
+    // Inherits the super class constructor.
     using Route::Route;
 
  public:
+    /// @brief Initializes the Prediction endpoints.
     void init() override {
+        /// @brief Returns all predictions from a specific user.
         this->server->Get("/predictions/get/:token", [&](Request request, Response& response){
             auto token = request.path_params["token"];
             auto uid = user_id_from_token(token);
@@ -39,6 +42,7 @@ class Predictions : public Route {
             response_data = result;
             respond(&response, response_data);
         });
+        /// @brief Submits a prediction to the system.
         this->server->Post("/predictions/add", [&](Request request, Response& response){
             auto body = json::parse(request.body);
             auto token = body["token"].get<string>();

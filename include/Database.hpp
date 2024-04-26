@@ -22,6 +22,7 @@ string db_int(int e) {
     return format("{}", e);
 }
 
+/// @brief Database object with points to all relevant tables with methods for retrieving and modification.
 class Database {
  public:
     shared_ptr<Table> users;
@@ -31,6 +32,9 @@ class Database {
     shared_ptr<Table> settings;
     shared_ptr<Table> userdata;
     shared_ptr<Table> predictions;
+
+    /// @brief Constructs the database object using the TableFactory.
+    /// @param path
     explicit Database(string path){
         TableFactory factory{path};
         this->users = factory.create("users", {
