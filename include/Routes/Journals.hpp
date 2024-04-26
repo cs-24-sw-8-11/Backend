@@ -64,7 +64,7 @@ class Journals : public Route {
                 db_int(jid));
             respond(&response, response_data);
         });
-        /// @brief Returns all the journals belonging to a specific user.
+        /// @brief Returns all the journal ids belonging to a specific user.
         this->server->Get("/journals/ids/:token", [&](Request request, Response& response){
             json response_data;
             auto token = request.path_params["token"];
