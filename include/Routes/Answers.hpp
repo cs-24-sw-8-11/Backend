@@ -12,7 +12,7 @@ class Answers : public Route {
     using Route::Route;
 
  public:
-    /// @brief Adds the Answers endpoints.
+    /// @brief Initializes the Answers endpoints.
     void init() override {
         /// @brief Returns a specific answer provided that the user has permission to access it.
         this->server->Get("/answers/get/:answerId/:token", [&](Request request, Response& response){
