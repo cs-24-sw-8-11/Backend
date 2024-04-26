@@ -149,7 +149,7 @@ class Table {
     vector<string> columns;
     shared_ptr<SQLite::Database> db;
 
-    /// @brief Executes a given SQL query and prints it if in verbose mode.
+    /// @brief Creates an SQL statement object with a given SQL query, abstracting database and printing
     /// @param sql
     SQLite::Statement make_statement(string sql) {
         if (VERBOSE)
