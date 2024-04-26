@@ -89,7 +89,7 @@ class Route {
 
 
  public:
-    /// @brief Initializes the http server and database.
+    /// @brief Constructs a route object with references to the http server and the database.
     /// @param db
     /// @param server
     Route(Database db, shared_ptr<Server> server) {
