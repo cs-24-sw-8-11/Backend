@@ -15,7 +15,7 @@ class Predictions : public Route {
     using Route::Route;
 
  public:
-    /// @brief Adds the Prediction endpoints.
+    /// @brief Initializes the Prediction endpoints.
     void init() override {
         /// @brief Returns all predictions from a specific user.
         this->server->Get("/predictions/get/:token", [&](Request request, Response& response){
