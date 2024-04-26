@@ -19,13 +19,8 @@ map<int, string> authedUsers;
 /// @brief Super class for managing all the endpoints of the API.
 class Route {
  protected:
-    /// @brief Shared pointer to the database.
     shared_ptr<Database> db;
-
-    /// @brief Shared pointer to the webserver object.
     shared_ptr<Server> server;
-
-    /// @brief Shared pointer to the prediction manager.
     PredictionManager manager;
 
     /// @brief Populates the settings table with default settings for a given user.
@@ -83,7 +78,7 @@ class Route {
         response->set_content(to_string(data), "application/json");
     }
 
-    /// @brief Responds to the request with plaintext data and status code.
+    /// @brief Wrapper around response.status and response.set_content, used to determine content-type via overloading
     /// @param response
     /// @param data
     /// @param status
