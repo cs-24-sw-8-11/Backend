@@ -13,3 +13,6 @@
 [submodule "lib/cpp-httplib"]
 	path = lib/cpp-httplib
 	url = https://github.com/yhirose/cpp-httplib
+[submodule "lib/datasets"]
+	path = lib/datasets
+	url = https://github.com/cs-24-sw-8-11/datasets
