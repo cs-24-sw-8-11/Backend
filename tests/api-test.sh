@@ -64,7 +64,7 @@ prediction=$(curl -s -X 'GET' $addr/predictions/get/$token)
 
 # /mitigations/tags/default
 mitigations=$(curl -s -X 'GET' $addr/mitigations/tags/default)
-mitigation=$(echo "$mitigations" | jq -r .[0])
+mitigation=$(echo "$mitigations" | jq -r .[0].mitigation)
 
 pkill backend
 echo "---------------------TEST COMPLETE---------------------"
