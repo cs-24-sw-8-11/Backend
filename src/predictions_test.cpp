@@ -3,8 +3,12 @@
 
 #include "PredictionManager.hpp"
 #include "TestTemplate.hpp"
+#include "Utils.hpp"
 
 auto num_entries = 1000;
+
+using namespace std;
+using namespace P8;
 
 class PredictionTest : public Test<std::function<void()>> {
     void init() {
@@ -12,33 +16,6 @@ class PredictionTest : public Test<std::function<void()>> {
     public:
         PredictionManager manager;
 };
-
-template<typename T = int>
-std::vector<T> make_range(int n, std::function<T(int)> functor) {
-    std::vector<T> result;
-    for (auto i = 0; i < n; i++) {
-        result.push_back(functor(i));
-    }
-    return result;
-}
-
-template<typename T = int>
-std::vector<T> make_range(int n) {
-    std::vector<T> result;
-    for (auto i = 0; i < n; i++)
-        result.push_back((T)i);
-    return result;
-}
-
-template<typename T = double>
-bool is_sorted(std::vector<T> values) {
-    for (auto i = 0; i < values.size()-1; i++) {
-        if (values[i] > values[i+1]) {
-            return false;
-        }
-    }
-    return true;
-}
 
 typedef std::pair<std::string, double> LabeledDouble;
 typedef std::pair<std::string, std::string> LabeledString;
@@ -49,7 +26,7 @@ int main() {
     test.add_test("add-valued-data", [&](){
         auto uid = 1;
         auto data = make_range<LabeledDouble>(num_entries, [](int i){
-            return std::make_pair(std::format("{}", i), i/num_entries);
+            return make_pair(format("{}", i), i/num_entries);
         });
         auto predictionBuilder = test.manager.create_new_prediction(uid);
         for (auto [name, value] : data) {
@@ -60,7 +37,7 @@ int main() {
     test.add_test("add-boolean-data", [&](){
         auto uid = 1;
         auto data = make_range<LabeledBool>(num_entries, [](int i){
-            return std::make_pair(std::format("{}", i), i%2 == 0);
+            return make_pair(format("{}", i), i%2 == 0);
         });
         auto predictionBuilder = test.manager.create_new_prediction(uid);
         for (auto [name, value] : data) {
@@ -71,7 +48,7 @@ int main() {
     test.add_test("run-prediction", [&](){
         auto uid = 1;
         auto data = make_range<LabeledBool>(num_entries, [](int i){
-            return std::make_pair(std::format("{}", i), true);
+            return make_pair(format("{}", i), true);
         });
 
         auto predictionBuilder = test.manager.create_new_prediction(uid);
@@ -90,12 +67,12 @@ int main() {
         auto xs = make_range<double>(100);
         auto ys = make_range<double>(100);
         auto f = calculate_regression(xs, ys);
-        std::vector<double> result;
+        vector<double> result;
         for (auto x : xs) {
             result.push_back(f(x+100));
         }
 
-        for (auto [value, expectedValue] : std::ranges::zip_view(
+        for (auto [value, expectedValue] : ranges::zip_view(
             result,
             make_range<double>(100, [](int i){return i+100;}))) {
             assert(value == expectedValue);
@@ -104,11 +81,11 @@ int main() {
 
     extended.add_test("applied regression", [&](){
         auto uid = 1;
-        std::vector<double> result;
+        vector<double> result;
         for (auto i = 0; i < num_entries; i++) {
             auto data = make_range<LabeledDouble>(5, [](int i) {
                 // positive linear data
-                return std::make_pair(std::format("{}", i), (i%5)+i);
+                return make_pair(format("{}", i), (i%5)+i);
             });
             auto predictionBuilder = extended.manager
                 .create_new_prediction(uid);

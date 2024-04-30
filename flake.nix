@@ -78,6 +78,8 @@
                 pkgs.sqlite-interactive
                 pkgs.cmake
                 pkgs.jq
+                pkgs.python311Packages.transformers
+                pkgs.python311Packages.pytorch
             ];
         };
         packages.${system} = {

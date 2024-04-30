@@ -5,6 +5,8 @@
 #include "Route.hpp"
 #include <nlohmann/json.hpp>
 
+#include "Utils.hpp"
+
 
 using namespace httplib;
 using namespace nlohmann;
@@ -35,11 +37,13 @@ class Journals : public Route {
                 for (auto entry : list) {
                     auto qid = entry["question"].get<string>();
                     auto answer = entry["answer"].get<string>();
+                    // run sentiment analysis on answer
+                    auto result = P8::run_cmd(format("python ./lib/datasets/sentiment_analysis.py \"{}\"", answer))["stdout"];
                     db->answers->add({
                         "answer",
                         "journalId",
                         "questionId"}, {
-                        answer,
+                        result,
                         db_int(jid), qid});
                 }
                 respond(&response, string("Successfully created new journal."));
