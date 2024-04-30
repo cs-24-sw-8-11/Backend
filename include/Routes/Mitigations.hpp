@@ -50,4 +50,15 @@ class Mitigations : public Route {
             respond(&response, response_data);
         });
     }
+ private:
+    vector<string> split(string s){
+        vector<string> res;
+        int pos = 0;
+        while(pos < s.size()){
+            pos = s.find(",");
+            res.push_back(s.substr(0,pos));
+            s.erase(0,pos+1);
+        }
+        return res;
+    }
 };
