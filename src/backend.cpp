@@ -4,28 +4,6 @@
 #include "Api.hpp"
 #include "Globals.hpp"
 
-/// @brief Adds default questions and mitigations to the database
-/// @param path db path
-void default_setup(std::string path) {
-    auto db = std::make_shared<Database>(path);
-    if (db->questions->get_where("tags", "default").size() == 0) {
-        db->questions->add({"type",
-            "tags",
-            "question"}, {
-            "1",
-            "default",
-            "How stressed were you today?"});
-    }
-    if (db->mitigations->get_where("tags", "default").size() == 0) {
-        db->mitigations->add({"type",
-            "tags",
-            "mitigation"}, {
-            "1",
-            "default",
-            "Focus on breathing. Inhale and exhale slowly."});
-    }
-}
-
 int main(int argc, char* argv[]) {
     argparse::ArgumentParser program("backend");
     program.add_argument("-v", "--verbose")
@@ -57,6 +35,5 @@ int main(int argc, char* argv[]) {
 
     auto path = program.get<std::string>("--database");
     auto port = program.get<int>("--port");
-    default_setup(path);
     Api api(path, port);
 }
