@@ -4,7 +4,9 @@
 #include "Api.hpp"
 #include "Globals.hpp"
 
-void default_question(std::string path) {
+/// @brief Adds default questions and mitigations to the database
+/// @param path db path
+void default_setup(std::string path) {
     auto db = std::make_shared<Database>(path);
     if (db->questions->get_where("tags", "default").size() == 0) {
         db->questions->add({"type",
@@ -47,6 +49,6 @@ int main(int argc, char* argv[]) {
 
     auto path = program.get<std::string>("--database");
     auto port = program.get<int>("--port");
-    default_question(path);
+    default_setup(path);
     Api api(path, port);
 }
