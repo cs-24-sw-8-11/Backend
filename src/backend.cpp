@@ -16,6 +16,14 @@ void default_setup(std::string path) {
             "default",
             "How stressed were you today?"});
     }
+    if (db->mitigations->get_where("tags", "default").size() == 0) {
+        db->questions->add({"type",
+            "tags",
+            "mitigation"}, {
+            "1",
+            "default",
+            "Focus on breathing. Inhale and exhale slowly."});
+    }
 }
 
 int main(int argc, char* argv[]) {
