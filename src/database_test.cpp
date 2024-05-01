@@ -30,10 +30,10 @@ class DbTest : public Test<std::function<void()>> {
             "state"}, {
             default_username,
             default_password,
-            db_int(TRAINING)});
+            to_string(TRAINING)});
         user_id = db->users->get_where("username", default_username)[0];
-        db->journals->add({"userId"}, {db_int(user_id)});
-        journal_id = db->journals->get_where("userId", db_int(user_id))[0];
+        db->journals->add({"userId"}, {to_string(user_id)});
+        journal_id = db->journals->get_where("userId", user_id)[0];
         for (auto question : default_questions)
             db->questions->add({
                 "question",
@@ -41,7 +41,7 @@ class DbTest : public Test<std::function<void()>> {
                 "type"}, {
                 question,
                 "default",
-                db_int(BOOLEAN)});
+                to_string(BOOLEAN)});
         question_id = db->questions->get_where()[0];
     }
     public:
@@ -65,7 +65,7 @@ int main() {
             }, {
                 std::format("user{}", i),
                 users.default_password,
-                db_int(TRAINING)
+                to_string(TRAINING)
             });
         }
         // +1 to consider temp data
@@ -89,7 +89,7 @@ int main() {
     DbTest journals;
     journals.add_test("add-journal", [&](){
         for (auto i = 0; i < num_additions; i++) {
-            journals.db->journals->add({"userId"}, {db_int(journals.user_id)});
+            journals.db->journals->add({"userId"}, {to_string(journals.user_id)});
         }
         assert(journals.db->journals->size() == num_additions+1);
     });
@@ -100,14 +100,14 @@ int main() {
         assert(journals.db->journals->size() == 0);
     });
     journals.add_test("modify-journal", [&](){
-        journals.db->journals->add({"userId"}, {db_int(journals.user_id)});
+        journals.db->journals->add({"userId"}, {to_string(journals.user_id)});
         auto journal_id = journals.db->journals->get_where()[0];
         auto current_data = journals.db->journals->get(journal_id);
         assert(current_data == journals.db->journals->get(journal_id));
         journals.db->journals->modify(
             journal_id,
             {"userId"},
-            {db_int(journals.user_id+1)});
+            {to_string(journals.user_id+1)});
         auto new_data = journals.db->journals->get(journal_id);
         assert(current_data != new_data);
     });
@@ -146,8 +146,8 @@ int main() {
                 "journalId",
                 "questionId"}, {
                 std::format("answer{}", i),
-                db_int(answers.journal_id),
-                db_int(answers.question_id)});
+                to_string(answers.journal_id),
+                to_string(answers.question_id)});
         }
         assert(answers.db->answers->size() == num_additions);
     });
@@ -158,8 +158,8 @@ int main() {
             "journalId",
             "questionId"}, {
             "answer",
-            db_int(answers.journal_id),
-            db_int(answers.question_id)});
+            to_string(answers.journal_id),
+            to_string(answers.question_id)});
         assert(answers.db->answers->size() == 1);
         auto answer_id = answers.db->answers->get_where()[0];
 
@@ -172,8 +172,8 @@ int main() {
             "journalId",
             "questionId"}, {
             "answer",
-            db_int(answers.journal_id),
-            db_int(answers.question_id)});
+            to_string(answers.journal_id),
+            to_string(answers.question_id)});
         auto answer_id = answers.db->answers->get_where()[0];
         auto current_data = answers.db->answers->get(answer_id);
         assert(current_data == answers.db->answers->get(answer_id));
@@ -189,7 +189,7 @@ int main() {
                 "userId",
                 "key",
                 "value"}, {
-                db_int(settings.user_id),
+                to_string(settings.user_id),
                 std::format("setting {}", i),
                 std::format("value {}", i)});
         }
@@ -200,7 +200,7 @@ int main() {
             "userId",
             "key",
             "value"}, {
-            db_int(settings.user_id),
+            to_string(settings.user_id),
             "testkey",
             "testvalue"});
         assert(settings.db->settings->size() == 1);
@@ -213,7 +213,7 @@ int main() {
             "userId",
             "key",
             "value"}, {
-            db_int(settings.user_id),
+            to_string(settings.user_id),
             "testkey",
             "testvalue"});
         auto setting_id = settings.db->settings->get_where()[0];
@@ -232,7 +232,7 @@ int main() {
             "userId"}, {
             "50-54",
             "unemployed",
-            db_int(userdata.user_id)});
+            to_string(userdata.user_id)});
         assert(userdata.db->userdata->size() == 1);
         auto userdata_id = userdata.db->userdata->get_where()[0];
         userdata.db->userdata->delete_item(userdata_id);
@@ -245,7 +245,7 @@ int main() {
             "userId"}, {
             "50-54",
             "unemployed",
-            db_int(userdata.user_id)});
+            to_string(userdata.user_id)});
         auto userdata_id = userdata.db->userdata->get_where()[0];
         auto current_data = userdata.db->userdata->get(userdata_id);
         assert(current_data == userdata.db->userdata->get(userdata_id));
@@ -260,8 +260,8 @@ int main() {
             predictions.db->predictions->add({
                 "userId",
                 "value"}, {
-                db_int(predictions.user_id),
-                db_int(i)});
+                to_string(predictions.user_id),
+                to_string(i)});
         }
         assert(predictions.db->predictions->size() == num_additions);
     });
@@ -269,7 +269,7 @@ int main() {
         predictions.db->predictions->add({
             "userId",
             "value"}, {
-            db_int(predictions.user_id),
+            to_string(predictions.user_id),
             "0"});
         assert(predictions.db->predictions->size() == 1);
         auto prediction_id = predictions.db->predictions->get_where()[0];
@@ -280,7 +280,7 @@ int main() {
         predictions.db->predictions->add({
             "userId",
             "value"}, {
-            db_int(predictions.user_id),
+            to_string(predictions.user_id),
             "0"});
         auto prediction_id = predictions.db->predictions->get_where()[0];
         auto current_data = predictions.db->predictions->get(prediction_id);

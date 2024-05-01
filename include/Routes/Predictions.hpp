@@ -25,7 +25,7 @@ class Predictions : public Route {
             vector<json> result;
             auto predictions = db->predictions->get_where(
                 "userId",
-                db_int(uid));
+                uid);
             if (authedUsers[uid] == token) {
                 for (auto prediction : predictions) {
                     auto row = db->predictions->get(prediction);
@@ -53,9 +53,9 @@ class Predictions : public Route {
                 auto answers = db->answers->get_where("questionId", qid);
                 auto journals = db->journals->get_where(
                     "userId",
-                    db_int(uid));
+                    uid);
                 for (auto answer : answers) {
-                    if (count(
+                    if (std::count(
                         journals.begin(),
                         journals.end(),
                         stoi(db->answers->get(answer)["journalId"])) > 0) {
@@ -67,7 +67,7 @@ class Predictions : public Route {
                 db->predictions->add({
                     "userId",
                     "value"}, {
-                    db_int(uid),
+                    to_string(uid),
                     to_string(predictionValue)});
                 respond(&response, string("Successfully added prediction."));
             } else {

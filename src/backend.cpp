@@ -25,13 +25,16 @@ void default_question(string path) {
 
 enum Mode{
     DEFAULT,
-    CHECK
+    CHECK,
+    POPULATE
 };
 Mode to_mode(string input){
     if (input == "default")
         return DEFAULT;
-    else
+    else if(input == "check")
         return CHECK;
+    else
+        return POPULATE;
 }
 
 int main(int argc, char* argv[]) {
@@ -49,6 +52,10 @@ int main(int argc, char* argv[]) {
         .help("Specify the port for the API")
         .scan<'d', int>()
         .default_value(8080)
+        .nargs(1);
+    program.add_argument("--dataset", "-d")
+        .help("Path to the dataset for populating the database")
+        .default_value("./")
         .nargs(1);
     program.add_argument("mode")
         .help("Operating mode for the backend")
@@ -117,6 +124,23 @@ int main(int argc, char* argv[]) {
             for(auto result : results)
                 cout << result << endl;
             break;
+        }
+        case POPULATE: {
+            auto prefix = program.get<string>("--dataset");
+            auto database = program.get<string>("--database");
+            cout << "REMOVING DATABASE IN 10 SECONDS" << endl;
+            for(auto i = 10; i >= 0; i--){
+                sleep(1);
+                cout << i << endl;
+            }
+            auto rm_result = system(format("rm {}", database).c_str());
+            cout << "Creating database" << endl;
+            {
+                auto db = Database{database};
+            }
+            auto result = system(format("python {0}/dataset_to_db.py -f {0}/data.csv -c {0}/codebook.txt", prefix).c_str());
+            cout << "Was database removed?:        " << rm_result << endl;
+            cout << "Populate command return code: " << result << endl;
         }
     }
 }

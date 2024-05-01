@@ -17,10 +17,11 @@ enum UserState {
     TRAINING,
     STANDARD
 };
-// wrappers to make db access easy while keeping types
-string db_int(int e) {
-    return format("{}", e);
-}
+
+enum JournalType {
+    TRAINING_JOURNAL,
+    PREDICTION_JOURNAL
+};
 
 /// @brief Database object with points to all relevant tables with methods for retrieving and modification.
 class Database {
