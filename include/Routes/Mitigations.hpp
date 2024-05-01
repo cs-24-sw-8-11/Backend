@@ -30,7 +30,6 @@ class Mitigations : public Route {
             for (auto key : mitigations.keys()) {
                 response_data[key] = mitigations[key];
             }
-            cout << "haha";
             respond(&response, response_data);
         });
         /// @brief Returns a specific mitigation with a given id.
@@ -40,9 +39,7 @@ class Mitigations : public Route {
             json response_data;
             vector<int> mitigations;
             for (auto tag : tags) {
-                cout << tag << endl;
                 auto mitigation = db->mitigations->get_where_like("tags", tag);
-                cout << mitigation.size() << endl;
 
                 for (auto m : mitigation) {
                     mitigations.push_back(m);

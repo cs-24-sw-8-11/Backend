@@ -80,7 +80,8 @@ class Database {
         this->mitigations = factory.create("mitigations", {
             "tags VARCHAR",
             "type INTEGER NOT NULL",
-            "mitigation VARCHAR NOT NULL"
+            "title VARCHAR NOT NULL",
+            "description VARCHAR NOT NULL"
         });
         if (VERBOSE)
             cout << "Initialized all tables" << endl;
