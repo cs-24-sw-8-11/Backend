@@ -62,6 +62,10 @@ curl -s -X 'POST' -d "{\"token\":\"$token\", \"questionid\":\"$qid\"}" $addr/pre
 # /predictions/get/<uid>/<token>
 prediction=$(curl -s -X 'GET' $addr/predictions/get/$token)
 
+# /mitigations/tags/default
+mitigations=$(curl -s -X 'GET' $addr/mitigations/tags/default)
+mitigation=$(echo "$mitigations" | jq -r .[0].title)
+
 pkill backend
 echo "---------------------TEST COMPLETE---------------------"
 # verify if all data is intact
@@ -105,6 +109,10 @@ echo "qid:               $qid"
 verify $qid
 echo "prediction:        $prediction"
 verify $prediction
+echo "mitigations:       $mitigations"
+verify $mitigations
+echo "mitigation:        $mitigation"
+verify $mitigation
 
 echo "all tests passed!"
 exit 0
