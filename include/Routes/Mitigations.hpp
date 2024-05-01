@@ -1,5 +1,9 @@
 #pragma once
 
+#include <algorithm>
+#include <vector>
+#include <string>
+
 #include "Route.hpp"
 #include <nlohmann/json.hpp>
 
@@ -40,7 +44,7 @@ class Mitigations : public Route {
                 auto mitigation = db->mitigations->get_where_like("tags", tag);
                 cout << mitigation.size() << endl;
 
-                for (auto m : mitigation){
+                for (auto m : mitigation) {
                     mitigations.push_back(m);
                 }
             }
@@ -58,8 +62,7 @@ class Mitigations : public Route {
                     response_data.push_back(data);
                 }
                 respond(&response, response_data);
-            }
-            else {
+            } else {
                 response_data["error"] = "No mitigations found with the given tag(s).";
                 respond(&response, response_data, 400);
             }
@@ -72,8 +75,8 @@ class Mitigations : public Route {
         int pos = 0;
         while (pos < s.size()) {
             pos = s.find(",");
-            res.push_back(s.substr(0,pos));
-            s.erase(0,pos+1);
+            res.push_back(s.substr(0, pos));
+            s.erase(0, pos+1);
         }
         return res;
     }
