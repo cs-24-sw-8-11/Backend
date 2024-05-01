@@ -6,7 +6,7 @@
 
 /// @brief Adds default questions and mitigations to the database
 /// @param path db path
-void default_setup(std::string path) {
+void setup(std::string path) {
     auto db = std::make_shared<Database>(path);
     if (db->questions->get_where("tags", "default").size() == 0) {
         db->questions->add({"type",
