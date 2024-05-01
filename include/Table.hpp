@@ -244,6 +244,21 @@ class Table {
         EXCEPTION_HANDLER;
         return res;
     }
+    vector<int> get_where_like(string key, string value) {
+        SQLite::Statement query = make_statement(
+            format("SELECT id FROM {} WHERE {} like '%' || ? || '%'",
+            this->name,
+            key));
+        query.bind(1, value);
+        vector<int> res;
+        try {
+            while (query.executeStep()) {
+                res.push_back(query.getColumn("id").getInt());
+            }
+        }
+        EXCEPTION_HANDLER;
+        return res;
+    }
     Row get(int id) {
         Row row;
         SQLite::Statement query = make_statement(

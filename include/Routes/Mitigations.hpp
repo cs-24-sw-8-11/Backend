@@ -31,23 +31,38 @@ class Mitigations : public Route {
         });
         /// @brief Returns a specific mitigation with a given id.
         this->server->Get("/mitigations/tags/:tag", [&](Request request, Response& response){
-            auto tag = request.path_params["tag"];
-            if (db->mitigations->get_where("tags", tag).size() == 0) {
-                json response_data;
-                response_data["error"] = "No Mitigations With that Tag.";
-                return respond(&response, response_data, 400);
-            }
-            auto mitigations = db->mitigations->get_where("tags", tag);
+            auto tagparam = request.path_params["tag"];
+            auto tags = split(tagparam);
             json response_data;
-            for (auto i : mitigations) {
-                auto mitigation = db->mitigations->get(i);
-                json data;
-                for (auto key : mitigation.keys()) {
-                    data[key] = mitigation[key];
+            vector<int> mitigations;
+            for (auto tag : tags) {
+                cout << tag << endl;
+                auto mitigation = db->mitigations->get_where_like("tags", tag);
+                cout << mitigation.size() << endl;
+                for (auto m : mitigation){
+                    mitigations.push_back(m);
                 }
-                response_data.push_back(data);
             }
-            respond(&response, response_data);
+            if (mitigations.size() > 0 ) {
+                sort(mitigations.begin(), mitigations.end());
+                auto distinct = unique(mitigations.begin(), mitigations.end());
+                mitigations.resize(distance(mitigations.begin(), distinct));
+                for (distinct = mitigations.begin(); distinct != mitigations.end(); ++distinct) {
+                    auto mitigation = db->mitigations->get(*distinct);
+                    json data;
+                    for (auto key : mitigation.keys()) {
+                        data[key] = mitigation[key];
+                    }
+                    response_data.push_back(data);
+                }
+
+                respond(&response, response_data);
+            }
+            else{
+                response_data["error"] = "No mitigations found with the given tag(s).";
+                respond(&response, response_data, 400);
+            }
+
         });
     }
  private:
