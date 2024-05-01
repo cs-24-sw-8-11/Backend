@@ -38,6 +38,7 @@ class Mitigations : public Route {
             auto tags = split(tagparam);
             json response_data;
             vector<int> mitigations;
+            // Get all mitigations that contain the input tags which might contain duplicates
             for (auto tag : tags) {
                 auto mitigation = db->mitigations->get_where_like("tags", tag);
 
@@ -46,10 +47,14 @@ class Mitigations : public Route {
                 }
             }
             if (mitigations.size() > 0) {
+                //sort the vector so std::unique can remove them due to how it internally works
                 sort(mitigations.begin(), mitigations.end());
+                //remove all repeated sequences ie. 1,1,1,1,2,2 -> 1,2
                 auto distinct = unique(mitigations.begin(), mitigations.end());
+                //resize the vector because elements have been removed
                 mitigations.resize(distance(mitigations.begin(), distinct));
 
+                //now take new filtered vector and iterate through it
                 for (distinct = mitigations.begin(); distinct != mitigations.end(); ++distinct) {
                     auto mitigation = db->mitigations->get(*distinct);
                     json data;
