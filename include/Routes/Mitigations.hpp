@@ -47,14 +47,14 @@ class Mitigations : public Route {
                 }
             }
             if (mitigations.size() > 0) {
-                //sort the vector so std::unique can remove them due to how it internally works
+                // Sort the vector so std::unique can remove them due to how it internally works
                 sort(mitigations.begin(), mitigations.end());
-                //remove all repeated sequences ie. 1,1,1,1,2,2 -> 1,2
+                // Remove all repeated sequences ie. 1,1,1,1,2,2 -> 1,2
                 auto distinct = unique(mitigations.begin(), mitigations.end());
-                //resize the vector because elements have been removed
+                // Resize the vector because elements have been removed
                 mitigations.resize(distance(mitigations.begin(), distinct));
 
-                //now take new filtered vector and iterate through it
+                // Now take new filtered vector and iterate through it
                 for (distinct = mitigations.begin(); distinct != mitigations.end(); ++distinct) {
                     auto mitigation = db->mitigations->get(*distinct);
                     json data;
