@@ -39,14 +39,16 @@ class Mitigations : public Route {
                 cout << tag << endl;
                 auto mitigation = db->mitigations->get_where_like("tags", tag);
                 cout << mitigation.size() << endl;
+
                 for (auto m : mitigation){
                     mitigations.push_back(m);
                 }
             }
-            if (mitigations.size() > 0 ) {
+            if (mitigations.size() > 0) {
                 sort(mitigations.begin(), mitigations.end());
                 auto distinct = unique(mitigations.begin(), mitigations.end());
                 mitigations.resize(distance(mitigations.begin(), distinct));
+
                 for (distinct = mitigations.begin(); distinct != mitigations.end(); ++distinct) {
                     auto mitigation = db->mitigations->get(*distinct);
                     json data;
@@ -55,21 +57,20 @@ class Mitigations : public Route {
                     }
                     response_data.push_back(data);
                 }
-
                 respond(&response, response_data);
             }
-            else{
+            else {
                 response_data["error"] = "No mitigations found with the given tag(s).";
                 respond(&response, response_data, 400);
             }
-
         });
     }
+
  private:
     vector<string> split(string s){
         vector<string> res;
         int pos = 0;
-        while(pos < s.size()){
+        while (pos < s.size()) {
             pos = s.find(",");
             res.push_back(s.substr(0,pos));
             s.erase(0,pos+1);
