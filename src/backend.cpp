@@ -11,15 +11,27 @@
 using namespace std;
 using namespace std::ranges;
 
-void default_question(string path) {
-    auto db = make_shared<Database>(path);
+/// @brief Adds default questions and mitigations to the database
+/// @param path db path
+void setup(std::string path) {
+    auto db = std::make_shared<Database>(path);
     if (db->questions->get_where("tags", "default").size() == 0) {
         db->questions->add({"type",
             "tags",
             "question"}, {
             "1",
             "default",
-            "How stressed were you today?"});
+            "Does this default question stop the tests from failing?"});
+    }
+    if (db->mitigations->get_where("tags", "default").size() == 0) {
+        db->mitigations->add({"type",
+            "tags",
+            "title",
+            "description"}, {
+            "1",
+            "default",
+            "Default Mitigation so tests don't fail",
+            "Default description because it cannot be null."});
     }
 }
 
@@ -72,13 +84,12 @@ int main(int argc, char* argv[]) {
         cout << "Verbosity enabled" << endl;
         VERBOSE = true;
     }
-
     switch(to_mode(program.get<string>("mode"))){
         case DEFAULT: {
 
             auto path = program.get<string>("--database");
             auto port = program.get<int>("--port");
-            default_question(path);
+            setup(path);
             Api api(path, port);
             break;
         }

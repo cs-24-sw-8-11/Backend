@@ -33,6 +33,7 @@ class Database {
     shared_ptr<Table> settings;
     shared_ptr<Table> userdata;
     shared_ptr<Table> predictions;
+    shared_ptr<Table> mitigations;
 
     /// @brief Constructs the database object using the TableFactory.
     /// @param path
@@ -76,6 +77,12 @@ class Database {
             "userId INTEGER NOT NULL",
             "value INTEGER NOT NULL",
             "FOREIGN KEY(userId) REFERENCES users(id)"
+        });
+        this->mitigations = factory.create("mitigations", {
+            "tags VARCHAR",
+            "type INTEGER NOT NULL",
+            "title VARCHAR NOT NULL",
+            "description VARCHAR NOT NULL"
         });
         if (VERBOSE)
             cout << "Initialized all tables" << endl;
