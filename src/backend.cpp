@@ -19,10 +19,12 @@ void setup(std::string path) {
     if (db->mitigations->get_where("tags", "default").size() == 0) {
         db->mitigations->add({"type",
             "tags",
-            "mitigation"}, {
+            "title",
+            "description"}, {
             "1",
             "default",
-            "Default Mitigation so tests don't fail"});
+            "Default Mitigation so tests don't fail",
+            "Default description because it cannot be null."});
     }
 }
 
