@@ -69,8 +69,8 @@ jobs:
               run: sudo apt install sqlite3 valgrind
             - name: test-database-tests
               run: valgrind ./.ccache/bin/database_test
-            - name: test-questionaire-tests
-              run: valgrind ./.ccache/bin/questionaire_test
+            - name: test-utils-tests
+              run: valgrind ./.ccache/bin/utils_test
             - name: test-predictions-test
               run: valgrind ./.ccache/bin/predictions_test
     api-test:
