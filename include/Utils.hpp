@@ -69,7 +69,7 @@ string to_lower_case(string input) {
 template<typename Input, typename Output>
 class Worker {
     function<Output(Input)> f;
-    thread task;
+    future<void> task;
     map<int, Input> jobs;
     function<void(Input, Output)> logger = [](Input in, Output out){ cout << out << endl; };
     map<int, Output> results;
@@ -82,7 +82,7 @@ class Worker {
         results_mutex->lock();
     }
     void start() {
-        task = thread([&](map<int, Input> _jobs){ this->run(_jobs); }, jobs);
+        task = async(launch::async, [&](map<int, Input> _jobs){ this->run(_jobs); }, jobs);
     }
     void run(map<int, Input> jobs) {
         for (auto [i, value] : jobs) {
