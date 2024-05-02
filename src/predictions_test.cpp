@@ -57,7 +57,7 @@ int main() {
         }
         // function that does the heavy lifting
         auto stresslevel = predictionBuilder.build();
-        assert(stresslevel >= 0.0 && stresslevel <= 1.0);
+        assert(stresslevel >= 0.0 && stresslevel <= 3.0);
     });
     test.run();
 

@@ -35,7 +35,7 @@ class Mitigations : public Route {
         /// @brief Returns a specific mitigation with a given id.
         this->server->Get("/mitigations/tags/:tag", [&](Request request, Response& response){
             auto tagparam = request.path_params["tag"];
-            auto tags = split(tagparam);
+            auto tags = P8::split_string(tagparam);
             json response_data;
             vector<int> mitigations;
             // Get all mitigations that contain the input tags which might contain duplicates
@@ -69,17 +69,5 @@ class Mitigations : public Route {
                 respond(&response, response_data, 400);
             }
         });
-    }
-
- private:
-    vector<string> split(string s){
-        vector<string> res;
-        int pos = 0;
-        while (pos < s.size()) {
-            pos = s.find(",");
-            res.push_back(s.substr(0, pos));
-            s.erase(0, pos+1);
-        }
-        return res;
     }
 };

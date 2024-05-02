@@ -69,6 +69,11 @@ int main(int argc, char* argv[]) {
         .help("Path to the dataset for populating the database")
         .default_value("./")
         .nargs(1);
+    program.add_argument("--threads", "-t")
+        .help("Specify number of threads that can be used")
+        .scan<'d', int>()
+        .default_value(4)
+        .nargs(1);
     program.add_argument("mode")
         .help("Operating mode for the backend")
         .default_value("default");
@@ -96,25 +101,23 @@ int main(int argc, char* argv[]) {
         case CHECK: {
             cout << "Checking database contents..." << endl;
             auto path = program.get<string>("--database");
+            auto thread_cnt = program.get<int>("--threads");
             Database db{path};
             auto uids = db.users->get_where();
             auto uids_size = uids.size();
             vector<future<string>> tasks;
-            P8::ThreadPool<pair<int, int>, string> pool{4};
+            P8::ThreadPool<pair<int, int>, double> pool{thread_cnt};
             vector<pair<int, int>> args;
             for(auto [i, uid] : zip_view(P8::make_range(uids_size), uids)){
                 args.push_back(make_pair(i, uid));
             }
-            auto results = pool.map([=](pair<int, int> arg) -> string {
+            auto target = [=](pair<int, int> arg) {
                 auto i = arg.first;
                 auto uid = arg.second;
-                string result_str = "";
-                result_str += "["+to_string((i*100)/uids_size)+"%] uid: "+to_string(uid) + " jids: [";
-                auto jids = db.journals->get_where("userId", to_string(uid));
+                auto jids = db.journals->get_where("userId", uid);
                 vector<double> results;
                 for(auto jid : jids){
-                    result_str += to_string(jid) + ",";
-                    auto aids = db.answers->get_where("journalId", to_string(jid));
+                    auto aids = db.answers->get_where("journalId", jid);
                     PredictionManager manager;
                     auto builder = manager.create_new_prediction(uid);
                     for(auto aid : aids){
@@ -124,14 +127,17 @@ int main(int argc, char* argv[]) {
                     }
                     results.push_back(builder.build());
                 }
-                result_str += "] values: [";
-                for(auto result : results)
-                    result_str += to_string(result) + ",";
                 auto f = calculate_regression(P8::make_range<double>(results.size()), results);
-                result_str += "] regression: " + to_string(f(results.size()+1));
-                return result_str;
+                return f(results.size()+1);
                 
-            }, args);
+            };
+            auto logger = [](pair<int, int> in, double out){
+                auto i = in.first;
+                auto uid = in.second;
+                cout << "i: " << i << " uid: " << uid << " result: " << out << endl;
+            };
+
+            auto results = pool.map(target, args, logger);
             for(auto result : results)
                 cout << result << endl;
             break;

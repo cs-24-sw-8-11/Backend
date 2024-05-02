@@ -87,10 +87,9 @@ class PredictionBuilder {
             final_data.push_back(pair.second ? 1.0 : 0.0);
         }
         // now we normalize
-        auto normalized = normalizeCDF(final_data);
         if (VERBOSE)
-            cout << "Built prediction with value: " << mean(normalized) << endl;
-        return mean(normalized);
+            cout << "Built prediction with value: " << mean(final_data) << endl;
+        return mean(final_data);
     }
 };
 

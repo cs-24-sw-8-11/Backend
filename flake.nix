@@ -49,19 +49,14 @@
         };
 
         backend = pkgs.stdenv.mkDerivation {
-            name = "Backend";
-            pname = "Backend";
-            src = pkgs.fetchgit {
-                rev = "5e8face";
-                url = "https://github.com/cs-24-sw-8-11/Backend";
-                hash = "sha256-/ta8ZseNghLOOKIa4oX0QyxWK/NcNc7s7alNRkddtDI=";
-                fetchSubmodules = true;
-            };
+            name = "P8 Backend";
+            src = ./.;
+            buildInputs = with pkgs; [cmake];
             installPhase = ''
-                mkdir -p $out/bin
-                cp bin/backend $out/bin/backend
+                mkdir -p $out
+                cp -r bin $out
+                ln -s $out/bin/backend $out/bin/P8-Backend
             '';
-            nativeBuildInputs = [ pkgs.cmake pkgs.gcc ];
         };
 
     in {
@@ -73,13 +68,13 @@
                 test
                 fmt-project
                 ncc
-                backend
                 pkgs.sqlite
                 pkgs.sqlite-interactive
                 pkgs.cmake
                 pkgs.jq
                 pkgs.python311Packages.transformers
                 pkgs.python311Packages.pytorch
+                pkgs.cppcheck
             ];
         };
         packages.${system} = {

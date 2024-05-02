@@ -3,6 +3,12 @@
 #include <functional>
 #include <future>
 #include <fstream>
+#include <map>
+#include <iostream>
+#include <format>
+#include <ranges>
+#include <cassert>
+#include <mutex>
 
 using namespace std;
 
@@ -39,35 +45,36 @@ namespace P8 {
         function<Output(Input)> f;
         future<void> task;
         map<int, Input> jobs;
-        function<void(Output)> logger = [](Output out){ cout << out << endl; };
+        function<void(Input, Output)> logger = [](Input in, Output out){ cout << out << endl; };
+        map<int, Output> results;
+        shared_ptr<mutex> results_mutex;
 
      public:
-        bool running = true;
-        map<int, Output> results;
 
         Worker(function<Output(Input)> f){
             this->f = f;
+            this->results_mutex = make_shared<mutex>();
+            results_mutex->lock();
         }
         void start(){
-            this->task = async(launch::async, [&](){ this->run(); });
+            task = async(launch::async, [&](map<int,Input> _jobs){ this->run(_jobs); }, jobs);
         }
-        void run(){
+        void run(map<int, Input> jobs){
             for(auto [i, value] : jobs){
                 results[i] = f(value);
-                logger(results[i]);
+                logger(value, results[i]);
             }
-            running = false;
+            results_mutex->unlock();
         }
         map<int, Output> get(){
-            while(running);
-
+            results_mutex->lock();
             return results;
         }
 
         void add_data(int id, Input data){
             jobs[id] = data;
         }
-        void set_logger(function<void(Output)> logger){
+        void set_logger(function<void(Input, Output)> logger){
             this->logger = logger;
         }
     };
@@ -96,16 +103,19 @@ namespace P8 {
      public:
 
         ThreadPool(int size){
+            if(size <= 0)
+                throw exception();
             this->size = size;
         }
-        vector<Output> map(function<Output(Input)> f, vector<Input> values, function<void(Output)> logger){
+        vector<Output> map(function<Output(Input)> f, vector<Input> values, function<void(Input, Output)> logger){
             vector<Worker<Input, Output>> workers;
             
             for(auto i = 0; i < size; i++){
-                auto worker = Worker<Input, Output>(f);
-                worker.set_logger(logger);
-                workers.push_back(worker);
+                workers.push_back(Worker<Input, Output>(f));
             }
+            for(auto& worker : workers)
+                worker.set_logger(logger);
+
             for(auto [i, value] : ranges::zip_view(make_range(values.size()), values))
                 workers[i%size].add_data(i, value);
             return map(workers);
@@ -113,9 +123,9 @@ namespace P8 {
         vector<Output> map(function<Output(Input)> f, vector<Input> values){
             vector<Worker<Input, Output>> workers;
 
-            for(auto i = 0; i < size; i++){
+            for(auto i = 0; i < size; i++)
                 workers.push_back(Worker<Input, Output>(f));
-            }
+
             for(auto [i, value] : ranges::zip_view(make_range(values.size()), values))
                 workers[i%size].add_data(i, value);
             return map(workers);
@@ -139,5 +149,20 @@ namespace P8 {
         }
 
         return result;
+    }
+
+    vector<string> split_string(string s, string delimiter){
+        vector<string> res;
+        int pos = 0;
+        while (pos < s.size()) {
+            pos = s.find(delimiter);
+            res.push_back(s.substr(0, pos));
+            s.erase(0, pos+1);
+        }
+        return res;
+    }
+
+    vector<string> split_string(string s){
+        return split_string(s, ",");
     }
 }
