@@ -245,10 +245,10 @@ class Table {
         return res;
     }
 
-    vector<int> get_where(string key, int value){
+    vector<int> get_where(string key, int value) {
         return get_where(key, to_string(value));
     }
-    vector<int> get_where(string key, double value){
+    vector<int> get_where(string key, double value) {
         return get_where(key, to_string(value));
     }
 

@@ -54,7 +54,7 @@ function<T(T)> calculate_regression(vector<T> xs, vector<T> ys) {
     auto intercept = y_mean - slope * x_mean;
 
     return [=](T x){ return intercept + (slope * x); };
-    //TODO: look into precision/error (MSE?)
+    // TODO(mast3r): look into precision/error (MSE?)
 }
 
 class PredictionBuilder {

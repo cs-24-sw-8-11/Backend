@@ -1,13 +1,13 @@
+#include <format>
+
 #include "Utils.hpp"
 #include "TestTemplate.hpp"
-
-#include <format>
 
 using namespace std;
 
 typedef Test<function<void()>> UtilsTest;
 
-int main(){
+int main() {
     auto utils = UtilsTest();
     utils.add_test("Test Make Range: edge cases", [&](){
         // testing edge cases
@@ -34,7 +34,7 @@ int main(){
         auto sorted_vector = P8::make_range(100);
         auto unsorted_vector = P8::make_range<int>(100, [](int i){ return 100-i; });
 
-        assert(P8::is_sorted(sorted_vector));        
+        assert(P8::is_sorted(sorted_vector));
         assert(!P8::is_sorted(unsorted_vector));
     });
 
@@ -59,7 +59,7 @@ int main(){
 
     utils.add_test("Test threadpool scalability", [&](){
         auto f = [&](int i){return i*2;};
-        for(auto i = 1; i < 100; i++){
+        for (auto i = 1; i < 100; i++) {
             P8::ThreadPool<int, int> pool{i};
             auto result = pool.map(f, P8::make_range(i), [](int input, int output){});
             assert(result.size() == i);

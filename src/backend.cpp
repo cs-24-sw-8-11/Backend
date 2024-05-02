@@ -1,7 +1,7 @@
-#include <iostream>
-#include <argparse/argparse.hpp>
 #include <ranges>
 #include <future>
+#include <iostream>
+#include <argparse/argparse.hpp>
 
 #include "Api.hpp"
 #include "Globals.hpp"
@@ -40,10 +40,10 @@ enum Mode{
     CHECK,
     POPULATE
 };
-Mode to_mode(string input){
+Mode to_mode(string input) {
     if (input == "default")
         return DEFAULT;
-    else if(input == "check")
+    else if (input == "check")
         return CHECK;
     else
         return POPULATE;
@@ -89,9 +89,8 @@ int main(int argc, char* argv[]) {
         cout << "Verbosity enabled" << endl;
         VERBOSE = true;
     }
-    switch(to_mode(program.get<string>("mode"))){
+    switch (to_mode(program.get<string>("mode"))) {
         case DEFAULT: {
-
             auto path = program.get<string>("--database");
             auto port = program.get<int>("--port");
             setup(path);
@@ -108,7 +107,7 @@ int main(int argc, char* argv[]) {
             vector<future<string>> tasks;
             P8::ThreadPool<pair<int, int>, double> pool{thread_cnt};
             vector<pair<int, int>> args;
-            for(auto [i, uid] : zip_view(P8::make_range(uids_size), uids)){
+            for (auto [i, uid] : zip_view(P8::make_range(uids_size), uids)) {
                 args.push_back(make_pair(i, uid));
             }
             auto target = [=](pair<int, int> arg) {
@@ -116,11 +115,11 @@ int main(int argc, char* argv[]) {
                 auto uid = arg.second;
                 auto jids = db.journals->get_where("userId", uid);
                 vector<double> results;
-                for(auto jid : jids){
+                for (auto jid : jids) {
                     auto aids = db.answers->get_where("journalId", jid);
                     PredictionManager manager;
                     auto builder = manager.create_new_prediction(uid);
-                    for(auto aid : aids){
+                    for (auto aid : aids) {
                         auto data = db.answers->get(aid);
                         auto qid = data["questionId"];
                         builder.add_valued_data(qid, stod(data["answer"]));
@@ -129,7 +128,6 @@ int main(int argc, char* argv[]) {
                 }
                 auto f = calculate_regression(P8::make_range<double>(results.size()), results);
                 return f(results.size()+1);
-                
             };
             auto logger = [](pair<int, int> in, double out){
                 auto i = in.first;
@@ -138,7 +136,7 @@ int main(int argc, char* argv[]) {
             };
 
             auto results = pool.map(target, args, logger);
-            for(auto result : results)
+            for (auto result : results)
                 cout << result << endl;
             break;
         }
@@ -146,7 +144,7 @@ int main(int argc, char* argv[]) {
             auto prefix = program.get<string>("--dataset");
             auto database = program.get<string>("--database");
             cout << "REMOVING DATABASE IN 10 SECONDS" << endl;
-            for(auto i = 10; i >= 0; i--){
+            for (auto i = 10; i >= 0; i--) {
                 sleep(1);
                 cout << i << endl;
             }
