@@ -50,7 +50,6 @@ int main() {
         auto UPPER_CASE_STRING_WITH_SPECIALS = "TRKTRJOK;TRHOTRHO¤%/%&/%()&/¤%/¤HTKUITHTRH%&/%/¤#4564564648587";
         auto control =                         "trktrjok;trhotrho¤%/%&/%()&/¤%/¤htkuithtrh%&/%/¤#4564564648587";
         assert(P8::to_lower_case(UPPER_CASE_STRING_WITH_SPECIALS) == control);
-
     });
 
     utils.add_test("Test threadpool 0", [&](){

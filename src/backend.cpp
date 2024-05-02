@@ -93,7 +93,7 @@ int main(int argc, char* argv[]) {
         case DEFAULT: {
             auto path = program.get<string>("--database");
             auto port = program.get<int>("--port");
-            if(port < 1){
+            if (port < 1) {
                 cerr << "Error, port number can't be less than 1" << endl;
                 exit(1);
             }
@@ -105,7 +105,7 @@ int main(int argc, char* argv[]) {
             cout << "Checking database contents..." << endl;
             auto path = program.get<string>("--database");
             auto thread_cnt = program.get<int>("--threads");
-            if(thread_cnt < 1){
+            if (thread_cnt < 1) {
                 cerr << "Error, thread count can't be less than 1" << endl;
                 exit(1);
             }

@@ -60,7 +60,7 @@ vector<string> split_string(string s) {
 
 string to_lower_case(string input) {
     string final_string;
-    for(auto c : input){
+    for (auto c : input) {
         final_string += tolower(c);
     }
     return final_string;
