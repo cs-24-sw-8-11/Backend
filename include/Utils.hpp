@@ -11,6 +11,7 @@
 #include <mutex>
 #include <memory>
 #include <string>
+#include <cctype>
 
 using namespace std;
 
@@ -23,6 +24,7 @@ vector<T> make_range(int n, function<T(int)> functor) {
     }
     return result;
 }
+
 template<typename T = int>
 vector<T> make_range(int n) {
     vector<T> result;
@@ -30,6 +32,7 @@ vector<T> make_range(int n) {
         result.push_back((T)i);
     return result;
 }
+
 template<typename T = double>
 bool is_sorted(vector<T> values) {
     for (auto i = 0; i < values.size()-1; i++) {
@@ -39,10 +42,34 @@ bool is_sorted(vector<T> values) {
     }
     return true;
 }
+
+vector<string> split_string(string s, string delimiter) {
+    vector<string> res;
+    int pos = 0;
+    while (pos < s.size()) {
+        pos = s.find(delimiter);
+        res.push_back(s.substr(0, pos));
+        s.erase(0, pos+delimiter.size());
+    }
+    return res;
+}
+
+vector<string> split_string(string s) {
+    return split_string(s, ",");
+}
+
+string to_lower_case(string input) {
+    string final_string;
+    for(auto c : input){
+        final_string += tolower(c);
+    }
+    return final_string;
+}
+
 template<typename Input, typename Output>
 class Worker {
     function<Output(Input)> f;
-    future<void> task;
+    thread task;
     map<int, Input> jobs;
     function<void(Input, Output)> logger = [](Input in, Output out){ cout << out << endl; };
     map<int, Output> results;
@@ -55,7 +82,7 @@ class Worker {
         results_mutex->lock();
     }
     void start() {
-        task = async(launch::async, [&](map<int, Input> _jobs){ this->run(_jobs); }, jobs);
+        task = thread([&](map<int, Input> _jobs){ this->run(_jobs); }, jobs);
     }
     void run(map<int, Input> jobs) {
         for (auto [i, value] : jobs) {
@@ -75,6 +102,7 @@ class Worker {
         this->logger = logger;
     }
 };
+
 template<typename Input, typename Output>
 class ThreadPool {
     int size;
@@ -96,7 +124,7 @@ class ThreadPool {
 
  public:
     explicit ThreadPool(int size) {
-        if (size <= 0)
+        if (size == 0)
             throw exception();
         this->size = size;
     }
@@ -137,18 +165,5 @@ map<string, string> run_cmd(string command) {
         cout << "stderr:  " << result["stderr"] << endl;
     }
     return result;
-}
-vector<string> split_string(string s, string delimiter) {
-    vector<string> res;
-    int pos = 0;
-    while (pos < s.size()) {
-        pos = s.find(delimiter);
-        res.push_back(s.substr(0, pos));
-        s.erase(0, pos+1);
-    }
-    return res;
-}
-vector<string> split_string(string s) {
-    return split_string(s, ",");
 }
 }  // namespace P8

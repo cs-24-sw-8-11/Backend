@@ -41,12 +41,12 @@ enum Mode{
     POPULATE
 };
 Mode to_mode(string input) {
-    if (input == "default")
-        return DEFAULT;
-    else if (input == "check")
+    if (P8::to_lower_case(input) == "populate")
+        return POPULATE;
+    else if (P8::to_lower_case(input) == "check")
         return CHECK;
     else
-        return POPULATE;
+        return DEFAULT;
 }
 
 int main(int argc, char* argv[]) {
@@ -93,6 +93,10 @@ int main(int argc, char* argv[]) {
         case DEFAULT: {
             auto path = program.get<string>("--database");
             auto port = program.get<int>("--port");
+            if(port < 1){
+                cerr << "Error, port number can't be less than 1" << endl;
+                exit(1);
+            }
             setup(path);
             Api api(path, port);
             break;
@@ -101,10 +105,13 @@ int main(int argc, char* argv[]) {
             cout << "Checking database contents..." << endl;
             auto path = program.get<string>("--database");
             auto thread_cnt = program.get<int>("--threads");
+            if(thread_cnt < 1){
+                cerr << "Error, thread count can't be less than 1" << endl;
+                exit(1);
+            }
             Database db{path};
             auto uids = db.users->get_where();
             auto uids_size = uids.size();
-            vector<future<string>> tasks;
             P8::ThreadPool<pair<int, int>, double> pool{thread_cnt};
             vector<pair<int, int>> args;
             for (auto [i, uid] : zip_view(P8::make_range(uids_size), uids)) {
@@ -115,9 +122,9 @@ int main(int argc, char* argv[]) {
                 auto uid = arg.second;
                 auto jids = db.journals->get_where("userId", uid);
                 vector<double> results;
+                PredictionManager manager;
                 for (auto jid : jids) {
                     auto aids = db.answers->get_where("journalId", jid);
-                    PredictionManager manager;
                     auto builder = manager.create_new_prediction(uid);
                     for (auto aid : aids) {
                         auto data = db.answers->get(aid);

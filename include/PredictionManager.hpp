@@ -12,11 +12,6 @@
 
 using namespace std;
 
-// these will be used in later implementations
-#define LOW_STRESS 0
-#define MODERATE_STRESS 14
-#define HIGH_STRESS 27
-
 template<typename T = double>
 T sum(vector<T> values) {
     T result;
@@ -29,15 +24,6 @@ T sum(vector<T> values) {
 template<typename T = double>
 T mean(vector<T> values) {
     return sum(values)/values.size();
-}
-
-template<typename T = double>
-vector<T> normalizeCDF(vector<T> values) {
-    vector<T> results;
-    for (auto value : values) {
-        results.push_back(0.5 * erfc(-value * M_SQRT1_2));
-    }
-    return results;
 }
 
 template<typename T = double>
@@ -86,7 +72,6 @@ class PredictionBuilder {
         for (auto pair : boolean_data) {
             final_data.push_back(pair.second ? 1.0 : 0.0);
         }
-        // now we normalize
         if (VERBOSE)
             cout << "Built prediction with value: " << mean(final_data) << endl;
         return mean(final_data);
