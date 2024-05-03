@@ -142,10 +142,12 @@ int main() {
     answers.add_test("add-answer", [&](){
         for (auto i = 0; i < num_additions; i++) {
             answers.db->answers->add({
-                "answer",
+                "value",
+                "rating",
                 "journalId",
                 "questionId"}, {
-                std::format("answer{}", i),
+                to_string(i),
+                "4",
                 to_string(answers.journal_id),
                 to_string(answers.question_id)});
         }
@@ -154,10 +156,12 @@ int main() {
 
     answers.add_test("delete-answer", [&](){
         answers.db->answers->add({
-            "answer",
+            "value",
+            "rating",
             "journalId",
             "questionId"}, {
-            "answer",
+            "3",
+            "4",
             to_string(answers.journal_id),
             to_string(answers.question_id)});
         assert(answers.db->answers->size() == 1);
@@ -168,16 +172,18 @@ int main() {
     });
     answers.add_test("modify-answer", [&](){
         answers.db->answers->add({
-            "answer",
+            "value",
+            "rating",
             "journalId",
             "questionId"}, {
-            "answer",
+            "4",
+            "3",
             to_string(answers.journal_id),
             to_string(answers.question_id)});
         auto answer_id = answers.db->answers->get_where()[0];
         auto current_data = answers.db->answers->get(answer_id);
         assert(current_data == answers.db->answers->get(answer_id));
-        answers.db->answers->modify(answer_id, {"answer"}, {"betteranswer"});
+        answers.db->answers->modify(answer_id, {"value"}, {"5"});
         auto new_data = answers.db->answers->get(answer_id);
         assert(current_data != new_data);
     });

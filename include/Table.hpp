@@ -37,110 +37,17 @@ using namespace std;
         << endl;                                        \
 }
 
-/*
-This is a custom data structure, a key value pair of strings that we can use for the database.
-*/
-class Pair {
- private:
-    string _key;
-    string _value;
+// Lazyness xd
+class Row : public map<string, string> {
  public:
-    Pair(string key, string value) {
-        this->_key = key;
-        this->_value = value;
-    }
-    string key() const {
-        return this->_key;
-    }
-    string value() const {
-        return this->_value;
-    }
-    void set(string value){
-        this->_value = value;
+    vector<string> keys(){
+        vector<string> data;
+        for (auto [key, value] : *(this))
+            data.push_back(key);
+        return data;
     }
 };
 
-/*
-This is the row class, it is an abstraction of the rows in the database.
-
-### Methods
-it has 4 public methods along with 3 overloaded operators
-- keys()
-  returns a vector of keys
-- values()
-  returns a vector of values
-- put(key, value)
-  inserts a value at the key position of the row, if it already exists it will update the value
-- has(key)
-  returns a boolean whether the row contains a key
-
-- operator[], operator!= and operator== is overloaded
-*/
-
-/// @brief Data structure for a single row in the database.
-class Row {
- private:
-    vector<Pair> data;
-
- public:
-    /// @brief Returns all the colomn names of the table the row belongs to.
-    vector<string> keys() {
-        vector<string> keys;
-        for (auto pair : data) {
-            keys.push_back(pair.key());
-        }
-        return keys;
-    }
-    /// @brief Returns all the values in the row object.
-    vector<string> values() {
-        vector<string> values;
-        for (auto pair : data) {
-            values.push_back(pair.value());
-        }
-        return values;
-    }
-    void put(string key, string value) {
-        if (this->has(key)) {
-            for (auto pair : this->data) {
-                if (pair.key() == key) {
-                    pair.set(value);
-                }
-            }
-        } else {
-            this->data.push_back(Pair{key, value});
-        }
-    }
-    string operator[](string key) {
-        for (auto pair : data) {
-            if (pair.key() == key) {
-                return pair.value();
-            }
-        }
-        throw exception();
-    }
-    inline bool has(string key) {
-        for (auto pair : data) {
-            if (pair.key() == key) {
-                return true;
-            }
-        }
-        return false;
-    }
-    inline bool operator!=(const Row& rhs) {
-        for (auto pair : rhs.data) {
-            if (!(this->has(pair.key()))) {
-                return true;
-            }
-            if (this->operator[](pair.key()) != pair.value()) {
-                return true;
-            }
-        }
-        return false;
-    }
-    inline bool operator==(const Row& rhs) {
-        return !(*(this) != rhs);
-    }
-};
 
 /// @brief Data Structure for a table in the database.
 class Table {
@@ -277,8 +184,7 @@ class Table {
             query.executeStep();
             auto colcnt = query.getColumnCount();
             for (auto i = 0; i < colcnt; i++) {
-                row.put(query.getColumnName(i),
-                    query.getColumn(query.getColumnName(i)).getString());
+                row[query.getColumnName(i)] = query.getColumn(query.getColumnName(i)).getString();
             }
         }
         EXCEPTION_HANDLER;

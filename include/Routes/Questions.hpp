@@ -53,5 +53,26 @@ class Questions : public Route {
             }
             respond(&response, response_data);
         });
-    }
+        this->server->Get("/questions/legend/:qid", [&](Request request, Response& response){
+            auto qid = request.path_params["qid"];
+            auto lids = db->legends->get_where("questionId", qid);
+
+            auto lids_data = P8::make_range<Row>(lids.size(), [&](int lid){ return db->legends->get(lid); });
+
+            if (lids.size() == 0) {
+                json data;
+                data["0"] = "Default legend item";
+                respond(&response, data);
+                return;
+            }
+
+            json data;
+            for (auto lid_data : lids_data) {
+                auto index = lid_data["legend_index"];
+                auto text = lid_data["text"];
+                data[index] = text;
+            }
+            respond(&response, data);
+        });
+    };
 };

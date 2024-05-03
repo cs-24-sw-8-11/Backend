@@ -30,20 +30,21 @@ class Journals : public Route {
             if (authedUsers[userid] == token) {
                 auto list = body["data"].get<vector<json>>();
                 auto jid = db->journals->add({
-                    "comment",
                     "userId"}, {
-                    comment,
                     to_string(userid)});
                 for (auto entry : list) {
-                    auto qid = entry["question"].get<string>();
-                    auto answer = entry["answer"].get<string>();
+                    auto qid = entry["qid"].get<string>();
+                    auto meta = entry["meta"].get<string>();
+                    auto rating = entry["rating"].get<int>();
                     // run sentiment analysis on answer
-                    auto result = P8::run_cmd(format("python ./lib/datasets/sentiment_analysis.py \"{}\"", answer))["stdout"];
+                    auto result = P8::run_cmd(format("python ./lib/datasets/sentiment_analysis.py \"{}\"", meta))["stdout"];
                     db->answers->add({
-                        "answer",
+                        "value",
+                        "rating",
                         "journalId",
                         "questionId"}, {
                         result,
+                        to_string(rating),
                         to_string(jid),
                         qid});
                 }
