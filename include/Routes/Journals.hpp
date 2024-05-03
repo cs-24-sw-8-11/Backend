@@ -5,6 +5,8 @@
 #include "Route.hpp"
 #include <nlohmann/json.hpp>
 
+#include "Utils.hpp"
+
 
 using namespace httplib;
 using namespace nlohmann;
@@ -28,19 +30,23 @@ class Journals : public Route {
             if (authedUsers[userid] == token) {
                 auto list = body["data"].get<vector<json>>();
                 auto jid = db->journals->add({
-                    "comment",
                     "userId"}, {
-                    comment,
-                    db_int(userid)});
+                    to_string(userid)});
                 for (auto entry : list) {
-                    auto qid = entry["question"].get<string>();
-                    auto answer = entry["answer"].get<string>();
+                    auto qid = entry["qid"].get<string>();
+                    auto meta = entry["meta"].get<string>();
+                    auto rating = entry["rating"].get<int>();
+                    // run sentiment analysis on answer
+                    auto result = P8::run_cmd(format("python ./lib/datasets/sentiment_analysis.py \"{}\"", meta))["stdout"];
                     db->answers->add({
-                        "answer",
+                        "value",
+                        "rating",
                         "journalId",
                         "questionId"}, {
-                        answer,
-                        db_int(jid), qid});
+                        result,
+                        to_string(rating),
+                        to_string(jid),
+                        qid});
                 }
                 respond(&response, string("Successfully created new journal."));
             } else {
@@ -51,7 +57,7 @@ class Journals : public Route {
         this->server->Get("/journals/get/:jid", [&](Request request, Response& response){
             auto jid = stoi(request.path_params["jid"]);
             json response_data;
-            if (jid <= 0 || db->journals->get_where("id", db_int(jid)).size() == 0) {
+            if (jid <= 0 || db->journals->get_where("id", jid).size() == 0) {
                 response_data["error"] = "Invalid Journal Id.";
                 return respond(&response, response_data, 400);
             }
@@ -61,7 +67,7 @@ class Journals : public Route {
             }
             response_data["answers"] = db->answers->get_where(
                 "journalId",
-                db_int(jid));
+                jid);
             respond(&response, response_data);
         });
         /// @brief Returns all the journal ids belonging to a specific user.
@@ -75,7 +81,7 @@ class Journals : public Route {
             }
             auto journals = db->journals->get_where(
                 "userId",
-                db_int(uid));
+                uid);
             response_data = journals;
             respond(&response, response_data);
         });

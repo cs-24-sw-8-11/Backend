@@ -27,7 +27,7 @@ class Settings : public Route {
             }
             auto settings = db->settings->get_where(
                 "userId",
-                db_int(uid));
+                uid);
             for (auto setting : settings) {
                 json data;
                 auto row = db-> settings->get(setting);
@@ -47,7 +47,7 @@ class Settings : public Route {
                 auto data = body["settings"].get<map<string, string>>();
                 auto userSettings = db->settings->get_where(
                     "userId",
-                    db_int(uid));
+                    to_string(uid));
                 for (auto [key, value] : data) {
                     if (!setting_exists(userSettings, key)) {
                         db->settings->add({
@@ -56,7 +56,7 @@ class Settings : public Route {
                             "userId"}, {
                             key,
                             value,
-                            db_int(uid)});
+                            to_string(uid)});
                     }
                     for (auto setting : userSettings) {
                         auto settingsRow = db->settings->get(setting);

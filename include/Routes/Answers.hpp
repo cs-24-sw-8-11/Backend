@@ -19,7 +19,7 @@ class Answers : public Route {
             auto answerId = stoi(request.path_params["answerId"]);
             auto token = request.path_params["token"];
             json response_data;
-            if (answerId <= 0 || db->answers->get_where("id", db_int(answerId)).size() == 0) {
+            if (answerId <= 0 || db->answers->get_where("id", answerId).size() == 0) {
                 response_data["error"] = "Invalid Answer Id.";
                 return respond(&response, response_data, 400);
             }

@@ -1,15 +1,18 @@
 [submodule "lib/SQLiteCpp"]
 	path = lib/SQLiteCpp
-	url = https://github.com/SRombauts/SQLiteCpp
+	url = git@github.com:SRombauts/SQLiteCpp
 [submodule "lib/argparse"]
 	path = lib/argparse
-	url = https://github.com/p-ranav/argparse
+	url = git@github.com:p-ranav/argparse
 [submodule "lib/json"]
 	path = lib/json
-	url = https://github.com/nlohmann/json
+	url = git@github.com:nlohmann/json
 [submodule "lib/asio"]
 	path = lib/asio
-	url = https://github.com/chriskohlhoff/asio/
+	url = git@github.com:chriskohlhoff/asio/
 [submodule "lib/cpp-httplib"]
 	path = lib/cpp-httplib
-	url = https://github.com/yhirose/cpp-httplib
+	url = git@github.com:yhirose/cpp-httplib
+[submodule "lib/datasets"]
+	path = lib/datasets
+	url = git@github.com:cs-24-sw-8-11/datasets

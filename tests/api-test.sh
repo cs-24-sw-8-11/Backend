@@ -32,8 +32,11 @@ qid=$(echo $questions | jq -r .[0].id)
 # /questions/get/<tags>
 default_questions=$(curl -s -X 'GET' $addr/questions/get/default)
 
+# /questions/legends/<qid>
+legends=$(curl -s -X 'GET' $addr/questions/legend/$qid)
+
 # /journals/new
-curl -s -X 'POST' -d "{\"token\":\"$token\", \"comment\":\"Too many exams today.\", \"data\":[{\"question\":\"$qid\", \"answer\":\"8\"},{\"question\":\"2\", \"answer\":\"2\"}]}" $addr/journals/new >> /dev/null
+curl -s -X 'POST' -d "{\"token\":\"$token\", \"data\":[{\"qid\":\"$qid\", \"meta\":\"It was horrible!\", \"rating\":4}]}" $addr/journals/new >> /dev/null
 
 # /journals/ids/<token>
 jids=$(curl -s -X 'GET' $addr/journals/ids/$token)
@@ -107,6 +110,8 @@ echo "default questions: $default_questions"
 verify $default_questions
 echo "qid:               $qid"
 verify $qid
+echo "legends:           $legends"
+verify $legends
 echo "prediction:        $prediction"
 verify $prediction
 echo "mitigations:       $mitigations"

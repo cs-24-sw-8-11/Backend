@@ -22,7 +22,7 @@ class Mitigations : public Route {
         this->server->Get("/mitigations/get/:mid", [&](Request request, Response& response){
             auto mid = stoi(request.path_params["mid"]);
             json response_data;
-            if (mid <= 0 || db->mitigations->get_where("id", db_int(mid)).size() == 0) {
+            if (mid <= 0 || db->mitigations->get_where("id", mid).size() == 0) {
                 response_data["error"] = "Invalid Mitigation Id.";
                 return respond(&response, response_data, 400);
             }
@@ -35,7 +35,7 @@ class Mitigations : public Route {
         /// @brief Returns a specific mitigation with a given id.
         this->server->Get("/mitigations/tags/:tag", [&](Request request, Response& response){
             auto tagparam = request.path_params["tag"];
-            auto tags = split(tagparam);
+            auto tags = P8::split_string(tagparam);
             json response_data;
             vector<int> mitigations;
             // Get all mitigations that contain the input tags which might contain duplicates
@@ -48,11 +48,11 @@ class Mitigations : public Route {
             }
             if (mitigations.size() > 0) {
                 // Sort the vector so std::unique can remove them due to how it internally works
-                sort(mitigations.begin(), mitigations.end());
+                std::sort(mitigations.begin(), mitigations.end());
                 // Remove all repeated sequences ie. 1,1,1,1,2,2 -> 1,2
-                auto distinct = unique(mitigations.begin(), mitigations.end());
+                auto distinct = std::unique(mitigations.begin(), mitigations.end());
                 // Resize the vector because elements have been removed
-                mitigations.resize(distance(mitigations.begin(), distinct));
+                mitigations.resize(std::distance(mitigations.begin(), distinct));
 
                 // Now take new filtered vector and iterate through it
                 for (distinct = mitigations.begin(); distinct != mitigations.end(); ++distinct) {
@@ -69,17 +69,5 @@ class Mitigations : public Route {
                 respond(&response, response_data, 400);
             }
         });
-    }
-
- private:
-    vector<string> split(string s){
-        vector<string> res;
-        int pos = 0;
-        while (pos < s.size()) {
-            pos = s.find(",");
-            res.push_back(s.substr(0, pos));
-            s.erase(0, pos+1);
-        }
-        return res;
     }
 };

@@ -30,17 +30,9 @@ class Route {
             "key",
             "value",
             "userId"}, {
-            "key",
-            "value",
-            db_int(userId)});
-        db->settings->add({
-            "key",
-            "value",
-            "userId"}, {
-            "key1",
-            "value2",
-            db_int(userId)});
-        // add more settings here
+            "predictions",
+            "true",
+            to_string(userId)});
     }
 
     /// @brief Returns the user id from the authedUsers dictionary from a given token.

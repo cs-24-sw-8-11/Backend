@@ -30,7 +30,7 @@ jobs:
         - name: setup env
           run: sudo apt install cpplint
         - name:
-          run: cpplint --filter='-legal/copyright,-whitespace/line_length,-build/namespaces' --recursive src include
+          run: cpplint --filter='-legal/copyright,-whitespace/line_length,-build/namespaces,-build/c++11,-runtime/references' --recursive src include
     naming:
       runs-on: ubuntu-latest
       steps:
@@ -69,8 +69,8 @@ jobs:
               run: sudo apt install sqlite3 valgrind
             - name: test-database-tests
               run: valgrind ./.ccache/bin/database_test
-            - name: test-questionaire-tests
-              run: valgrind ./.ccache/bin/questionaire_test
+            - name: test-utils-tests
+              run: valgrind ./.ccache/bin/utils_test
             - name: test-predictions-test
               run: valgrind ./.ccache/bin/predictions_test
     api-test:

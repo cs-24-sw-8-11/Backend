@@ -17,10 +17,11 @@ enum UserState {
     TRAINING,
     STANDARD
 };
-// wrappers to make db access easy while keeping types
-string db_int(int e) {
-    return format("{}", e);
-}
+
+enum JournalType {
+    TRAINING_JOURNAL,
+    PREDICTION_JOURNAL
+};
 
 /// @brief Database object with points to all relevant tables with methods for retrieving and modification.
 class Database {
@@ -33,6 +34,7 @@ class Database {
     shared_ptr<Table> userdata;
     shared_ptr<Table> predictions;
     shared_ptr<Table> mitigations;
+    shared_ptr<Table> legends;
 
     /// @brief Constructs the database object using the TableFactory.
     /// @param path
@@ -44,12 +46,12 @@ class Database {
             "state INTEGER NOT NULL",
         });
         this->journals = factory.create("journals", {
-            "comment varchar",
             "userId INTEGER NOT NULL",
             "FOREIGN KEY(userId) REFERENCES users(id)"
         });
         this->answers = factory.create("answers", {
-            "answer VARCHAR NOT NULL",
+            "value INTEGER NOT NULL",
+            "rating INTEGER NOT NULL",
             "journalId INTEGER NOT NULL",
             "questionId INTEGER NOT NULL",
             "FOREIGN KEY(journalId) REFERENCES journals(id)",
@@ -82,6 +84,12 @@ class Database {
             "type INTEGER NOT NULL",
             "title VARCHAR NOT NULL",
             "description VARCHAR NOT NULL"
+        });
+        this->legends = factory.create("legends", {
+            "questionId INTEGER NOT NULL",
+            "text VARCHAR NOT NULL",
+            "legend_index INTEGER NOT NULL",
+            "FOREIGN KEY(questionId) REFERENCES questions(id)"
         });
         if (VERBOSE)
             cout << "Initialized all tables" << endl;

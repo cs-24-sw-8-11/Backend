@@ -40,7 +40,7 @@ class Users : public Route {
                 return;
             }
             auto user = db->users->get(uid);
-            auto userdata_ids = db->userdata->get_where("userId", db_int(uid));
+            auto userdata_ids = db->userdata->get_where("userId", uid);
             if (userdata_ids.size() == 0) {
                 response_data["error"] = "User has no userdata yet!";
                 respond(&response, response_data, 400);
@@ -128,7 +128,7 @@ class Users : public Route {
                     "state"}, {
                     username,
                     token,
-                    db_int(TRAINING)});
+                    to_string(TRAINING)});
                 default_settings(userid);
                 respond(&response, string("Successfully Registered!"));
             } else {
@@ -142,14 +142,14 @@ class Users : public Route {
             auto uid = user_id_from_token(token);
             if (authedUsers[uid] == token) {
                 auto data = body["data"];
-                if (db->userdata->get_where("userId", db_int(uid)).size() == 0) {
+                if (db->userdata->get_where("userId", uid).size() == 0) {
                     db->userdata->add({
                         "agegroup",
                         "major",
                         "userId"}, {
                         data["agegroup"].get<string>(),
                         data["major"].get<string>(),
-                        db_int(uid)});
+                        to_string(uid)});
                 } else {
                     for (auto [key, value] : data.items()) {
                         db->userdata->modify(uid, {key}, {value});
