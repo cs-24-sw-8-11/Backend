@@ -47,6 +47,7 @@ class Database {
         });
         this->journals = factory.create("journals", {
             "userId INTEGER NOT NULL",
+            "timestamp INTEGER NOT NULL",
             "FOREIGN KEY(userId) REFERENCES users(id)"
         });
         this->answers = factory.create("answers", {

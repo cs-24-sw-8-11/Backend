@@ -4,6 +4,7 @@
 #include <string>
 #include "Route.hpp"
 #include <nlohmann/json.hpp>
+#include <chrono>
 
 #include "Utils.hpp"
 
@@ -20,6 +21,7 @@ class Journals : public Route {
     void init() override {
         /// @brief Submits a new journal to the system
         this->server->Post("/journals/new", [&](Request request, Response& response){
+            auto time = chrono::duration_cast<chrono::seconds>(chrono::system_clock::now().time_since_epoch()).count();
             auto body = json::parse(request.body);
             auto token = body["token"].get<string>();
             string comment = "";
@@ -30,7 +32,9 @@ class Journals : public Route {
             if (authedUsers[userid] == token) {
                 auto list = body["data"].get<vector<json>>();
                 auto jid = db->journals->add({
+                    "timestamp",
                     "userId"}, {
+                    to_string(time),
                     to_string(userid)});
                 for (auto entry : list) {
                     auto qid = entry["qid"].get<string>();
@@ -44,7 +48,7 @@ class Journals : public Route {
                         "journalId",
                         "questionId"}, {
                         result,
-                        to_string(rating),
+                        to_string(((double)rating)/5.0),
                         to_string(jid),
                         qid});
                 }

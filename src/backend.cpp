@@ -9,7 +9,7 @@
 #include "Utils.hpp"
 
 using namespace std;
-using namespace std::ranges;
+using namespace std::views;
 
 /// @brief Adds default questions and mitigations to the database
 /// @param path db path
@@ -67,12 +67,16 @@ int main(int argc, char* argv[]) {
         .nargs(1);
     program.add_argument("--dataset", "-d")
         .help("Path to the dataset for populating the database")
-        .default_value("./")
+        .default_value("./lib/datasets")
         .nargs(1);
     program.add_argument("--threads", "-t")
         .help("Specify number of threads that can be used")
         .scan<'d', int>()
         .default_value(4)
+        .nargs(1);
+    program.add_argument("--tables")
+        .help("For the populate command, specify which tables to populate")
+        .default_value("all")
         .nargs(1);
     program.add_argument("mode")
         .help("Operating mode for the backend")
@@ -114,7 +118,7 @@ int main(int argc, char* argv[]) {
             auto uids_size = uids.size();
             P8::ThreadPool<pair<int, int>, double> pool{thread_cnt};
             vector<pair<int, int>> args;
-            for (auto [i, uid] : zip_view(P8::make_range(uids_size), uids)) {
+            for (auto [i, uid] : zip(P8::make_range(uids_size), uids)) {
                 args.push_back(make_pair(i, uid));
             }
             auto target = [=](pair<int, int> arg) {
@@ -123,18 +127,18 @@ int main(int argc, char* argv[]) {
                 auto jids = db.journals->get_where("userId", uid);
                 vector<double> results;
                 PredictionManager manager;
-                for (auto jid : jids) {
-                    auto aids = db.answers->get_where("journalId", jid);
-                    auto builder = manager.create_new_prediction(uid);
-                    for (auto aid : aids) {
-                        auto data = db.answers->get(aid);
-                        auto qid = data["questionId"];
-                        builder.add_valued_data(qid, stod(data["answer"]));
+                auto builder = manager.create_new_prediction(uid);
+                for(auto [day_identifier, jid] : views::zip(P8::make_range(3), jids)){
+                    auto journal = db.journals->get(jid);
+                    vector<pair<double, double>> prediction_data;
+                    for(auto aid : db.answers->get_where("journalId", jid)){
+                        auto answer = db.answers->get(aid);
+                        prediction_data.push_back(make_pair(stod(answer["value"]), stod(answer["rating"])));
                     }
-                    results.push_back(builder.build());
+                    builder.add_journal(day_identifier, prediction_data);
                 }
-                auto f = calculate_regression(P8::make_range<double>(results.size()), results);
-                return f(results.size()+1);
+                auto value = builder.build();
+                return value;
             };
             auto logger = [](pair<int, int> in, double out){
                 auto i = in.first;
@@ -150,6 +154,7 @@ int main(int argc, char* argv[]) {
         case POPULATE: {
             auto prefix = program.get<string>("--dataset");
             auto database = program.get<string>("--database");
+            auto tables = program.get<string>("--tables");
             cout << "REMOVING DATABASE IN 10 SECONDS" << endl;
             for (auto i = 10; i >= 0; i--) {
                 sleep(1);
@@ -160,9 +165,10 @@ int main(int argc, char* argv[]) {
             {
                 auto db = Database{database};
             }
-            auto result = system(format("python {0}/dataset_to_db.py -f {0}/data.csv -c {0}/codebook.txt", prefix).c_str());
+            auto result = system(format("python {0}/dataset_to_db.py -f {0}/data.csv -c {0}/codebook.txt -m {0}/mitigations.csv -t {1}", prefix, tables).c_str());
             cout << "Was database removed?:        " << rm_result << endl;
             cout << "Populate command return code: " << result << endl;
+            break;
         }
     }
 }

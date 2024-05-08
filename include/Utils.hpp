@@ -66,6 +66,13 @@ string to_lower_case(string input) {
     return final_string;
 }
 
+int randint(int start, int end){
+    return rand() % (end-start) + start;
+}
+int randint(int end){
+    return randint(0, end);
+}
+
 template<typename Input, typename Output>
 class Worker {
     function<Output(Input)> f;
@@ -136,7 +143,7 @@ class ThreadPool {
         }
         for (auto& worker : workers)
             worker.set_logger(logger);
-        for (auto [i, value] : ranges::zip_view(make_range(values.size()), values))
+        for (auto [i, value] : views::zip(make_range(values.size()), values))
             workers[i%size].add_data(i, value);
         return map(workers);
     }
@@ -144,7 +151,7 @@ class ThreadPool {
         vector<Worker<Input, Output>> workers;
         for (auto i = 0; i < size; i++)
             workers.push_back(Worker<Input, Output>(f));
-        for (auto [i, value] : ranges::zip_view(make_range(values.size()), values))
+        for (auto [i, value] : views::zip(make_range(values.size()), values))
             workers[i%size].add_data(i, value);
         return map(workers);
     }

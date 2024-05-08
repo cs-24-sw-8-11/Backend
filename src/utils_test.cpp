@@ -73,5 +73,15 @@ int main() {
         }
     });
 
+    utils.add_test("Test randint", [&](){
+        auto start = 100;
+        auto end = 1000;
+        for(auto value : P8::make_range<int>(100, [=](int i){
+            return P8::randint(start, end);
+        })){
+            assert(value >= start && value < end);
+        }
+    });
+
     utils.run();
 }

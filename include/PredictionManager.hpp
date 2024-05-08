@@ -9,6 +9,7 @@
 #include <iostream>
 
 #include "Globals.hpp"
+#include "Utils.hpp"
 
 using namespace std;
 
@@ -32,7 +33,7 @@ function<T(T)> calculate_regression(vector<T> xs, vector<T> ys) {
     auto y_mean = mean(ys);
     auto numerator = 0.0;
     auto denominator = 0.0;
-    for (auto [x, y] : ranges::zip_view(xs, ys)) {
+    for (auto [x, y] : views::zip(xs, ys)) {
         numerator += (x-x_mean) * (y-y_mean);
         denominator += pow(x - x_mean, 2);
     }
@@ -44,37 +45,31 @@ function<T(T)> calculate_regression(vector<T> xs, vector<T> ys) {
 }
 
 class PredictionBuilder {
-    double prediction_value = 0.5;
-    vector<pair<string, double>> valued_data;
-    vector<pair<string, bool>> boolean_data;
+    map<int, double> journal_values;
 
  public:
-    void add_valued_data(string qid, double data) {
-        valued_data.push_back(make_pair(qid, data));
-        if (VERBOSE)
-            cout << "Added valued data" << endl;
+    void add_journal(int x, vector<pair<double, double>> journal){
+        vector<double> final_values;
+        for(auto [value, rating] : journal){
+            final_values.push_back(rating*value);
+        }
+        journal_values[x] = mean(final_values);
     }
-    void add_boolean_data(string qid, bool data) {
-        boolean_data.push_back(make_pair(qid, data));
-        if (VERBOSE)
-            cout << "Added boolean data" << endl;
-    }
+
     size_t size() {
-        return valued_data.size() + boolean_data.size();
+        return journal_values.size();
     }
     double build() {
-        // The most important step here is to normalize the data
-        // such that the stress factor is within the range
-        vector<double> final_data;
-        for (auto pair : valued_data) {
-            final_data.push_back(pair.second);
+        vector<double> xs;
+        vector<double> ys;
+        for(auto [key, value] : journal_values){
+            xs.push_back(key);
+            ys.push_back(value);
         }
-        for (auto pair : boolean_data) {
-            final_data.push_back(pair.second ? 1.0 : 0.0);
-        }
+        auto f = calculate_regression(xs, ys);
         if (VERBOSE)
-            cout << "Built prediction with value: " << mean(final_data) << endl;
-        return mean(final_data);
+            cout << "Built prediction with value: " << f(xs.size()+1) << endl;
+        return f(xs.size()+1);
     }
 };
 
