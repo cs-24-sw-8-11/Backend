@@ -1,4 +1,5 @@
 #include <format>
+#include <chrono>
 #include <cassert>
 #include <string>
 #include <iostream>
@@ -23,6 +24,7 @@ class DbTest : public Test<std::function<void()>> {
         default_username = config["user"]["username"].get<std::string>();
         default_password = config["user"]["password"].get<std::string>();
         default_questions = config["questions"].get<std::vector<std::string>>();
+        now = chrono::duration_cast<chrono::seconds>(chrono::system_clock::now().time_since_epoch()).count();
 
         // add temporary data
         db->users->add({"username",
@@ -32,7 +34,7 @@ class DbTest : public Test<std::function<void()>> {
             default_password,
             to_string(TRAINING)});
         user_id = db->users->get_where("username", default_username)[0];
-        db->journals->add({"userId"}, {to_string(user_id)});
+        db->journals->add({"userId", "timestamp"}, {to_string(user_id), to_string(now)});
         journal_id = db->journals->get_where("userId", user_id)[0];
         for (auto question : default_questions)
             db->questions->add({
@@ -52,6 +54,7 @@ class DbTest : public Test<std::function<void()>> {
         int user_id;
         int journal_id;
         int question_id;
+        int now;
 };
 
 int main() {
@@ -89,7 +92,7 @@ int main() {
     DbTest journals;
     journals.add_test("add-journal", [&](){
         for (auto i = 0; i < num_additions; i++) {
-            journals.db->journals->add({"userId"}, {to_string(journals.user_id)});
+            journals.db->journals->add({"userId", "timestamp"}, {to_string(journals.user_id), to_string(journals.now)});
         }
         assert(journals.db->journals->size() == num_additions+1);
     });
@@ -100,7 +103,7 @@ int main() {
         assert(journals.db->journals->size() == 0);
     });
     journals.add_test("modify-journal", [&](){
-        journals.db->journals->add({"userId"}, {to_string(journals.user_id)});
+        journals.db->journals->add({"userId", "timestamp"}, {to_string(journals.user_id), to_string(journals.now)});
         auto journal_id = journals.db->journals->get_where()[0];
         auto current_data = journals.db->journals->get(journal_id);
         assert(current_data == journals.db->journals->get(journal_id));

@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <utility>
 
 #include "Route.hpp"
 #include <nlohmann/json.hpp>
@@ -9,6 +10,9 @@
 using namespace httplib;
 using namespace std;
 using namespace nlohmann;
+
+#define DAY 86400
+#define WEEK 604800
 
 class Predictions : public Route {
     // Inherits the super class constructor.
@@ -46,32 +50,45 @@ class Predictions : public Route {
         this->server->Post("/predictions/add", [&](Request request, Response& response){
             auto body = json::parse(request.body);
             auto token = body["token"].get<string>();
-            auto qid = body["questionid"].get<string>();
             auto uid = user_id_from_token(token);
+            json response_data;
             if (authedUsers[uid] == token) {
-                auto prediction = manager.create_new_prediction(uid);
-                auto answers = db->answers->get_where("questionId", qid);
-                auto journals = db->journals->get_where(
-                    "userId",
-                    uid);
-                for (auto answer : answers) {
-                    if (std::count(
-                        journals.begin(),
-                        journals.end(),
-                        stoi(db->answers->get(answer)["journalId"])) > 0) {
-                        prediction.add_valued_data(qid,
-                            stod(db->answers->get(answer)["answer"]));
+                auto jids = db->journals->get_where("userId", uid);
+                map<int, Row> journals;
+                auto now = chrono::duration_cast<chrono::seconds>(chrono::system_clock::now().time_since_epoch()).count();
+                for (auto jid : jids) {
+                    auto journal = db->journals->get(jid);
+                    auto journal_time = stoi(journal["timestamp"]);
+                    auto delta = now - journal_time;
+                    if (delta <= WEEK) {
+                        // This journal is within the valid range
+                        journals[delta/DAY] = journal;
+                    } else {
+                        cout << "\033[38;2;255;0;0minvalid journal found\033[0m" << endl;
                     }
                 }
-                auto predictionValue = prediction.build();
-                db->predictions->add({
-                    "userId",
-                    "value"}, {
-                    to_string(uid),
-                    to_string(predictionValue)});
-                respond(&response, string("Successfully added prediction."));
+                if (journals.size() < 3) {
+                    response_data["error"] = "Too few journals!";
+                    respond(&response, response_data, 403);
+                    return;
+                }
+                PredictionManager manager;
+                auto builder = manager.create_new_prediction(uid);
+                for (auto [timestamp, journal] : journals) {
+                    auto jid = journal["id"];
+                    vector<pair<double, double>> prediction_data;
+                    for (auto aid : db->answers->get_where("journalId", jid)) {
+                        auto answer = db->answers->get(aid);
+                        prediction_data.push_back(make_pair(stod(answer["value"]), stod(answer["rating"])));
+                    }
+                    builder.add_journal(timestamp, prediction_data);
+                }
+                auto result = builder.build();
+                response_data["value"] = result;
+                respond(&response, response_data);
             } else {
-                respond(&response, string("Token does not match expected value!"), 403);
+                response_data["error"] = "Token does not match expected value!";
+                respond(&response, response_data, 403);
             }
         });
     }
