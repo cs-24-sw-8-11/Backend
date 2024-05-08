@@ -60,7 +60,7 @@ class Predictions : public Route {
                     auto journal = db->journals->get(jid);
                     auto journal_time = stoi(journal["timestamp"]);
                     auto delta = now - journal_time;
-                    if (delta <= DAY*7) {
+                    if (delta <= WEEK) {
                         // This journal is within the valid range
                         journals[delta/DAY] = journal;
                     } else {
