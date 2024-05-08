@@ -48,9 +48,9 @@ class PredictionBuilder {
     map<int, double> journal_values;
 
  public:
-    void add_journal(int x, vector<pair<double, double>> journal){
+    void add_journal(int x, vector<pair<double, double>> journal) {
         vector<double> final_values;
-        for(auto [value, rating] : journal){
+        for (auto [value, rating] : journal) {
             final_values.push_back(rating*value);
         }
         journal_values[x] = mean(final_values);
@@ -62,7 +62,7 @@ class PredictionBuilder {
     double build() {
         vector<double> xs;
         vector<double> ys;
-        for(auto [key, value] : journal_values){
+        for (auto [key, value] : journal_values) {
             xs.push_back(key);
             ys.push_back(value);
         }

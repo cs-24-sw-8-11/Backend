@@ -1,10 +1,10 @@
 #pragma once
 
+#include <chrono>
 #include <vector>
 #include <string>
 #include "Route.hpp"
 #include <nlohmann/json.hpp>
-#include <chrono>
 
 #include "Utils.hpp"
 
@@ -48,7 +48,7 @@ class Journals : public Route {
                         "journalId",
                         "questionId"}, {
                         result,
-                        to_string(((double)rating)/5.0),
+                        to_string(static_cast<double>(rating)/5.0),
                         to_string(jid),
                         qid});
                 }

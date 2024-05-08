@@ -28,9 +28,9 @@ int main() {
 
     main.add_test("add journals", [&](){
         auto builder = main.manager.create_new_prediction(0);
-        for(auto i = 0; i < 7; i++){
+        for (auto i = 0; i < 7; i++) {
             vector<pair<double, double>> answers{
-                put(0.5, (double)i/7)
+                put(0.5, static_cast<double>(i)/7)
             };
             builder.add_journal(i, answers);
         }

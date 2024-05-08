@@ -128,10 +128,10 @@ int main(int argc, char* argv[]) {
                 vector<double> results;
                 PredictionManager manager;
                 auto builder = manager.create_new_prediction(uid);
-                for(auto [day_identifier, jid] : views::zip(P8::make_range(3), jids)){
+                for (auto [day_identifier, jid] : views::zip(P8::make_range(3), jids)) {
                     auto journal = db.journals->get(jid);
                     vector<pair<double, double>> prediction_data;
-                    for(auto aid : db.answers->get_where("journalId", jid)){
+                    for (auto aid : db.answers->get_where("journalId", jid)) {
                         auto answer = db.answers->get(aid);
                         prediction_data.push_back(make_pair(stod(answer["value"]), stod(answer["rating"])));
                     }

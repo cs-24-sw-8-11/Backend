@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <utility>
 
 #include "Route.hpp"
 #include <nlohmann/json.hpp>
@@ -55,29 +56,28 @@ class Predictions : public Route {
                 auto jids = db->journals->get_where("userId", uid);
                 map<int, Row> journals;
                 auto now = chrono::duration_cast<chrono::seconds>(chrono::system_clock::now().time_since_epoch()).count();
-                for(auto jid : jids){
+                for (auto jid : jids) {
                     auto journal = db->journals->get(jid);
                     auto journal_time = stoi(journal["timestamp"]);
                     auto delta = now - journal_time;
-                    if(delta <= DAY*7){
+                    if (delta <= DAY*7) {
                         // This journal is within the valid range
                         journals[delta/DAY] = journal;
-                    }
-                    else{
+                    } else {
                         cout << "\033[38;2;255;0;0minvalid journal found\033[0m" << endl;
                     }
                 }
-                if(journals.size() < 3){
+                if (journals.size() < 3) {
                     response_data["error"] = "Too few journals!";
                     respond(&response, response_data, 403);
                     return;
                 }
                 PredictionManager manager;
                 auto builder = manager.create_new_prediction(uid);
-                for(auto [timestamp, journal] : journals){
+                for (auto [timestamp, journal] : journals) {
                     auto jid = journal["id"];
                     vector<pair<double, double>> prediction_data;
-                    for(auto aid : db->answers->get_where("journalId", jid)){
+                    for (auto aid : db->answers->get_where("journalId", jid)) {
                         auto answer = db->answers->get(aid);
                         prediction_data.push_back(make_pair(stod(answer["value"]), stod(answer["rating"])));
                     }

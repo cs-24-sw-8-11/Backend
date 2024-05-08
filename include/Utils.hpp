@@ -66,10 +66,10 @@ string to_lower_case(string input) {
     return final_string;
 }
 
-int randint(int start, int end){
+int randint(int start, int end) {
     return rand() % (end-start) + start;
 }
-int randint(int end){
+int randint(int end) {
     return randint(0, end);
 }
 
