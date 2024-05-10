@@ -24,10 +24,6 @@ class Journals : public Route {
             auto time = chrono::duration_cast<chrono::seconds>(chrono::system_clock::now().time_since_epoch()).count();
             auto body = json::parse(request.body);
             auto token = body["token"].get<string>();
-            string comment = "";
-            if (body["comment"].size()) {
-                comment = body["comment"].get<string>();
-            }
             auto userid = user_id_from_token(token);
             if (authedUsers[userid] == token) {
                 auto list = body["data"].get<vector<json>>();
