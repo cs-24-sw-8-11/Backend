@@ -12,7 +12,7 @@ using namespace std;
 using namespace nlohmann;
 
 #define DAY 86400
-#define WEEK 604800
+#define WEEK DAY*7
 
 class Predictions : public Route {
     // Inherits the super class constructor.
@@ -85,6 +85,7 @@ class Predictions : public Route {
                 }
                 auto result = builder.build();
                 response_data["value"] = result;
+                db->predictions->add({"userId", "value"}, {to_string(uid), to_string(result)});
                 respond(&response, response_data);
             } else {
                 response_data["error"] = "Token does not match expected value!";
