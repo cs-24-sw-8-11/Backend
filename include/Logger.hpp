@@ -2,6 +2,8 @@
 
 #include <ostream>
 #include <fstream>
+#include <string>
+
 #include "Globals.hpp"
 
 using namespace std;
@@ -16,7 +18,7 @@ namespace P8 {
         INFO
     };
 
-    void writefile(string input){
+    void writefile(string input) {
         ofstream log_stream{logfile};
         log_stream << input;
         log_stream.close();
@@ -48,4 +50,4 @@ namespace P8 {
             cout << "\033[38;2;255;255;0m" << input << "\033[0m" << endl;
         }
     }
-}
+}  // namespace P8
