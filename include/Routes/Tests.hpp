@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Route.hpp"
+#include <string>
 
+#include "Route.hpp"
 #include "Utils.hpp"
 
 class Tests : public Route {
