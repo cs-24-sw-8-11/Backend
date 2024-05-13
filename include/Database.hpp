@@ -73,8 +73,16 @@ class Database {
         });
         this->userdata = factory.create("userdata", {
             "userId INTEGER NOT NULL",
-            "agegroup VARCHAR NOT NULL",
-            "major VARCHAR NOT NULL",
+            "education INTEGER NOT NULL",
+            "urban INTEGER NOT NULL",
+            "gender INTEGER NOT NULL",
+            "religion INTEGER NOT NULL",
+            "orientation INTEGER NOT NULL",
+            "race INTEGER NOT NULL",
+            "married INTEGER NOT NULL",
+            "age INTEGER NOT NULL",
+            "pets INTEGER NOT NULL",
+            "major INTEGER NOT NULL",
             "FOREIGN KEY(userId) REFERENCES users(id)"
         });
         this->predictions = factory.create("predictions", {

@@ -1,0 +1,15 @@
+{
+    "data":{
+        "userId":"1",
+        "education":"0",
+        "urban":"0",
+        "gender":"0",
+        "religion":"0",
+        "orientation":"0",
+        "race":"0",
+        "married":"0",
+        "age":"0",
+        "pets":"0",
+        "major":"0"
+    }
+}

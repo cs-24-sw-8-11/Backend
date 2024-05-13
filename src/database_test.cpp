@@ -236,11 +236,27 @@ int main() {
     DbTest userdata;
     userdata.add_test("delete-userdata", [&](){
         userdata.db->userdata->add({
-            "agegroup",
+            "education",
+            "urban",
+            "gender",
+            "religion",
+            "orientation",
+            "race",
+            "married",
+            "age",
+            "pets",
             "major",
             "userId"}, {
-            "50-54",
-            "unemployed",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
             to_string(userdata.user_id)});
         assert(userdata.db->userdata->size() == 1);
         auto userdata_id = userdata.db->userdata->get_where()[0];
@@ -249,16 +265,32 @@ int main() {
     });
     userdata.add_test("modify-userdata", [&](){
         userdata.db->userdata->add({
-            "agegroup",
+            "education",
+            "urban",
+            "gender",
+            "religion",
+            "orientation",
+            "race",
+            "married",
+            "age",
+            "pets",
             "major",
             "userId"}, {
-            "50-54",
-            "unemployed",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
             to_string(userdata.user_id)});
         auto userdata_id = userdata.db->userdata->get_where()[0];
         auto current_data = userdata.db->userdata->get(userdata_id);
         assert(current_data == userdata.db->userdata->get(userdata_id));
-        userdata.db->userdata->modify(userdata_id, {"agegroup"}, {"55-59"});
+        userdata.db->userdata->modify(userdata_id, {"age"}, {"1"});
         auto new_data = userdata.db->userdata->get(userdata_id);
         assert(current_data != new_data);
     });

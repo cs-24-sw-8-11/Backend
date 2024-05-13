@@ -1,18 +1,18 @@
 addr="http://localhost:$(cat ./files/testdata/default.json | jq -r .port)"
-username="$(cat ./files/testdata/default.json | jq -r .user.username)"
-password="$(cat ./files/testdata/default.json | jq -r .user.password)"
-authjson="{\"username\":\"$username\", \"password\": \"$password\"}"
+auth="$(cat ./files/testdata/auth.json | jq -rc)"
 
 # start phase
+rm -f db.db3
+
 $1/bin/backend --port "$(cat ./files/testdata/default.json | jq -r .port)" &
 sleep 1
 
 
 # /register
-curl -s -X 'POST' -d "$authjson" $addr/user/register >> /dev/null
+curl -s -X 'POST' -d "$auth" $addr/user/register >> /dev/null
 
 # /user/auth
-token=$(curl -s -X 'POST' -d "$authjson" $addr/user/auth)
+token=$(curl -s -X 'POST' -d "$auth" $addr/user/auth)
 
 # /user/ids/<n-m>
 ids=$(curl -s -X 'GET' $addr/user/ids)
@@ -20,7 +20,8 @@ ids=$(curl -s -X 'GET' $addr/user/ids)
 uid=$(echo "$ids" | jq -r .[0])
 
 # /user/data/update
-curl -s -X 'POST' -d "{\"token\":\"$token\", \"data\":{\"agegroup\":\"42-69\", \"major\":\"school\"}}" $addr/user/data/update >> /dev/null
+userdata_json=$(cat ./files/testdata/userdata.json | jq -rc ".token = \"$token\"")
+curl -s -X 'POST' -d "$userdata_json"  $addr/user/data/update >> /dev/null
 
 # /user/get/<token>
 userdata=$(curl -s -X 'GET' $addr/user/get/$token)
@@ -36,7 +37,9 @@ default_questions=$(curl -s -X 'GET' $addr/questions/get/default)
 legends=$(curl -s -X 'GET' $addr/questions/legend/$qid)
 
 # /journals/new
-curl -s -X 'POST' -d "{\"token\":\"$token\", \"data\":[{\"qid\":\"$qid\", \"meta\":\"It was horrible!\", \"rating\":4}]}" $addr/journals/new >> /dev/null
+for i in $(seq 0 2); do
+    curl -s -X 'POST' -d "$(cat ./files/testdata/journals.json | jq -rc "(.[$i].token = \"$token\")[$i]")" $addr/journals/new >> /dev/null
+done
 
 # /journals/ids/<token>
 jids=$(curl -s -X 'GET' $addr/journals/ids/$token)
@@ -54,13 +57,13 @@ answer=$(curl -s -X 'GET' $addr/answers/get/$aid/$token)
 curl -s -X 'DELETE' $addr/journals/delete/$jid/$token
 
 # /settings/update
-curl -s -X 'POST' -d "{\"token\":\"$token\", \"settings\":{\"key\":\"modified\", \"key1\": \"modified1\",\"someKeyThatDoesntExist\": \"somevalue\"}}" $addr/settings/update >> /dev/null
+curl -s -X 'POST' -d "$(cat ./files/testdata/settings.json | jq -rc ".token = \"$token\"")" $addr/settings/update >> /dev/null
 
 # /settings/get/<token>
 settings=$(curl -s -X 'GET' $addr/settings/get/$token)
 
 # /predictions/add
-curl -s -X 'POST' -d "{\"token\":\"$token\", \"questionid\":\"$qid\"}" $addr/predictions/add >> /dev/null
+curl -s -X 'POST' -d "{\"token\":\"$token\"}" $addr/predictions/add >> /dev/null
 
 # /predictions/get/<uid>/<token>
 prediction=$(curl -s -X 'GET' $addr/predictions/get/$token)
@@ -80,18 +83,16 @@ verify(){
 }
 echo "addr:              $addr"
 verify $addr
-echo "username:          $username"
-verify $username
-echo "password:          $password"
-verify $password
-echo "authjson:          $authjson"
-verify $authjson
+echo "auth:              $auth"
+verify $auth
 echo "token:             $token"
 verify $token
 echo "ids:               $ids"
 verify $ids
 echo "uid:               $uid"
 verify $uid
+echo "userdata_json:     $userdata_json"
+verify $userdata_json
 echo "userdata:          $userdata"
 verify $userdata
 echo "jids:              $jids"
