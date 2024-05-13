@@ -6,9 +6,8 @@
 #include "Utils.hpp"
 
 class Tests : public Route {
-
     using Route::Route;
-    
+
     void init() override {
         this->server->Post("/tests/rate", [&](Request request, Response response){
             auto body = json::parse(request.body);
