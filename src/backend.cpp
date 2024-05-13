@@ -45,7 +45,7 @@ enum Mode{
     POPULATE
 };
 Mode to_mode(string input) {
-    log<DEBUG>(format("converting mode: {}", input));
+    log<DEBUG>("converting mode: {}", input);
     if (to_lower_case(input) == "populate")
         return POPULATE;
     else if (to_lower_case(input) == "check")
@@ -86,6 +86,10 @@ int main(int argc, char* argv[]) {
         .help("For the populate command, specify which tables to populate")
         .default_value("all")
         .nargs(1);
+    program.add_argument("--logfile", "-L")
+        .help("Specify path to logfile")
+        .default_value("/tmp/p8.log")
+        .nargs(1);
     program.add_argument("mode")
         .help("Operating mode for the backend")
         .default_value("default");
@@ -97,9 +101,11 @@ int main(int argc, char* argv[]) {
         loge("Argparse died, exiting...");
         exit(1);
     }
+    logfile = program.get<string>("--logfile");
+
     log<DEBUG>("Parsed args");
-    log(format("Verbosity: {}", verbosity));
-    log<INFO>(program.get<string>("mode"));
+    log<DEBUG>("Verbosity: {}", verbosity);
+    log<INFO>("{}", program.get<string>("mode"));
     switch (to_mode(program.get<string>("mode"))) {
         case DEFAULT: {
             auto path = program.get<string>("--database");
@@ -151,7 +157,7 @@ int main(int argc, char* argv[]) {
             auto logger = [](pair<int, int> in, double out){
                 auto i = in.first;
                 auto uid = in.second;
-                log(format("i: {} uid: {} result: {}", i, uid, out));
+                log("i: {} uid: {} result: {}", i, uid, out);
             };
 
             auto results = pool.map(target, args, logger);
@@ -166,7 +172,7 @@ int main(int argc, char* argv[]) {
             logw("REMOVING DATABASE IN 10 SECONDS");
             for (auto i = 10; i >= 0; i--) {
                 sleep(1);
-                logw<IMPORTANT>(to_string(i));
+                logw<IMPORTANT>("{}", i);
             }
             auto rm_result = system(format("rm {}", database).c_str());
             log<DEBUG>("Creating database");
@@ -174,8 +180,8 @@ int main(int argc, char* argv[]) {
                 auto db = Database{database};
             }
             auto result = system(format("python {0}/dataset_to_db.py -f {0}/data.csv -c {0}/codebook.txt -m {0}/mitigations.csv -t {1}", prefix, tables).c_str());
-            log<INFO>(format("Was database removed?:        {}", rm_result));
-            log<INFO>(format("Populate command return code: {}", result));
+            log<INFO>("Was database removed?:        {}", rm_result);
+            log<INFO>("Populate command return code: {}", result);
             break;
         }
     }

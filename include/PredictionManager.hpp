@@ -69,7 +69,7 @@ class PredictionBuilder {
             ys.push_back(value);
         }
         auto f = calculate_regression(xs, ys);
-        log<DEBUG>(format("Built prediction with value: {}", f(xs.size()+1)));
+        log<DEBUG>("Built prediction with value: {}", f(xs.size()+1));
         return f(xs.size()+1);
     }
 };

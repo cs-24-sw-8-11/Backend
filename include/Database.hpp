@@ -44,7 +44,7 @@ class Database {
         this->users = factory.create("users", {
             "username VARCHAR UNIQUE NOT NULL",
             "password VARCHAR NOT NULL",
-            "state INTEGER NOT NULL",
+            "state INTEGER NOT NULL"
         });
         this->journals = factory.create("journals", {
             "userId INTEGER NOT NULL",

@@ -24,8 +24,9 @@ namespace P8 {
         log_stream.close();
     }
 
-    template<Verbosity V = ALL>
-    void log(string input) {
+    template<Verbosity V = ALL, typename... Args>
+    constexpr void log(format_string<Args...> fmt, Args&&... args) {
+        auto input = format(fmt , forward<Args>(args)...);
         writefile(input);
 
         if (verbosity >= V) {
@@ -33,8 +34,9 @@ namespace P8 {
         }
     }
 
-    template<Verbosity V = ALL>
-    void loge(string input) {
+    template<Verbosity V = ALL, typename... Args>
+    constexpr void loge(format_string<Args...> fmt, Args&&... args){
+        auto input = format(fmt, forward<Args>(args)...);
         writefile(input);
 
         if (verbosity >= V) {
@@ -42,8 +44,9 @@ namespace P8 {
         }
     }
 
-    template<Verbosity V = ALL>
-    void logw(string input) {
+    template<Verbosity V = ALL, typename... Args>
+    constexpr void logw(format_string<Args...> fmt, Args&&... args){
+        auto input = format(fmt, forward<Args>(args)...);
         writefile(input);
 
         if (verbosity >= V) {

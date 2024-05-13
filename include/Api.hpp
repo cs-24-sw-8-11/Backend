@@ -39,7 +39,7 @@ class Api {
         };
         for (auto route : routes) {
             route->init();
-            log<DEBUG>(format("Initialized route: {}", typeid(*route).name()));
+            log<DEBUG>("Initialized route: {}", typeid(*route).name());
         }
 
         log<IMPORTANT>("Initialized routes and endpoints");
@@ -56,10 +56,10 @@ class Api {
                 "Params:   " << endl;
             for (auto [key, value] : req.path_params)
                 ss << "\t" << key << ": " << value << endl;
-            log(ss.str());
+            log("{}", ss.str());
         });
         log<DEBUG>("Initialized logger");
-        log(format("Starting server on localhost: {}", port));
+        log("Starting server on localhost: {}", port);
         server->listen("localhost", port);
     }
 };

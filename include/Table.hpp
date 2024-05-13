@@ -61,7 +61,7 @@ class Table {
     /// @brief Creates an SQL statement object with a given SQL query, abstracting database and printing
     /// @param sql
     SQLite::Statement make_statement(string sql) {
-        log<INFO>(format("SQL: {}", sql));
+        log<INFO>("SQL: {}", sql);
         return SQLite::Statement(*(this->db), sql);
     }
 
@@ -232,7 +232,7 @@ class TableFactory {
             name,
             columns,
             this->db);
-        log<DEBUG>(format("Initialized {} table", name));
+        log<DEBUG>("Initialized {} table", name);
         return t;
     }
 };
