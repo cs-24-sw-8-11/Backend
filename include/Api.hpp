@@ -13,6 +13,7 @@
 #include "Settings.hpp"
 #include "Users.hpp"
 #include "Mitigations.hpp"
+#include "Tests.hpp"
 
 #include "Globals.hpp"
 
@@ -34,7 +35,8 @@ class Api {
             make_shared<Questions>(db, server),
             make_shared<Settings>(db, server),
             make_shared<Users>(db, server),
-            make_shared<Mitigations>(db, server)
+            make_shared<Mitigations>(db, server),
+            make_shared<Tests>(db, server)
         };
         for (auto route : routes) {
             route->init();
