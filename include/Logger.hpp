@@ -3,6 +3,7 @@
 #include <ostream>
 #include <fstream>
 #include <string>
+#include <utility>
 
 #include "Globals.hpp"
 
@@ -35,7 +36,7 @@ namespace P8 {
     }
 
     template<Verbosity V = ALL, typename... Args>
-    constexpr void loge(format_string<Args...> fmt, Args&&... args){
+    constexpr void loge(format_string<Args...> fmt, Args&&... args) {
         auto input = format(fmt, forward<Args>(args)...);
         writefile(input);
 
@@ -45,7 +46,7 @@ namespace P8 {
     }
 
     template<Verbosity V = ALL, typename... Args>
-    constexpr void logw(format_string<Args...> fmt, Args&&... args){
+    constexpr void logw(format_string<Args...> fmt, Args&&... args) {
         auto input = format(fmt, forward<Args>(args)...);
         writefile(input);
 
