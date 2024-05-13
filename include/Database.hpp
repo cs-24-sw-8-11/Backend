@@ -3,10 +3,11 @@
 #include <string>
 
 #include "Table.hpp"
-
 #include "Globals.hpp"
+#include "Logger.hpp"
 
 using namespace std;
+using namespace P8;
 
 enum QuestionType {
     VALUED,
@@ -44,7 +45,7 @@ class Database {
         this->users = factory.create("users", {
             "username VARCHAR UNIQUE NOT NULL",
             "password VARCHAR NOT NULL",
-            "state INTEGER NOT NULL",
+            "state INTEGER NOT NULL"
         });
         this->journals = factory.create("journals", {
             "userId INTEGER NOT NULL",
@@ -99,7 +100,6 @@ class Database {
             "FOREIGN KEY(predictionId) REFERENCES predictions(id)"
         });
 
-        if (VERBOSE)
-            cout << "Initialized all tables" << endl;
+        log<DEBUG>("Initialized all tables");
     }
 };

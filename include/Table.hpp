@@ -11,8 +11,10 @@
 #include <memory>
 
 #include "Globals.hpp"
+#include "Logger.hpp"
 
 using namespace std;
+using namespace P8;
 
 #define EXCEPTION_HANDLER catch(SQLite::Exception& e) { \
     string msg;                                         \
@@ -59,8 +61,7 @@ class Table {
     /// @brief Creates an SQL statement object with a given SQL query, abstracting database and printing
     /// @param sql
     SQLite::Statement make_statement(string sql) {
-        if (VERBOSE)
-            cout << "\033[38;2;100;100;100mSQL: " << sql << "\033[0m" << endl;
+        log<INFO>("SQL: {}", sql);
         return SQLite::Statement(*(this->db), sql);
     }
 
@@ -231,8 +232,7 @@ class TableFactory {
             name,
             columns,
             this->db);
-        if (VERBOSE)
-            cout << "Initialized " << name << " table" << endl;
+        log<DEBUG>("Initialized {} table", name);
         return t;
     }
 };

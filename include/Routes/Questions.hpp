@@ -6,6 +6,7 @@
 using namespace httplib;
 using namespace std;
 using namespace nlohmann;
+using namespace P8;
 
 class Questions : public Route {
     // Inherits the super class constructor.
@@ -57,7 +58,7 @@ class Questions : public Route {
             auto qid = request.path_params["qid"];
             auto lids = db->legends->get_where("questionId", qid);
 
-            auto lids_data = P8::make_range<Row>(lids.size(), [&](int lid){ return db->legends->get(lid); });
+            auto lids_data = make_range<Row>(lids.size(), [&](int lid){ return db->legends->get(lid); });
 
             if (lids.size() == 0) {
                 json data;

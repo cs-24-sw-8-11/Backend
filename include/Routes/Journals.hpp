@@ -12,6 +12,7 @@
 using namespace httplib;
 using namespace nlohmann;
 using namespace std;
+using namespace P8;
 
 class Journals : public Route {
     // Inherit the super class constructor.
@@ -37,7 +38,7 @@ class Journals : public Route {
                     auto meta = entry["meta"].get<string>();
                     auto rating = entry["rating"].get<int>();
                     // run sentiment analysis on answer
-                    auto result = P8::run_cmd(format("python ./lib/datasets/sentiment_analysis.py \"{}\"", meta))["stdout"];
+                    auto result = run_cmd(format("python ./lib/datasets/sentiment_analysis.py \"{}\"", meta))["stdout"];
                     db->answers->add({
                         "value",
                         "rating",

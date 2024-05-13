@@ -10,6 +10,7 @@
 using namespace httplib;
 using namespace std;
 using namespace nlohmann;
+using namespace P8;
 
 /// @brief Hashing function that makes a combined hash of a username and password.
 /// @param username

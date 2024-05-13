@@ -10,8 +10,10 @@
 
 #include "Globals.hpp"
 #include "Utils.hpp"
+#include "Logger.hpp"
 
 using namespace std;
+using namespace P8;
 
 template<typename T = double>
 T sum(vector<T> values) {
@@ -67,8 +69,7 @@ class PredictionBuilder {
             ys.push_back(value);
         }
         auto f = calculate_regression(xs, ys);
-        if (VERBOSE)
-            cout << "Built prediction with value: " << f(xs.size()+1) << endl;
+        log<DEBUG>("Built prediction with value: {}", f(xs.size()+1));
         return f(xs.size()+1);
     }
 };
