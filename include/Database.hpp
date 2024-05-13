@@ -3,10 +3,11 @@
 #include <string>
 
 #include "Table.hpp"
-
 #include "Globals.hpp"
+#include "Logger.hpp"
 
 using namespace std;
+using namespace P8;
 
 enum QuestionType {
     VALUED,
@@ -92,7 +93,6 @@ class Database {
             "legend_index INTEGER NOT NULL",
             "FOREIGN KEY(questionId) REFERENCES questions(id)"
         });
-        if (VERBOSE)
-            cout << "Initialized all tables" << endl;
+        log<DEBUG>("Initialized all tables");
     }
 };

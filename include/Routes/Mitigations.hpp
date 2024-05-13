@@ -10,6 +10,7 @@
 using namespace std;
 using namespace httplib;
 using namespace nlohmann;
+using namespace P8;
 
 class Mitigations : public Route {
     // Inherits the super class constructor.
@@ -35,7 +36,7 @@ class Mitigations : public Route {
         /// @brief Returns a specific mitigation with a given id.
         this->server->Get("/mitigations/tags/:tag", [&](Request request, Response& response){
             auto tagparam = request.path_params["tag"];
-            auto tags = P8::split_string(tagparam);
+            auto tags = split_string(tagparam);
             json response_data;
             vector<int> mitigations;
             // Get all mitigations that contain the input tags which might contain duplicates

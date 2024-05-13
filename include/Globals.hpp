@@ -1,3 +1,10 @@
 #pragma once
 
-bool VERBOSE = false;
+using namespace std;
+
+namespace P8 {
+    string logfile = "/tmp/p8.log";
+
+}
+
+

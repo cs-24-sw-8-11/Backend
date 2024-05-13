@@ -18,6 +18,7 @@
 
 using namespace std;
 using namespace httplib;
+using namespace P8;
 
 class Api {
  public:
@@ -38,27 +39,27 @@ class Api {
         };
         for (auto route : routes) {
             route->init();
-            if (VERBOSE)
-                cout << "Initialized route: " << typeid(*route).name() << endl;
+            log<DEBUG>(format("Initialized route: {}", typeid(*route).name()));
         }
-        if (VERBOSE)
-            cout << "Initialized routes and endpoints" << endl;
+
+        log<IMPORTANT>("Initialized routes and endpoints");
         /// @brief Initializes the logger that prints out every request.
         server->set_logger([](httplib::Request req, const Response& res) {
             string red = "\033[38;2;255;0;0m";
             string green = "\033[38;2;0;255;0m";
-            std::cout << "--------------- Got request! ---------------" << endl <<
+            stringstream ss;
+            ss << "--------------- Got request! ---------------" << endl <<
                 "Status:   " << (res.status >= 200 && res.status < 300 ? green : red) << res.status << "\033[0m" << endl <<
                 "Path:     " << req.path << endl <<
                 "req Body: " << req.body << endl <<
                 "res Body: " << res.body << endl <<
                 "Params:   " << endl;
             for (auto [key, value] : req.path_params)
-                cout << "\t" << key << ": " << value << endl;
+                ss << "\t" << key << ": " << value << endl;
+            log(ss.str());
         });
-        if (VERBOSE)
-            cout << "Initialized logger" << endl;
-        cout << "Starting server on localhost:" << port << endl;
+        log<DEBUG>("Initialized logger");
+        log(format("Starting server on localhost: {}", port));
         server->listen("localhost", port);
     }
 };
