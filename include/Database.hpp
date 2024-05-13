@@ -35,6 +35,7 @@ class Database {
     shared_ptr<Table> predictions;
     shared_ptr<Table> mitigations;
     shared_ptr<Table> legends;
+    shared_ptr<Table> ratings;
 
     /// @brief Constructs the database object using the TableFactory.
     /// @param path
@@ -92,6 +93,12 @@ class Database {
             "legend_index INTEGER NOT NULL",
             "FOREIGN KEY(questionId) REFERENCES questions(id)"
         });
+        this->ratings = factory.create("ratings", {
+            "predictionId INTEGER NOT NULL",
+            "rating INTEGER NOT NULL",
+            "FOREIGN KEY(predictionId) REFERENCES predictions(id)"
+        });
+
         if (VERBOSE)
             cout << "Initialized all tables" << endl;
     }
