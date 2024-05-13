@@ -145,7 +145,7 @@ class Users : public Route {
                 auto data = body["data"];
                 vector<string> keys;
                 vector<string> values;
-                for(auto [key, value]: data.items()){
+                for (auto [key, value] : data.items()) {
                     keys.push_back(key);
                     values.push_back(value);
                 }
