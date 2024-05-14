@@ -62,7 +62,7 @@ class Predictions : public Route {
                     auto delta = now - journal_time;
                     if (delta <= WEEK) {
                         // This journal is within the valid range
-                        journals[delta/DAY] = journal;
+                        journals[delta] = journal;
                     } else {
                         cout << "\033[38;2;255;0;0minvalid journal found\033[0m" << endl;
                     }
