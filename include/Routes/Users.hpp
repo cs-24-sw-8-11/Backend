@@ -149,6 +149,8 @@ class Users : public Route {
                     keys.push_back(key);
                     values.push_back(value);
                 }
+                keys.push_back("userId");
+                values.push_back(to_string(uid));
                 if (db->userdata->get_where("userId", uid).size() == 0) {
                     db->userdata->add(keys, values);
                 } else {
