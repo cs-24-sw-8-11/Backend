@@ -70,5 +70,14 @@ class Mitigations : public Route {
                 respond(&response, response_data, 400);
             }
         });
+        this->server->Get("/mitigations/new/:token", [&](Request request, Response& response){
+            auto token = request.path_params["token"];
+            auto uid = user_id_from_token(token);
+            if(authedUsers[uid] == token){
+                auto udid = db->userdata->get_where("userId", uid)[0];
+                auto userdata = db->userdata->get(udid);
+                auto usertags = userdata_to_tags(userdata);
+            }
+        });
     }
 };

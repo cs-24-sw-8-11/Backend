@@ -13,6 +13,8 @@
 #include <string>
 #include <cctype>
 
+#define put make_pair
+
 using namespace std;
 
 namespace P8 {
@@ -173,4 +175,92 @@ map<string, string> run_cmd(string command) {
     }
     return result;
 }
+
+enum UserdataKeys {
+    Education,
+    Urban,
+    Gender,
+    Religion,
+    Orientation,
+    Race,
+    Married,
+    Age,
+    Pets
+};
+
+UserdataKeys userdata_key_to_enum(string key){
+    map<string, UserdataKeys> d = {
+        put("education", Education),
+        put("urban", Urban),
+        put("gender", Gender),
+        put("religion", Religion),
+        put("orientation", Orientation),
+        put("race", Race),
+        put("married", Married),
+        put("age", Age),
+        put("pets", Pets)
+    };
+    return d[to_lower_case(key)];
+}
+
+vector<string> userdata_to_tags(Row userdata){
+    vector<string> tags;
+    map<string, map<int, string>> d = {
+        put("education", (map<int, string>){
+            put(2, "High School")
+        })
+    };
+    /*for(auto key : userdata.keys()){
+        if(key == "userId") continue;
+
+        switch(userdata_key_to_enum(key)){
+            case Education:
+                switch(stoi(userdata[key])){
+                    case 2:
+                        tags.push_back("High School");
+                        break;
+                    case 3:
+                        tags.push_back("University");
+                        break;
+                    case 4:
+                        tags.push_back("Graduate");
+                    default:
+                        continue;
+                }
+                break;
+            case Urban:
+                switch(stoi(userdata[key])){
+                    case 1:
+                        tags.push_back("Rural");
+                        break;
+                    case 2:
+                        tags.push_back("Suburban");
+                        break;
+                    case 3:
+                        tags.push_back("Urban");
+                        break;
+                    default:
+                        continue;
+                }
+                break;
+            case Gender:
+                switch(stoi(userdata[key])){
+                    case 1:
+                        tags.push_back("Male");
+                        break;
+                    case 2:
+                        tags.push_back("Female");
+                        break;
+                    default:
+                        continue;
+                }
+                break;
+            case Religion:
+                switch(stoi(userdata[key])){
+                    case 
+                }
+        }
+    }*/
+}
+
 }  // namespace P8
