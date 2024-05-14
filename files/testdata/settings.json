@@ -1,0 +1,7 @@
+{
+    "settings":{
+        "key":"modified",
+        "key1":"modified1",
+        "someKeyThatDoesntExist":"somevalue"
+    }
+}

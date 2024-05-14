@@ -143,14 +143,14 @@ class Users : public Route {
             auto uid = user_id_from_token(token);
             if (authedUsers[uid] == token) {
                 auto data = body["data"];
+                vector<string> keys;
+                vector<string> values;
+                for (auto [key, value] : data.items()) {
+                    keys.push_back(key);
+                    values.push_back(value);
+                }
                 if (db->userdata->get_where("userId", uid).size() == 0) {
-                    db->userdata->add({
-                        "agegroup",
-                        "major",
-                        "userId"}, {
-                        data["agegroup"].get<string>(),
-                        data["major"].get<string>(),
-                        to_string(uid)});
+                    db->userdata->add(keys, values);
                 } else {
                     for (auto [key, value] : data.items()) {
                         db->userdata->modify(uid, {key}, {value});
