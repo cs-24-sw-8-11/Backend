@@ -53,9 +53,6 @@ journal=$(curl -s -X 'GET' $addr/journals/get/$jid)
 aid=$(echo "$journal" | jq -r .answers[0])
 answer=$(curl -s -X 'GET' $addr/answers/get/$aid/$token)
 
-# /journals/delete/<jid>/<token>
-curl -s -X 'DELETE' $addr/journals/delete/$jid/$token
-
 # /settings/update
 curl -s -X 'POST' -d "$(cat ./files/testdata/settings.json | jq -rc ".token = \"$token\"")" $addr/settings/update >> /dev/null
 
@@ -71,6 +68,9 @@ prediction=$(curl -s -X 'GET' $addr/predictions/get/$token)
 # /mitigations/tags/default
 mitigations=$(curl -s -X 'GET' $addr/mitigations/tags/default)
 mitigation=$(echo "$mitigations" | jq -r .[0].title)
+
+# /journals/delete/<jid>/<token>
+curl -s -X 'DELETE' $addr/journals/delete/$jid/$token
 
 pkill backend
 echo "---------------------TEST COMPLETE---------------------"
