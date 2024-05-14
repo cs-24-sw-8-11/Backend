@@ -82,7 +82,6 @@ class Database {
             "married INTEGER NOT NULL",
             "age INTEGER NOT NULL",
             "pets INTEGER NOT NULL",
-            "major INTEGER NOT NULL",
             "FOREIGN KEY(userId) REFERENCES users(id)"
         });
         this->predictions = factory.create("predictions", {

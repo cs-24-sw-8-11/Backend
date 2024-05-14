@@ -245,9 +245,7 @@ int main() {
             "married",
             "age",
             "pets",
-            "major",
             "userId"}, {
-            "0",
             "0",
             "0",
             "0",
@@ -274,9 +272,7 @@ int main() {
             "married",
             "age",
             "pets",
-            "major",
             "userId"}, {
-            "0",
             "0",
             "0",
             "0",
