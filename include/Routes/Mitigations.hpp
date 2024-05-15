@@ -95,7 +95,7 @@ class Mitigations : public Route {
                 respond(&response, response_data);
             } else {
                 response_data["error"] = "Error, invalid token";
-                respond(&response, response_data, 400);
+                respond(&response, response_data, 403);
             }
         });
     }
