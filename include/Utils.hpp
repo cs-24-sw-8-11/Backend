@@ -237,10 +237,8 @@ map<string, map<int, string>> tag_map = {
         put(2, "Single")
     }),
     put("age", (map<int, string>) {
-        
     }),
     put("pets", (map<int, string>) {
-        
     })
 };
 
@@ -251,7 +249,7 @@ vector<string> userdata_to_tags(map<string, string> userdata) {
         if (key == "userId") continue;
 
         if (mapHas(tag_map[key], stoi(value))) {
-            if(tag_map[key][stoi(value)] == "") continue; 
+            if (tag_map[key][stoi(value)] == "") continue;
             tags.push_back(tag_map[key][stoi(value)]);
         }
     }
