@@ -39,7 +39,7 @@ namespace P8 {
         log_stream.close();
     }
 
-    string color(int r, int g, int b){
+    string color(int r, int g, int b) {
         return format("\033[38;2;{};{};{}m", r, g, b);
     }
 
