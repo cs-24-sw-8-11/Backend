@@ -4,6 +4,7 @@
 #include "PredictionManager.hpp"
 #include "TestTemplate.hpp"
 #include "Utils.hpp"
+#include "Logger.hpp"
 
 auto num_entries = 1000;
 

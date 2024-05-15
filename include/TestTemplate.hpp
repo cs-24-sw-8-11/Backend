@@ -5,7 +5,10 @@
 #include <string>
 #include <tuple>
 
-#include <nlohmann/json.hpp>
+#include "Logger.hpp"
+
+using namespace P8;
+using namespace std;
 
 /*
 This is a template test, it functions as an abstraction of running a test, and provides an easy implementation interface using lambda expressions
@@ -23,16 +26,16 @@ This is a template test, it functions as an abstraction of running a test, and p
 template<typename Functor>
 class Test {
  protected:
-    std::vector<std::tuple<std::string, Functor>> tests;
+    vector<std::tuple<string, Functor>> tests;
     virtual void init() {}
  public:
-    void add_test(std::string name, Functor test) {
-        std::tuple<std::string, Functor> t{name, test};
+    void add_test(string name, Functor test) {
+        tuple<string, Functor> t{name, test};
         tests.push_back(t);
     }
     void run(){
         for (auto [name, functor] : tests) {
-            std::cout << "......\tRunning test [" << name << "]" << std::endl;
+            log("......\tRunning test [{}]", name);
             init();
             functor();
         }
