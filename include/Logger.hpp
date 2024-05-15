@@ -54,8 +54,8 @@ namespace P8 {
         }
     }
     template<Verbosity V = ALL>
-    constexpr void _log(){
-        if(verbosity >= V)
+    constexpr void _log() {
+        if (verbosity >= V)
             cout << start_line(filename, line) << endl;
     }
 
