@@ -7,10 +7,19 @@
 
 #include "Globals.hpp"
 
+#define start_line(name, line) '[' << name << ':' << line << ']' << '\t'
+#define loginit P8::filename = __FILE_NAME__; P8::line = __LINE__;
+
+#define log loginit P8::_log
+#define logw loginit P8::_logw
+#define loge loginit P8::_loge
+
 using namespace std;
 
 namespace P8 {
     auto verbosity = 0;
+    string filename;
+    int line;
 
     enum Verbosity {
         ALL,
@@ -25,33 +34,40 @@ namespace P8 {
         log_stream.close();
     }
 
+    string color(int r, int g, int b){
+        return format("\033[38;2;{};{};{}m", r, g, b);
+    }
+
     template<Verbosity V = ALL, typename... Args>
-    constexpr void log(format_string<Args...> fmt, Args&&... args) {
+    constexpr void _log(format_string<Args...> fmt, Args&&... args) {
         auto input = format(fmt , forward<Args>(args)...);
         writefile(input);
 
+        auto intensity = 0xff - (V * (0xff/INFO));
         if (verbosity >= V) {
-            cout << input << endl;
+            cout << start_line(filename, line) << color(intensity, intensity, intensity) << input << "\033[0m" << endl;
         }
     }
 
     template<Verbosity V = ALL, typename... Args>
-    constexpr void loge(format_string<Args...> fmt, Args&&... args) {
+    constexpr void _loge(format_string<Args...> fmt, Args&&... args) {
         auto input = format(fmt, forward<Args>(args)...);
         writefile(input);
 
+        auto intensity = 0xff - (V * (0xff/INFO));
         if (verbosity >= V) {
-            cerr << "\033[38;2;255;0;0m" <<input << "\033[0m" << endl;
+            cerr << start_line(filename, line) << color(intensity, 0, 0) << input << "\033[0m" << endl;
         }
     }
 
     template<Verbosity V = ALL, typename... Args>
-    constexpr void logw(format_string<Args...> fmt, Args&&... args) {
+    constexpr void _logw(format_string<Args...> fmt, Args&&... args) {
         auto input = format(fmt, forward<Args>(args)...);
         writefile(input);
 
+        auto intensity = 0xff - (V * (0xff/INFO));
         if (verbosity >= V) {
-            cout << "\033[38;2;255;255;0m" << input << "\033[0m" << endl;
+            cout << start_line(filename, line) << color(intensity, intensity, 0) << input << "\033[0m" << endl;
         }
     }
 }  // namespace P8
