@@ -4,7 +4,7 @@ auth="$(cat ./files/testdata/auth.json | jq -rc)"
 # start phase
 rm -f db.db3
 
-$1/bin/backend --port "$(cat ./files/testdata/default.json | jq -r .port)" &
+$1/bin/backend --port "$(cat ./files/testdata/default.json | jq -r .port)" $2 &
 sleep 1
 
 
@@ -62,12 +62,15 @@ settings=$(curl -s -X 'GET' $addr/settings/get/$token)
 # /predictions/add
 curl -s -X 'POST' -d "{\"token\":\"$token\"}" $addr/predictions/add >> /dev/null
 
-# /predictions/get/<uid>/<token>
+# /predictions/get/<token>
 prediction=$(curl -s -X 'GET' $addr/predictions/get/$token)
 
 # /mitigations/tags/default
 mitigations=$(curl -s -X 'GET' $addr/mitigations/tags/default)
 mitigation=$(echo "$mitigations" | jq -r .[0].title)
+
+# /mitigations/new/<token>
+curated_mitigation=$(curl -s -X 'GET' $addr/mitigations/new/$token)
 
 # /journals/delete/<jid>/<token>
 curl -s -X 'DELETE' $addr/journals/delete/$jid/$token
@@ -119,6 +122,8 @@ echo "mitigations:       $mitigations"
 verify $mitigations
 echo "mitigation:        $mitigation"
 verify $mitigation
+echo "curated mitigation: $curated_mitigation"
+verify $curated_mitigation
 
 echo "all tests passed!"
 exit 0
