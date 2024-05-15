@@ -178,31 +178,31 @@ map<string, string> run_cmd(string command) {
 }
 
 template<typename K, typename V>
-bool mapHas(map<K, V> map, K target){
-    for(auto [key, value] : map)
-        if(key == target)
+bool mapHas(map<K, V> map, K target) {
+    for (auto [key, value] : map)
+        if (key == target)
             return true;
     return false;
 }
 
 map<string, map<int, string>> tag_map = {
-    put("education", (map<int, string>){
+    put("education", (map<int, string>) {
         put(1, ""),
         put(2, "High School"),
         put(3, "University"),
         put(4, "Graduate"),
     }),
-    put("urban", (map<int, string>){
+    put("urban", (map<int, string>) {
         put(1, "Rural"),
         put(2, "Suburban"),
         put(3, "Urban")
     }),
-    put("gender", (map<int, string>){
+    put("gender", (map<int, string>) {
         put(1, "Male"),
         put(2, "Female"),
         put(3, "Other")
     }),
-    put("religion", (map<int, string>){
+    put("religion", (map<int, string>) {
         put(1, "Agnostic"),
         put(2, "Atheist"),
         put(3, "Buddhist"),
@@ -216,14 +216,14 @@ map<string, map<int, string>> tag_map = {
         put(11, "Sikh"),
         put(12, "")
     }),
-    put("orientation", (map<int, string>){
+    put("orientation", (map<int, string>) {
         put(1, "Heterosexual"),
         put(2, "Bisexual"),
         put(3, "Homosexual"),
         put(4, "Asexual"),
         put(5, "")
     }),
-    put("race", (map<int, string>){
+    put("race", (map<int, string>) {
         put(10, "Asian"),
         put(20, "Arab"),
         put(30, "Black"),
@@ -232,25 +232,25 @@ map<string, map<int, string>> tag_map = {
         put(60, "White"),
         put(70, "")
     }),
-    put("married", (map<int, string>){
+    put("married", (map<int, string>) {
         put(1, "Married"),
         put(2, "Single")
     }),
-    put("age", (map<int, string>){
+    put("age", (map<int, string>) {
         
     }),
-    put("pets", (map<int, string>){
+    put("pets", (map<int, string>) {
         
     })
 };
 
-vector<string> userdata_to_tags(map<string, string> userdata){
+vector<string> userdata_to_tags(map<string, string> userdata) {
     vector<string> tags;
 
-    for(auto [key, value] : userdata){
-        if(key == "userId") continue;
+    for (auto [key, value] : userdata) {
+        if (key == "userId") continue;
 
-        if(mapHas(tag_map[key], stoi(value))){
+        if (mapHas(tag_map[key], stoi(value))) {
             if(tag_map[key][stoi(value)] == "") continue; 
             tags.push_back(tag_map[key][stoi(value)]);
         }
