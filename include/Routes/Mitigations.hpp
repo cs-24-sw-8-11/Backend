@@ -71,12 +71,32 @@ class Mitigations : public Route {
             }
         });
         this->server->Get("/mitigations/new/:token", [&](Request request, Response& response){
+            json response_data;
             auto token = request.path_params["token"];
             auto uid = user_id_from_token(token);
             if(authedUsers[uid] == token){
                 auto udid = db->userdata->get_where("userId", uid)[0];
                 auto userdata = db->userdata->get(udid);
-                auto usertags = userdata_to_tags(userdata);
+                auto tags = userdata_to_tags(userdata);
+
+                auto tag = tags[randint(tags.size())];
+
+                auto mids = db->mitigations->get_where("tags", tag);
+                if(mids.size() == 0)
+                    mids = db->mitigations->get_where("tags", "default");
+                auto mid = mids[randint(mids.size())];
+                auto mitigation = db->mitigations->get(mid);
+
+                json data;
+                for(auto key : mitigation.keys())
+                    data[key] = mitigation[key];
+
+                response_data["data"] = data;
+                respond(&response, response_data);
+            }
+            else{
+                response_data["error"] = "Error, invalid token";
+                respond(&response, response_data, 400);
             }
         });
     }

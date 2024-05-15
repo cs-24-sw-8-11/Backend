@@ -11,6 +11,7 @@ target_link_libraries(database_test
 
 target_link_libraries(predictions_test
     nlohmann_json
+    SQLiteCpp
 )
 target_link_libraries(backend
     SQLiteCpp
@@ -21,6 +22,7 @@ target_link_libraries(backend
 )
 target_link_libraries(utils_test
     nlohmann_json
+    SQLiteCpp
 )
 
 add_test(NAME database_test COMMAND database_test WORKING_DIRECTORY ..)
