@@ -78,13 +78,13 @@ class Mitigations : public Route {
                 auto udid = db->userdata->get_where("userId", uid)[0];
                 auto userdata = db->userdata->get(udid);
                 auto tags = userdata_to_tags(userdata);
+                if(tags.size() == 0)
+                    tags = {"default"};
 
-                auto tag = tags[randint(tags.size())];
+                auto tag = tags[randint(tags.size()-1)];
 
                 auto mids = db->mitigations->get_where("tags", tag);
-                if(mids.size() == 0)
-                    mids = db->mitigations->get_where("tags", "default");
-                auto mid = mids[randint(mids.size())];
+                auto mid = mids[randint(mids.size()-1)];
                 auto mitigation = db->mitigations->get(mid);
 
                 json data;

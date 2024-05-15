@@ -53,6 +53,11 @@ namespace P8 {
             cout << start_line(filename, line) << color(intensity, intensity, intensity) << input << "\033[0m" << endl;
         }
     }
+    template<Verbosity V = ALL>
+    constexpr void _log(){
+        if(verbosity >= V)
+            cout << start_line(filename, line) << endl;
+    }
 
     template<Verbosity V = ALL, typename... Args>
     constexpr void _loge(format_string<Args...> fmt, Args&&... args) {

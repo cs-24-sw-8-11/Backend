@@ -13,8 +13,6 @@
 #include <string>
 #include <cctype>
 
-#include "Table.hpp"
-
 #define put make_pair
 
 using namespace std;
@@ -71,6 +69,7 @@ string to_lower_case(string input) {
 }
 
 int randint(int start, int end) {
+    if (start == end) return start;
     return rand() % (end-start) + start;
 }
 int randint(int end) {
@@ -245,15 +244,15 @@ map<string, map<int, string>> tag_map = {
     })
 };
 
-vector<string> userdata_to_tags(Row userdata){
+vector<string> userdata_to_tags(map<string, string> userdata){
     vector<string> tags;
 
-    for(auto key : userdata.keys()){
+    for(auto [key, value] : userdata){
         if(key == "userId") continue;
 
-        if(mapHas(tag_map[key], stoi(userdata[key]))){
-            if(tag_map[key][stoi(userdata[key])] == "") continue; 
-            tags.push_back(tag_map[key][stoi(userdata[key])]);
+        if(mapHas(tag_map[key], stoi(value))){
+            if(tag_map[key][stoi(value)] == "") continue; 
+            tags.push_back(tag_map[key][stoi(value)]);
         }
     }
     return tags;

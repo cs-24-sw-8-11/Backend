@@ -4,7 +4,7 @@ auth="$(cat ./files/testdata/auth.json | jq -rc)"
 # start phase
 rm -f db.db3
 
-$1/bin/backend --port "$(cat ./files/testdata/default.json | jq -r .port)" &
+$1/bin/backend --port "$(cat ./files/testdata/default.json | jq -r .port)" $2 &
 sleep 1
 
 
