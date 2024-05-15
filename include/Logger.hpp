@@ -6,6 +6,11 @@
 #include <utility>
 
 #include "Globals.hpp"
+#include "Utils.hpp"
+
+#ifndef __FILE_NAME__
+    #define __FILE_NAME__ split_string(__FILE__, "/").back()
+#endif
 
 #define start_line(name, line) '[' << name << ':' << line << ']' << '\t'
 #define loginit P8::filename = __FILE_NAME__; P8::line = __LINE__;

@@ -114,6 +114,7 @@ class Table {
         SQLite::Statement query2 = make_statement(sql2);
         for (auto i = 0; i < values.size(); i++) {
             query.bind(i+1, values[i]);
+            log<INFO>("Bound value at location: {} with value: {}", i+1, values[i]);
         }
         int id = -1;
         try {
@@ -130,6 +131,7 @@ class Table {
             this->name,
             key));
         query.bind(1, value);
+        log<INFO>("Bound value at location: 1 with value: {}", value);
         vector<int> res;
         try {
             while (query.executeStep()) {
@@ -181,6 +183,7 @@ class Table {
             format("SELECT * FROM {} WHERE id = ?",
             this->name));
         query.bind(1, id);
+        log<INFO>("Bound value at location: 1 with value: {}", id);
         try {
             query.executeStep();
             auto colcnt = query.getColumnCount();
@@ -196,6 +199,7 @@ class Table {
             format("DELETE FROM {} WHERE id = ?",
             this->name));
         query.bind(1, id);
+        log<INFO>("bound value at location: 1 with value: ", id);
         try {
             query.exec();
         }
@@ -210,7 +214,9 @@ class Table {
                 this->name,
                 key));
             query.bind(1, value);
+            log<INFO>("bound value at location: 1 with value: ", value);
             query.bind(2, id);
+            log<INFO>("bound value at location: 2 with value: ", id);
             try {
                 query.exec();
             }
