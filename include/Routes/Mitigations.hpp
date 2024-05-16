@@ -84,6 +84,8 @@ class Mitigations : public Route {
                 auto tag = tags[randint(tags.size()-1)];
 
                 auto mids = db->mitigations->get_where_like("tags", tag);
+                if (mids.size() == 0)
+                    mids = db->mitigations->get_where_like("tags", "default");
                 auto mid = mids[randint(mids.size()-1)];
                 auto mitigation = db->mitigations->get(mid);
 

@@ -8,17 +8,18 @@ on:
 
 jobs:
     build:
-      runs-on: ubuntu-latest
+      runs-on: ubuntu-24.04
       steps:
         - name: install dependencies
-          run: sudo apt install cmake sqlite3 gcc
+          run: sudo apt install cmake sqlite3
+        - name: setup gcc
+          uses: egor-tensin/setup-gcc@v1
+          with:
+            version: latest
+            platform: x64
         - uses: actions/checkout@v4.1.1
           with:
               submodules: recursive
-        - name: ccache
-          uses: hendrikmuhs/ccache-action@v1.2.11
-          with:
-            create-symlink: true
         - name: build
           run: cmake -B .ccache && cmake --build .ccache
           env:
@@ -32,7 +33,7 @@ jobs:
         - name:
           run: cpplint --filter='-legal/copyright,-whitespace/line_length,-build/namespaces,-build/c++11,-runtime/references' --recursive src include
     naming:
-      runs-on: ubuntu-latest
+      runs-on: ubuntu-24.04
       steps:
         - uses: actions/checkout@v4.1.1
         - uses: cachix/install-nix-action@v22
@@ -45,7 +46,7 @@ jobs:
 
     test-all:
         needs: build
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-24.04
         steps:
             - uses: actions/checkout@v4.1.1
             - uses: hendrikmuhs/ccache-action@v1.2.11
@@ -58,7 +59,7 @@ jobs:
               run: ctest --test-dir .ccache
     valgrind:
         needs: build
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-24.04
         steps:
             - uses: actions/checkout@v4.1.1
             - uses: hendrikmuhs/ccache-action@v1.2.11
@@ -75,7 +76,7 @@ jobs:
               run: valgrind ./.ccache/bin/predictions_test
     api-test:
         needs: build
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-24.04
         steps:
             - uses: actions/checkout@v4.1.1
             - uses: hendrikmuhs/ccache-action@v1.2.11
