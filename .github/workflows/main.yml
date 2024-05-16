@@ -11,7 +11,7 @@ jobs:
       runs-on: ubuntu-latest
       steps:
         - name: install dependencies
-          run: sudo apt install cmake sqlite3 build-essential
+          run: sudo apt install cmake sqlite3 g++-13
         - uses: actions/checkout@v4.1.1
           with:
               submodules: recursive
