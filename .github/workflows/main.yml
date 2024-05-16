@@ -11,7 +11,12 @@ jobs:
       runs-on: ubuntu-latest
       steps:
         - name: install dependencies
-          run: sudo apt install cmake sqlite3 g++-13
+          run: sudo apt install cmake sqlite3
+        - name: setup gcc
+          uses: egor-tensin/setup-gcc@v1
+          with:
+            version: latest
+            platform: x64
         - uses: actions/checkout@v4.1.1
           with:
               submodules: recursive
