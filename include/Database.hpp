@@ -104,6 +104,7 @@ class Database {
         this->ratings = factory.create("ratings", {
             "predictionId INTEGER NOT NULL",
             "rating INTEGER NOT NULL",
+            "expected BOOLEAN NOT NULL",
             "FOREIGN KEY(predictionId) REFERENCES predictions(id)"
         });
 
