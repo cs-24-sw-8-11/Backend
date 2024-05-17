@@ -122,14 +122,14 @@ class Users : public Route {
                 password.size() > 0 &&
                 !alreadyRegistered) {
                 auto hash = make_hash(username, password);
-                auto token = std::format("{}", hash);
+                auto token = to_string(hash);
                 auto userid = db["users"].add({
                     {"username", username},
                     {"password", token},
                     {"state", to_string(TRAINING)}
                 });
                 default_settings(userid);
-                respond(&response, string("Successfully Registered!"));
+                respond(&response, token);
             } else {
                 respond(&response, string("Username is already taken!"), 400);
             }
