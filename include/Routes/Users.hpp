@@ -40,14 +40,14 @@ class Users : public Route {
                 respond(&response, response_data, 400);
                 return;
             }
-            auto user = db->users->get(uid);
-            auto userdata_ids = db->userdata->get_where("userId", uid);
+            auto user = db["users"].get(uid);
+            auto userdata_ids = db["userdata"].get_where("userId", uid);
             if (userdata_ids.size() == 0) {
                 response_data["error"] = "User has no userdata yet!";
                 respond(&response, response_data, 400);
                 return;
             }
-            auto userdata = db->userdata->get(userdata_ids[0]);
+            auto userdata = db["userdata"].get(userdata_ids[0]);
             for (auto key : user.keys()) {
                 if (key == "password")
                     continue;
@@ -71,7 +71,7 @@ class Users : public Route {
                 response_data["error"] = "Invalid Range.";
                 return respond(&response, response_data);
             }
-            auto users = db->users->get_where();
+            auto users = db["users"].get_where();
             vector<int> filteredUsers;
             for (const auto & user : users) {
                 if (user <= max && user >= min)
@@ -82,7 +82,7 @@ class Users : public Route {
         });
         /// @brief Gets all user ids.
         this->server->Get("/user/ids", [&](Request request, Response& response){
-            json data = db->users->get_where();
+            json data = db["users"].get_where();
             respond(&response, data);
         });
         /// @brief Authenticate a user.
@@ -92,17 +92,17 @@ class Users : public Route {
             auto password = body["password"].get<string>();
             auto hash = make_hash(username, password);
             auto token = std::format("{}", hash);
-            if (db->users->get_where("username", username).size() == 0) {
+            if (db["users"].get_where("username", username).size() == 0) {
                 return respond(&response, string("Invalid Credentials!"), 403);
             }
-            auto dbpassword = db->users->get(db->users->get_where(
+            auto dbpassword = db["users"].get(db["users"].get_where(
                 "username",
                 username).front())["password"];
 
             if (dbpassword == token) {
-                auto userid = db->users->get_where(
+                auto userid = db["users"].get_where(
                     "username",
-                    username).front();
+                    username)[0];
                 authedUsers[userid] = token;
                 respond(&response, token);
             } else {
@@ -114,7 +114,7 @@ class Users : public Route {
             auto body = json::parse(request.body);
             auto username = body["username"].get<string>();
             auto password = body["password"].get<string>();
-            auto alreadyRegistered = db->users->get_where(
+            auto alreadyRegistered = db["users"].get_where(
                 "username",
                 username).size() > 0;
             // we dont want empty usernames and passwords
@@ -123,7 +123,7 @@ class Users : public Route {
                 !alreadyRegistered) {
                 auto hash = make_hash(username, password);
                 auto token = std::format("{}", hash);
-                auto userid = db->users->add({
+                auto userid = db["users"].add({
                     "username",
                     "password",
                     "state"}, {
@@ -151,11 +151,11 @@ class Users : public Route {
                 }
                 keys.push_back("userId");
                 values.push_back(to_string(uid));
-                if (db->userdata->get_where("userId", uid).size() == 0) {
-                    db->userdata->add(keys, values);
+                if (db["userdata"].get_where("userId", uid).size() == 0) {
+                    db["userdata"].add(keys, values);
                 } else {
                     for (auto [key, value] : data.items()) {
-                        db->userdata->modify(uid, {key}, {value});
+                        db["userdata"].modify(uid, {key}, {value});
                     }
                 }
                 respond(&response, string("Successfully updated user data."));

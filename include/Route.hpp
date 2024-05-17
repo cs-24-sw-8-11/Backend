@@ -19,14 +19,14 @@ map<int, string> authedUsers;
 /// @brief Super class for managing all the endpoints of the API.
 class Route {
  protected:
-    shared_ptr<Database> db;
+    Database db;
     shared_ptr<Server> server;
     PredictionManager manager;
 
     /// @brief Populates the settings table with default settings for a given user.
     /// @param userId
     void default_settings(int userId) {
-        db->settings->add({
+        db["settings"].add({
             "key",
             "value",
             "userId"}, {
@@ -53,7 +53,7 @@ class Route {
     /// @return Whether the setting exists or not.
     bool setting_exists(vector<int> ids, string key) {
         for (auto id : ids) {
-            auto row = db->settings->get(id);
+            auto row = db["settings"].get(id);
             if (row["key"] == key) {
                 return true;
             }
@@ -85,7 +85,7 @@ class Route {
     /// @param db
     /// @param server
     Route(Database db, shared_ptr<Server> server) {
-        this->db = make_shared<Database>(db);
+        this->db = db;
         this->server = server;
     }
 

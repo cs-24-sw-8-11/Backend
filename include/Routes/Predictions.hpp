@@ -28,12 +28,12 @@ class Predictions : public Route {
             auto uid = user_id_from_token(token);
             json response_data;
             vector<json> result;
-            auto predictions = db->predictions->get_where(
+            auto predictions = db["predictions"].get_where(
                 "userId",
                 uid);
             if (authedUsers[uid] == token) {
                 for (auto prediction : predictions) {
-                    auto row = db->predictions->get(prediction);
+                    auto row = db["predictions"].get(prediction);
                     json data;
                     for (auto key : row.keys()) {
                         data[key] = row[key];
@@ -54,11 +54,11 @@ class Predictions : public Route {
             auto uid = user_id_from_token(token);
             json response_data;
             if (authedUsers[uid] == token) {
-                auto jids = db->journals->get_where("userId", uid);
+                auto jids = db["journals"].get_where("userId", uid);
                 map<int, Row> journals;
                 auto now = chrono::duration_cast<chrono::seconds>(chrono::system_clock::now().time_since_epoch()).count();
                 for (auto jid : jids) {
-                    auto journal = db->journals->get(jid);
+                    auto journal = db["journals"].get(jid);
                     auto journal_time = stoi(journal["timestamp"]);
                     auto delta = now - journal_time;
                     if (delta <= WEEK) {
@@ -78,8 +78,8 @@ class Predictions : public Route {
                 for (auto [timestamp, journal] : journals) {
                     auto jid = journal["id"];
                     vector<pair<double, double>> prediction_data;
-                    for (auto aid : db->answers->get_where("journalId", jid)) {
-                        auto answer = db->answers->get(aid);
+                    for (auto aid : db["answers"].get_where("journalId", jid)) {
+                        auto answer = db["answers"].get(aid);
                         prediction_data.push_back(make_pair(stod(answer["value"]), stod(answer["rating"])));
                     }
                     builder.add_journal(timestamp, prediction_data);
@@ -87,7 +87,7 @@ class Predictions : public Route {
                 auto result = builder.build();
                 response_data["value"] = result;
                 response_data["timestamp"] = now;
-                db->predictions->add({"userId", "value", "timestamp"}, {to_string(uid), to_string(result), to_string(now)});
+                db["predictions"].add({"userId", "value", "timestamp"}, {to_string(uid), to_string(result), to_string(now)});
                 respond(&response, response_data);
             } else {
                 response_data["error"] = "Token does not match expected value!";

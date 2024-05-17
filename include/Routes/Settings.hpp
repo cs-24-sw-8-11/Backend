@@ -25,12 +25,12 @@ class Settings : public Route {
                 response_data["error"] = "Invalid Token!";
                 return respond(&response, response_data, 400);
             }
-            auto settings = db->settings->get_where(
+            auto settings = db["settings"].get_where(
                 "userId",
                 uid);
             for (auto setting : settings) {
                 json data;
-                auto row = db-> settings->get(setting);
+                auto row = db["settings"].get(setting);
                 for (auto key : row.keys()) {
                     data[key] = row[key];
                 }
@@ -45,12 +45,12 @@ class Settings : public Route {
             auto uid = user_id_from_token(token);
             if (authedUsers[uid] == token) {
                 auto data = body["settings"].get<map<string, string>>();
-                auto userSettings = db->settings->get_where(
+                auto userSettings = db["settings"].get_where(
                     "userId",
                     to_string(uid));
                 for (auto [key, value] : data) {
                     if (!setting_exists(userSettings, key)) {
-                        db->settings->add({
+                        db["settings"].add({
                             "key",
                             "value",
                             "userId"}, {
@@ -59,9 +59,9 @@ class Settings : public Route {
                             to_string(uid)});
                     }
                     for (auto setting : userSettings) {
-                        auto settingsRow = db->settings->get(setting);
+                        auto settingsRow = db["settings"].get(setting);
                         if (settingsRow["key"] == key) {
-                            db->settings->modify(setting, {"value"}, {value});
+                            db["settings"].modify(setting, {"value"}, {value});
                         }
                     }
                 }

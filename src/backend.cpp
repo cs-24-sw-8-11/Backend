@@ -16,9 +16,9 @@ using namespace P8;
 /// @brief Adds default questions and mitigations to the database
 /// @param path db path
 void setup(std::string path) {
-    auto db = std::make_shared<Database>(path);
-    if (db->questions->get_where("tags", "default").size() == 0) {
-        db->questions->add({"type",
+    Database db(path);
+    if (db["questions"].get_where("tags", "default").size() == 0) {
+        db["questions"].add({"type",
             "tags",
             "question"}, {
             "1",
@@ -26,8 +26,8 @@ void setup(std::string path) {
             "Does this default question stop the tests from failing?"});
     }
     log<INFO>("added question");
-    if (db->mitigations->get_where("tags", "default").size() == 0) {
-        db->mitigations->add({"type",
+    if (db["mitigations"].get_where("tags", "default").size() == 0) {
+        db["mitigations"].add({"type",
             "tags",
             "title",
             "description"}, {
@@ -128,25 +128,25 @@ int main(int argc, char* argv[]) {
                 exit(1);
             }
             Database db{path};
-            auto uids = db.users->get_where();
+            auto uids = db["users"].get_where();
             auto uids_size = uids.size();
             P8::ThreadPool<pair<int, int>, double> pool{thread_cnt};
             vector<pair<int, int>> args;
             for (auto [i, uid] : zip(make_range(uids_size), uids)) {
                 args.push_back(make_pair(i, uid));
             }
-            auto target = [=](pair<int, int> arg) {
+            auto target = [&](pair<int, int> arg) {
                 auto i = arg.first;
                 auto uid = arg.second;
-                auto jids = db.journals->get_where("userId", uid);
+                auto jids = db["journals"].get_where("userId", uid);
                 vector<double> results;
                 PredictionManager manager;
                 auto builder = manager.create_new_prediction(uid);
                 for (auto [day_identifier, jid] : views::zip(make_range(3), jids)) {
-                    auto journal = db.journals->get(jid);
+                    auto journal = db["journals"].get(jid);
                     vector<pair<double, double>> prediction_data;
-                    for (auto aid : db.answers->get_where("journalId", jid)) {
-                        auto answer = db.answers->get(aid);
+                    for (auto aid : db["answers"].get_where("journalId", jid)) {
+                        auto answer = db["answers"].get(aid);
                         prediction_data.push_back(make_pair(stod(answer["value"]), stod(answer["rating"])));
                     }
                     builder.add_journal(day_identifier, prediction_data);

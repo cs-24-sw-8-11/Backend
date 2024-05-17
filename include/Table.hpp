@@ -66,6 +66,8 @@ class Table {
     }
 
  public:
+    Table() = default;
+
     Table(string name,
           vector<string> columns,
           shared_ptr<SQLite::Database> db) {
@@ -196,8 +198,7 @@ class Table {
     }
     void delete_item(int id) {
         SQLite::Statement query = make_statement(
-            format("DELETE FROM {} WHERE id = ?",
-            this->name));
+            format("DELETE FROM {} WHERE id = ?", name));
         query.bind(1, id);
         log<INFO>("bound value at location: 1 with value: ", id);
         try {
@@ -233,11 +234,11 @@ class TableFactory {
         this->db = make_shared<SQLite::Database>(path,
             SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE);
     }
-    shared_ptr<Table> create(string name, vector<string> columns){
-        shared_ptr<Table> t = make_shared<Table>(
+    Table create(string name, vector<string> columns){
+        Table t(
             name,
             columns,
-            this->db);
+            db);
         log<DEBUG>("Initialized {} table", name);
         return t;
     }
