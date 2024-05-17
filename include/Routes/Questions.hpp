@@ -17,15 +17,15 @@ class Questions : public Route {
     void init() override {
         /// @brief Returns the default questions (those with the tag "default").
         this->server->Get("/questions/defaults", [&](Request request, Response& response){
-            if (db->questions->get_where("tags", "default").size() == 0) {
+            if (db["questions"].get_where("tags", "default").size() == 0) {
                 json response_data;
                 response_data["error"] = "Somehow there are no default questions???";
                 return respond(&response, response_data, 400);
             }
-            auto questions = db->questions->get_where("tags", "default");
+            auto questions = db["questions"].get_where("tags", "default");
             auto response_data = json::array();
             for (auto i : questions) {
-                auto question = db->questions->get(i);
+                auto question = db["questions"].get(i);
                 json data;
                 for (auto key : question.keys()) {
                     data[key] = question[key];
@@ -37,15 +37,15 @@ class Questions : public Route {
         /// @brief Returns all the questions with a given tag.
         this->server->Get("/questions/get/:tag", [&](Request request, Response& response){
             auto tag = request.path_params["tag"];
-            if (db->questions->get_where("tags", tag).size() == 0) {
+            if (db["questions"].get_where("tags", tag).size() == 0) {
                 json response_data;
                 response_data["error"] = "No Questions With that Tag.";
                 return respond(&response, response_data, 400);
             }
-            auto questions = db->questions->get_where("tags", tag);
+            auto questions = db["questions"].get_where("tags", tag);
             json response_data;
             for (auto i : questions) {
-                auto question = db->questions->get(i);
+                auto question = db["questions"].get(i);
                 json data;
                 for (auto key : question.keys()) {
                     data[key] = question[key];
@@ -56,9 +56,9 @@ class Questions : public Route {
         });
         this->server->Get("/questions/legend/:qid", [&](Request request, Response& response){
             auto qid = request.path_params["qid"];
-            auto lids = db->legends->get_where("questionId", qid);
+            auto lids = db["legends"].get_where("questionId", qid);
 
-            auto lids_data = make_range<Row>(lids.size(), [&](int lid){ return db->legends->get(lid); });
+            auto lids_data = make_range<Row>(lids.size(), [&](int lid){ return db["legends"].get(lid); });
 
             if (lids.size() == 0) {
                 json data;

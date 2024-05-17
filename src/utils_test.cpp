@@ -21,12 +21,12 @@ int main() {
         auto range = P8::make_range<vector<map<int, string>>>(1, [](int i){
             vector<map<int, string>> result = {
                 {
-                    make_pair(i, "test")
+                    {i, "test"}
                 }
             };
             return result;
         });
-        vector<vector<map<int, string>>> control = {{{make_pair(0, "test")}}};
+        vector<vector<map<int, string>>> control = {{{{0, "test"}}}};
         assert(range == control);
     });
 

@@ -23,11 +23,11 @@ class Mitigations : public Route {
         this->server->Get("/mitigations/get/:mid", [&](Request request, Response& response){
             auto mid = stoi(request.path_params["mid"]);
             json response_data;
-            if (mid <= 0 || db->mitigations->get_where("id", mid).size() == 0) {
+            if (mid <= 0 || db["mitigations"].get_where("id", mid).size() == 0) {
                 response_data["error"] = "Invalid Mitigation Id.";
                 return respond(&response, response_data, 400);
             }
-            auto mitigations = db->mitigations->get(mid);
+            auto mitigations = db["mitigations"].get(mid);
             for (auto key : mitigations.keys()) {
                 response_data[key] = mitigations[key];
             }
@@ -41,7 +41,7 @@ class Mitigations : public Route {
             vector<int> mitigations;
             // Get all mitigations that contain the input tags which might contain duplicates
             for (auto tag : tags) {
-                auto mitigation = db->mitigations->get_where_like("tags", tag);
+                auto mitigation = db["mitigations"].get_where_like("tags", tag);
 
                 for (auto m : mitigation) {
                     mitigations.push_back(m);
@@ -57,7 +57,7 @@ class Mitigations : public Route {
 
                 // Now take new filtered vector and iterate through it
                 for (distinct = mitigations.begin(); distinct != mitigations.end(); ++distinct) {
-                    auto mitigation = db->mitigations->get(*distinct);
+                    auto mitigation = db["mitigations"].get(*distinct);
                     json data;
                     for (auto key : mitigation.keys()) {
                         data[key] = mitigation[key];
@@ -75,19 +75,19 @@ class Mitigations : public Route {
             auto token = request.path_params["token"];
             auto uid = user_id_from_token(token);
             if (authedUsers[uid] == token) {
-                auto udid = db->userdata->get_where("userId", uid)[0];
-                auto userdata = db->userdata->get(udid);
+                auto udid = db["userdata"].get_where("userId", uid)[0];
+                auto userdata = db["userdata"].get(udid);
                 auto tags = userdata_to_tags(userdata);
                 if (tags.size() == 0)
                     tags = {"default"};
 
                 auto tag = tags[randint(tags.size()-1)];
 
-                auto mids = db->mitigations->get_where_like("tags", tag);
+                auto mids = db["mitigations"].get_where_like("tags", tag);
                 if (mids.size() == 0)
-                    mids = db->mitigations->get_where_like("tags", "default");
+                    mids = db["mitigations"].get_where_like("tags", "default");
                 auto mid = mids[randint(mids.size()-1)];
-                auto mitigation = db->mitigations->get(mid);
+                auto mitigation = db["mitigations"].get(mid);
 
                 json data;
                 for (auto key : mitigation.keys())

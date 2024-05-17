@@ -42,10 +42,18 @@ using namespace P8;
 // Lazyness xd
 class Row : public map<string, string> {
  public:
-    vector<string> keys(){
+    using map::map;
+
+    vector<string> keys() {
         vector<string> data;
         for (auto [key, value] : *(this))
             data.push_back(key);
+        return data;
+    }
+    vector<string> values(){
+        vector<string> data;
+        for (auto [key, value] : *(this))
+            data.push_back(value);
         return data;
     }
 };
@@ -66,6 +74,8 @@ class Table {
     }
 
  public:
+    Table() = default;
+
     Table(string name,
           vector<string> columns,
           shared_ptr<SQLite::Database> db) {
@@ -95,10 +105,13 @@ class Table {
         while (query.executeStep()) size++;
         return size;
     }
-    int add(vector<string> keys, vector<string> values) {
+    int add(Row row) {
         string qs = "?";
-        string keystring = keys[0];
-        for (auto i = 1; i < keys.size(); i++) {
+        auto keys = row.keys();
+        auto values = row.values();
+        auto keystring = keys[0];
+
+        for (auto i = 1; i < row.size(); i++) {
             qs += ", ?";
             keystring += ", ";
             keystring += keys[i];
@@ -112,7 +125,7 @@ class Table {
             this->name);
         SQLite::Statement query = make_statement(sql);
         SQLite::Statement query2 = make_statement(sql2);
-        for (auto i = 0; i < values.size(); i++) {
+        for (auto i = 0; i < row.size(); i++) {
             query.bind(i+1, values[i]);
             log<INFO>("Bound value at location: {} with value: {}", i+1, values[i]);
         }
@@ -196,8 +209,7 @@ class Table {
     }
     void delete_item(int id) {
         SQLite::Statement query = make_statement(
-            format("DELETE FROM {} WHERE id = ?",
-            this->name));
+            format("DELETE FROM {} WHERE id = ?", name));
         query.bind(1, id);
         log<INFO>("bound value at location: 1 with value: ", id);
         try {
@@ -233,11 +245,11 @@ class TableFactory {
         this->db = make_shared<SQLite::Database>(path,
             SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE);
     }
-    shared_ptr<Table> create(string name, vector<string> columns){
-        shared_ptr<Table> t = make_shared<Table>(
+    Table create(string name, vector<string> columns){
+        Table t(
             name,
             columns,
-            this->db);
+            db);
         log<DEBUG>("Initialized {} table", name);
         return t;
     }

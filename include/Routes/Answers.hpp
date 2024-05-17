@@ -19,12 +19,12 @@ class Answers : public Route {
             auto answerId = stoi(request.path_params["answerId"]);
             auto token = request.path_params["token"];
             json response_data;
-            if (answerId <= 0 || db->answers->get_where("id", answerId).size() == 0) {
+            if (answerId <= 0 || db["answers"].get_where("id", answerId).size() == 0) {
                 response_data["error"] = "Invalid Answer Id.";
                 return respond(&response, response_data, 400);
             }
-            auto answer = db->answers->get(answerId);
-            auto allowedToGetAnswer = authedUsers[stoi(db->journals->get(
+            auto answer = db["answers"].get(answerId);
+            auto allowedToGetAnswer = authedUsers[stoi(db["journals"].get(
                 stoi(answer["journalId"]))["userId"])] == token;
             if (allowedToGetAnswer) {
                 for (auto key : answer.keys()) {

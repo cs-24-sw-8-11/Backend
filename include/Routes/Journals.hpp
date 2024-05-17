@@ -28,26 +28,22 @@ class Journals : public Route {
             auto userid = user_id_from_token(token);
             if (authedUsers[userid] == token) {
                 auto list = body["data"].get<vector<json>>();
-                auto jid = db->journals->add({
-                    "timestamp",
-                    "userId"}, {
-                    to_string(time),
-                    to_string(userid)});
+                auto jid = db["journals"].add({
+                    {"timestamp", to_string(time)},
+                    {"userId", to_string(userid)}
+                });
                 for (auto entry : list) {
                     auto qid = entry["qid"].get<string>();
                     auto meta = entry["meta"].get<string>();
                     auto rating = entry["rating"].get<int>();
                     // run sentiment analysis on answer
                     auto result = run_cmd(format("python ./lib/datasets/sentiment_analysis.py \"{}\"", meta))["stdout"];
-                    db->answers->add({
-                        "value",
-                        "rating",
-                        "journalId",
-                        "questionId"}, {
-                        result,
-                        to_string(static_cast<double>(rating)/5.0),
-                        to_string(jid),
-                        qid});
+                    db["answers"].add({
+                        {"value", result},
+                        {"rating", to_string(static_cast<double>(rating)/5.0)},
+                        {"journalId", to_string(jid)},
+                        {"questionId", qid}
+                    });
                 }
                 respond(&response, string("Successfully created new journal."));
             } else {
@@ -58,15 +54,15 @@ class Journals : public Route {
         this->server->Get("/journals/get/:jid", [&](Request request, Response& response){
             auto jid = stoi(request.path_params["jid"]);
             json response_data;
-            if (jid <= 0 || db->journals->get_where("id", jid).size() == 0) {
+            if (jid <= 0 || db["journals"].get_where("id", jid).size() == 0) {
                 response_data["error"] = "Invalid Journal Id.";
                 return respond(&response, response_data, 400);
             }
-            auto journal = db->journals->get(jid);
+            auto journal = db["journals"].get(jid);
             for (auto key : journal.keys()) {
                 response_data[key] = journal[key];
             }
-            response_data["answers"] = db->answers->get_where(
+            response_data["answers"] = db["answers"].get_where(
                 "journalId",
                 jid);
             respond(&response, response_data);
@@ -80,7 +76,7 @@ class Journals : public Route {
                 response_data["error"] = "Invalid Token!";
                 return respond(&response, response_data, 400);
             }
-            auto journals = db->journals->get_where(
+            auto journals = db["journals"].get_where(
                 "userId",
                 uid);
             response_data = journals;
@@ -92,7 +88,7 @@ class Journals : public Route {
             auto uid = user_id_from_token(token);
             auto jid = stoi(request.path_params["jid"]);
             if (authedUsers[uid] == token) {
-                db->journals->delete_item(jid);
+                db["journals"].delete_item(jid);
                 respond(&response, string("Successfully deleted journal."), 202);
             } else {
                 respond(&response, string("Token does not match expected value!"), 403);
