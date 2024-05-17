@@ -42,10 +42,9 @@ using namespace P8;
 // Lazyness xd
 class Row : public map<string, string> {
  public:
-
     using map::map;
 
-    vector<string> keys(){
+    vector<string> keys() {
         vector<string> data;
         for (auto [key, value] : *(this))
             data.push_back(key);
