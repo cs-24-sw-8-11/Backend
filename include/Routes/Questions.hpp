@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include "Route.hpp"
 #include <nlohmann/json.hpp>
 
@@ -56,9 +58,11 @@ class Questions : public Route {
         });
         this->server->Get("/questions/legend/:qid", [&](Request request, Response& response){
             auto qid = request.path_params["qid"];
-            auto lids = db["legends"].get_where("questionId", qid);
+            auto lids = db["legends"].get_where("questionId", stoi(qid)+1);
+            vector<Row> legends;
 
-            auto lids_data = make_range<Row>(lids.size(), [&](int lid){ return db["legends"].get(lid); });
+            for (auto lid : lids)
+                legends.push_back(db["legends"].get(lid));
 
             if (lids.size() == 0) {
                 json data;
@@ -68,7 +72,7 @@ class Questions : public Route {
             }
 
             json data;
-            for (auto lid_data : lids_data) {
+            for (auto lid_data : legends) {
                 auto index = lid_data["legend_index"];
                 auto text = lid_data["text"];
                 data[index] = text;
