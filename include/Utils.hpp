@@ -13,8 +13,6 @@
 #include <string>
 #include <cctype>
 
-#define put make_pair
-
 using namespace std;
 
 namespace P8 {
@@ -186,59 +184,59 @@ bool mapHas(map<K, V> map, K target) {
 }
 
 map<string, map<int, string>> tag_map = {
-    put("education", (map<int, string>) {
-        put(1, ""),
-        put(2, "High School"),
-        put(3, "University"),
-        put(4, "Graduate"),
+{"education", (map<int, string>) {
+    {1, ""},
+    {2, "High School"},
+    {3, "University"},
+    {4, "Graduate"},
+    }},
+{"urban", (map<int, string>) {
+    {1, "Rural"},
+    {2, "Suburban"},
+    {3, "Urban"}
+    }},
+{"gender", (map<int, string>) {
+    {1, "Male"},
+    {2, "Female"},
+    {3, "Other"}
+    }},
+{"religion", (map<int, string>) {
+    {1, "Agnostic"),
+    {2, "Atheist"),
+    {3, "Buddhist"),
+    {4, "Christian"),
+    {5, "Christian"),
+    {6, "Christian"),
+    {7, "Christian"),
+    {8, "Hindu"),
+    {9, "Jewish"),
+    {10, "Muslim"),
+    {11, "Sikh"),
+    {12, "")
     }),
-    put("urban", (map<int, string>) {
-        put(1, "Rural"),
-        put(2, "Suburban"),
-        put(3, "Urban")
+{"orientation", (map<int, string>) {
+    {1, "Heterosexual"),
+    {2, "Bisexual"),
+    {3, "Homosexual"),
+    {4, "Asexual"),
+    {5, "")
     }),
-    put("gender", (map<int, string>) {
-        put(1, "Male"),
-        put(2, "Female"),
-        put(3, "Other")
+{"race", (map<int, string>) {
+    {10, "Asian"),
+    {20, "Arab"),
+    {30, "Black"),
+    {40, "Indigenous Australian"),
+    {50, "Native American"),
+    {60, "White"),
+    {70, "")
     }),
-    put("religion", (map<int, string>) {
-        put(1, "Agnostic"),
-        put(2, "Atheist"),
-        put(3, "Buddhist"),
-        put(4, "Christian"),
-        put(5, "Christian"),
-        put(6, "Christian"),
-        put(7, "Christian"),
-        put(8, "Hindu"),
-        put(9, "Jewish"),
-        put(10, "Muslim"),
-        put(11, "Sikh"),
-        put(12, "")
+{"married", (map<int, string>) {
+    {1, "Married"),
+    {2, "Single")
     }),
-    put("orientation", (map<int, string>) {
-        put(1, "Heterosexual"),
-        put(2, "Bisexual"),
-        put(3, "Homosexual"),
-        put(4, "Asexual"),
-        put(5, "")
+{"age", (map<int, string>) {
     }),
-    put("race", (map<int, string>) {
-        put(10, "Asian"),
-        put(20, "Arab"),
-        put(30, "Black"),
-        put(40, "Indigenous Australian"),
-        put(50, "Native American"),
-        put(60, "White"),
-        put(70, "")
-    }),
-    put("married", (map<int, string>) {
-        put(1, "Married"),
-        put(2, "Single")
-    }),
-    put("age", (map<int, string>) {
-    }),
-    put("pets", (map<int, string>) {
+{"pets", (map<int, string>) {
     })
 };
 

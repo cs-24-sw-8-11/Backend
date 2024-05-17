@@ -27,23 +27,23 @@ class DbTest : public Test<std::function<void()>> {
         now = chrono::duration_cast<chrono::seconds>(chrono::system_clock::now().time_since_epoch()).count();
 
         // add temporary data
-        db["users"].add({"username",
-            "password",
-            "state"}, {
-            default_username,
-            default_password,
-            to_string(TRAINING)});
+        db["users"].add({
+            {"username", default_username},
+            {"password", default_password},
+            {"state", to_string(TRAINING)}
+        });
         user_id = db["users"].get_where("username", default_username)[0];
-        db["journals"].add({"userId", "timestamp"}, {to_string(user_id), to_string(now)});
+        db["journals"].add({
+            {"userId", to_string(user_id)},
+            {"timestamp", to_string(now)}
+        });
         journal_id = db["journals"].get_where("userId", user_id)[0];
         for (auto question : default_questions)
             db["questions"].add({
-                "question",
-                "tags",
-                "type"}, {
-                question,
-                "default",
-                to_string(BOOLEAN)});
+                {"question", question},
+                {"tags", "default"},
+                {"type", to_string(BOOLEAN)}
+            });
         question_id = db["questions"].get_where()[0];
     }
     public:
@@ -62,13 +62,9 @@ int main() {
     users.add_test("add-user", [&](){
         for (auto i = 0; i < num_additions; i++) {
             users.db["users"].add({
-                "username",
-                "password",
-                "state"
-            }, {
-                std::format("user{}", i),
-                users.default_password,
-                to_string(TRAINING)
+                {"username", format("user{}", i)},
+                {"password", users.default_password},
+                {"state", to_string(TRAINING)}
             });
         }
         // +1 to consider temp data
@@ -92,7 +88,10 @@ int main() {
     DbTest journals;
     journals.add_test("add-journal", [&](){
         for (auto i = 0; i < num_additions; i++) {
-            journals.db["journals"].add({"userId", "timestamp"}, {to_string(journals.user_id), to_string(journals.now)});
+            journals.db["journals"].add({
+                {"userId", to_string(journals.user_id)},
+                {"timestamp", to_string(journals.now)}
+            });
         }
         assert(journals.db["journals"].size() == num_additions+1);
     });
@@ -103,7 +102,10 @@ int main() {
         assert(journals.db["journals"].size() == 0);
     });
     journals.add_test("modify-journal", [&](){
-        journals.db["journals"].add({"userId", "timestamp"}, {to_string(journals.user_id), to_string(journals.now)});
+        journals.db["journals"].add({
+            {"userId", to_string(journals.user_id)},
+            {"timestamp", to_string(journals.now)}
+        });
         auto journal_id = journals.db["journals"].get_where()[0];
         auto current_data = journals.db["journals"].get(journal_id);
         assert(current_data == journals.db["journals"].get(journal_id));
@@ -145,28 +147,22 @@ int main() {
     answers.add_test("add-answer", [&](){
         for (auto i = 0; i < num_additions; i++) {
             answers.db["answers"].add({
-                "value",
-                "rating",
-                "journalId",
-                "questionId"}, {
-                to_string(i),
-                "4",
-                to_string(answers.journal_id),
-                to_string(answers.question_id)});
+                {"value", to_string(i)},
+                {"rating", "4"},
+                {"journalId", to_string(answers.journal_id)},
+                {"questionId", to_string(answers.question_id)}
+            });
         }
         assert(answers.db["answers"].size() == num_additions);
     });
 
     answers.add_test("delete-answer", [&](){
         answers.db["answers"].add({
-            "value",
-            "rating",
-            "journalId",
-            "questionId"}, {
-            "3",
-            "4",
-            to_string(answers.journal_id),
-            to_string(answers.question_id)});
+            {"value", "3"},
+            {"rating", "4"},
+            {"journalId", to_string(answers.journal_id)},
+            {"questionId", to_string(answers.question_id)}
+        });
         assert(answers.db["answers"].size() == 1);
         auto answer_id = answers.db["answers"].get_where()[0];
 
@@ -175,14 +171,11 @@ int main() {
     });
     answers.add_test("modify-answer", [&](){
         answers.db["answers"].add({
-            "value",
-            "rating",
-            "journalId",
-            "questionId"}, {
-            "4",
-            "3",
-            to_string(answers.journal_id),
-            to_string(answers.question_id)});
+            {"value", "4"},
+            {"rating", "3"},
+            {"journalId", to_string(answers.journal_id)},
+            {"questionId", to_string(answers.question_id)}
+        });
         auto answer_id = answers.db["answers"].get_where()[0];
         auto current_data = answers.db["answers"].get(answer_id);
         assert(current_data == answers.db["answers"].get(answer_id));
@@ -195,23 +188,19 @@ int main() {
     settings.add_test("add-setting", [&](){
         for (auto i = 0; i < num_additions; i++) {
             settings.db["settings"].add({
-                "userId",
-                "key",
-                "value"}, {
-                to_string(settings.user_id),
-                std::format("setting {}", i),
-                std::format("value {}", i)});
+                {"userId", to_string(settings.user_id)},
+                {"key", format("setting {}", i)},
+                {"value", format("value {}", i)}
+            });
         }
         assert(settings.db["settings"].size() == num_additions);
     });
     settings.add_test("delete-setting", [&](){
         settings.db["settings"].add({
-            "userId",
-            "key",
-            "value"}, {
-            to_string(settings.user_id),
-            "testkey",
-            "testvalue"});
+            {"userId", to_string(settings.user_id)},
+            {"key", "key"},
+            {"value", "value"}
+        });
         assert(settings.db["settings"].size() == 1);
         auto setting_id = settings.db["settings"].get_where()[0];
         settings.db["settings"].delete_item(setting_id);
@@ -219,12 +208,10 @@ int main() {
     });
     settings.add_test("modify-setting", [&](){
         settings.db["settings"].add({
-            "userId",
-            "key",
-            "value"}, {
-            to_string(settings.user_id),
-            "testkey",
-            "testvalue"});
+            {"userId", to_string(settings.user_id)},
+            {"key", "key"},
+            {"value", "value"}
+        });
         auto setting_id = settings.db["settings"].get_where()[0];
         auto current_data = settings.db["settings"].get(setting_id);
         assert(current_data == settings.db["settings"].get(setting_id));
@@ -236,26 +223,17 @@ int main() {
     DbTest userdata;
     userdata.add_test("delete-userdata", [&](){
         userdata.db["userdata"].add({
-            "education",
-            "urban",
-            "gender",
-            "religion",
-            "orientation",
-            "race",
-            "married",
-            "age",
-            "pets",
-            "userId"}, {
-            "0",
-            "0",
-            "0",
-            "0",
-            "0",
-            "0",
-            "0",
-            "0",
-            "0",
-            to_string(userdata.user_id)});
+            {"education", "0"},
+            {"urban", "0"},
+            {"gender", "0"},
+            {"religion", "0"},
+            {"orientation", "0"},
+            {"race", "0"},
+            {"married", "0"},
+            {"age", "0"},
+            {"pets", "0"},
+            {"userId", to_string(userdata.user_id)}
+        });
         assert(userdata.db["userdata"].size() == 1);
         auto userdata_id = userdata.db["userdata"].get_where()[0];
         userdata.db["userdata"].delete_item(userdata_id);
@@ -263,26 +241,17 @@ int main() {
     });
     userdata.add_test("modify-userdata", [&](){
         userdata.db["userdata"].add({
-            "education",
-            "urban",
-            "gender",
-            "religion",
-            "orientation",
-            "race",
-            "married",
-            "age",
-            "pets",
-            "userId"}, {
-            "0",
-            "0",
-            "0",
-            "0",
-            "0",
-            "0",
-            "0",
-            "0",
-            "0",
-            to_string(userdata.user_id)});
+            {"education", "0"},
+            {"urban", "0"},
+            {"gender", "0"},
+            {"religion", "0"},
+            {"orientation", "0"},
+            {"race", "0"},
+            {"married", "0"},
+            {"age", "0"},
+            {"pets", "0"},
+            {"userId", to_string(userdata.user_id)}
+        });
         auto userdata_id = userdata.db["userdata"].get_where()[0];
         auto current_data = userdata.db["userdata"].get(userdata_id);
         assert(current_data == userdata.db["userdata"].get(userdata_id));
@@ -295,23 +264,19 @@ int main() {
     predictions.add_test("add-prediction", [&](){
         for (auto i = 0; i < num_additions; i++) {
             predictions.db["predictions"].add({
-                "userId",
-                "value",
-                "timestamp"}, {
-                to_string(predictions.user_id),
-                to_string(i),
-                "0"});
+                {"userId", to_string(predictions.user_id)},
+                {"value", to_string(i)},
+                {"timestamp", "0"}
+            });
         }
         assert(predictions.db["predictions"].size() == num_additions);
     });
     predictions.add_test("delete-prediction", [&](){
         predictions.db["predictions"].add({
-            "userId",
-            "value",
-            "timestamp"}, {
-            to_string(predictions.user_id),
-            "0",
-            "0"});
+            {"userId", to_string(predictions.user_id)},
+            {"value", "0"},
+            {"timestamp", "0"}
+        });
         assert(predictions.db["predictions"].size() == 1);
         auto prediction_id = predictions.db["predictions"].get_where()[0];
         predictions.db["predictions"].delete_item(prediction_id);
@@ -319,12 +284,10 @@ int main() {
     });
     predictions.add_test("modify-prediction", [&](){
         predictions.db["predictions"].add({
-            "userId",
-            "value",
-            "timestamp"}, {
-            to_string(predictions.user_id),
-            "0",
-            "0"});
+            {"userId", to_string(predictions.user_id)},
+            {"value", "0"},
+            {"timestamp", "0"}
+        });
         auto prediction_id = predictions.db["predictions"].get_where()[0];
         auto current_data = predictions.db["predictions"].get(prediction_id);
         assert(current_data == predictions.db["predictions"].get(prediction_id));

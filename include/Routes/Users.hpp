@@ -124,12 +124,10 @@ class Users : public Route {
                 auto hash = make_hash(username, password);
                 auto token = std::format("{}", hash);
                 auto userid = db["users"].add({
-                    "username",
-                    "password",
-                    "state"}, {
-                    username,
-                    token,
-                    to_string(TRAINING)});
+                    {"username", username},
+                    {"password", token},
+                    {"state", to_string(TRAINING)}
+                });
                 default_settings(userid);
                 respond(&response, string("Successfully Registered!"));
             } else {
@@ -143,16 +141,9 @@ class Users : public Route {
             auto uid = user_id_from_token(token);
             if (authedUsers[uid] == token) {
                 auto data = body["data"];
-                vector<string> keys;
-                vector<string> values;
-                for (auto [key, value] : data.items()) {
-                    keys.push_back(key);
-                    values.push_back(value);
-                }
-                keys.push_back("userId");
-                values.push_back(to_string(uid));
+                data["userId"] = to_string(uid);
                 if (db["userdata"].get_where("userId", uid).size() == 0) {
-                    db["userdata"].add(keys, values);
+                    db["userdata"].add(data);
                 } else {
                     for (auto [key, value] : data.items()) {
                         db["userdata"].modify(uid, {key}, {value});

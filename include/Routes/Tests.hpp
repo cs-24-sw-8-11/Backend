@@ -15,7 +15,11 @@ class Tests : public Route {
             auto uid = user_id_from_token(token);
             if (authedUsers[uid] == token) {
                 auto pid = body["id"].get<string>();
-                db["ratings"].add({"predictionId", "rating", "expected"}, {pid, body["rating"].get<string>(), body["expected"].get<string>()});
+                db["ratings"].add({
+                    {"predictionId", pid},
+                    {"rating", body["rating"].get<string>()},
+                    {"expected", body["expected"].get<string>()}
+                });
                 respond(&response, string("Successfully rated prediction!"));
             } else {
                 respond(&response, string("Error, user is not authorized!", 403));

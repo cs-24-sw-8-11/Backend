@@ -51,12 +51,10 @@ class Settings : public Route {
                 for (auto [key, value] : data) {
                     if (!setting_exists(userSettings, key)) {
                         db["settings"].add({
-                            "key",
-                            "value",
-                            "userId"}, {
-                            key,
-                            value,
-                            to_string(uid)});
+                            {"key", key},
+                            {"value", value},
+                            {"userId", to_string(uid)}
+                        });
                     }
                     for (auto setting : userSettings) {
                         auto settingsRow = db["settings"].get(setting);

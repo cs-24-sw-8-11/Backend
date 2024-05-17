@@ -27,12 +27,10 @@ class Route {
     /// @param userId
     void default_settings(int userId) {
         db["settings"].add({
-            "key",
-            "value",
-            "userId"}, {
-            "predictions",
-            "true",
-            to_string(userId)});
+            put("key", "predictions"),
+            put("value", "true"),
+            put("userId", to_string(userId))
+        });
     }
 
     /// @brief Returns the user id from the authedUsers dictionary from a given token.

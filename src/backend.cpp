@@ -18,23 +18,20 @@ using namespace P8;
 void setup(std::string path) {
     Database db(path);
     if (db["questions"].get_where("tags", "default").size() == 0) {
-        db["questions"].add({"type",
-            "tags",
-            "question"}, {
-            "1",
-            "default",
-            "Does this default question stop the tests from failing?"});
+        db["questions"].add({
+            put("type", "1"),
+            put("tags", "default"),
+            put("question", "Does this default question stop the tests from failing?")
+        });
     }
     log<INFO>("added question");
     if (db["mitigations"].get_where("tags", "default").size() == 0) {
-        db["mitigations"].add({"type",
-            "tags",
-            "title",
-            "description"}, {
-            "1",
-            "default",
-            "Default Mitigation so tests don't fail",
-            "Default description because it cannot be null."});
+        db["mitigations"].add({
+            put("type", "1"),
+            put("tags", "default"),
+            put("title", "Default mitigation so tests don't fail"),
+            put("description", "Default description because it cannot be null.")
+        });
     }
     log<INFO>("added mitigation");
 }
