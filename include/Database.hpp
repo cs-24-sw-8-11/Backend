@@ -106,10 +106,6 @@ class Database {
     }
 
     Table operator[](string key){
-        for (auto [dkey, table] : tables) {
-            if (key == dkey)
-                return table;
-        }
-        throw exception();
+        return tables[key];
     }
 };
