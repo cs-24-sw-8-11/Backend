@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <utility>
+#include <chrono>
 
 #include "Route.hpp"
 #include <nlohmann/json.hpp>
@@ -85,7 +86,8 @@ class Predictions : public Route {
                 }
                 auto result = builder.build();
                 response_data["value"] = result;
-                db->predictions->add({"userId", "value"}, {to_string(uid), to_string(result)});
+                response_data["timestamp"] = now;
+                db->predictions->add({"userId", "value", "timestamp"}, {to_string(uid), to_string(result), to_string(now)});
                 respond(&response, response_data);
             } else {
                 response_data["error"] = "Token does not match expected value!";
