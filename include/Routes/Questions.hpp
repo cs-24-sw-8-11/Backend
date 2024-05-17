@@ -58,7 +58,7 @@ class Questions : public Route {
             auto qid = request.path_params["qid"];
             auto lids = db["legends"].get_where("questionId", qid);
 
-            auto lids_data = make_range<Row>(lids.size(), [&](int lid){ return db["legends"].get(lid); });
+            auto lids_data = make_range<Row>(lids.size(), [&](int lid){ return db["legends"].get(lid+1); });
 
             if (lids.size() == 0) {
                 json data;
