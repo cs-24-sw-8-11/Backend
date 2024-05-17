@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <utility>
+#include <chrono>
 
 #include "Route.hpp"
 #include <nlohmann/json.hpp>
@@ -85,6 +86,8 @@ class Predictions : public Route {
                 }
                 auto result = builder.build();
                 response_data["value"] = result;
+                auto timestamp = chrono::duration_cast<chrono::seconds>(chrono::system_clock::now().time_since_epoch()).count();
+                response_data["timestamp"] = timestamp;
                 db->predictions->add({"userId", "value"}, {to_string(uid), to_string(result)});
                 respond(&response, response_data);
             } else {
