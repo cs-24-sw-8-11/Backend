@@ -80,7 +80,7 @@ class Predictions : public Route {
                     vector<pair<double, double>> prediction_data;
                     for (auto aid : db["answers"].get_where("journalId", jid)) {
                         auto answer = db["answers"].get(aid);
-                        prediction_data.push_back(make_pair(stod(answer["value"]), stod(answer["rating"])));
+                        prediction_data.push_back({stod(answer["value"]), stod(answer["rating"])});
                     }
                     builder.add_journal(timestamp, prediction_data);
                 }
@@ -88,9 +88,9 @@ class Predictions : public Route {
                 response_data["value"] = result;
                 response_data["timestamp"] = now;
                 db["predictions"].add({
-                    put("userId", to_string(uid)),
-                    put("value", to_string(result)),
-                    put("timestamp", to_string(now))
+                    {"userId", to_string(uid)},
+                    {"value", to_string(result)},
+                    {"timestamp", to_string(now)}
                 });
                 respond(&response, response_data);
             } else {

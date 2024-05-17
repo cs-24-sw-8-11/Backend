@@ -27,9 +27,9 @@ class Route {
     /// @param userId
     void default_settings(int userId) {
         db["settings"].add({
-            put("key", "predictions"),
-            put("value", "true"),
-            put("userId", to_string(userId))
+            {"key", "predictions"},
+            {"value", "true"},
+            {"userId", to_string(userId)}
         });
     }
 

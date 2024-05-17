@@ -29,8 +29,8 @@ class Journals : public Route {
             if (authedUsers[userid] == token) {
                 auto list = body["data"].get<vector<json>>();
                 auto jid = db["journals"].add({
-                    put("timestamp", to_string(time)),
-                    put("userId", to_string(userid))
+                    {"timestamp", to_string(time)},
+                    {"userId", to_string(userid)}
                 });
                 for (auto entry : list) {
                     auto qid = entry["qid"].get<string>();
@@ -39,10 +39,10 @@ class Journals : public Route {
                     // run sentiment analysis on answer
                     auto result = run_cmd(format("python ./lib/datasets/sentiment_analysis.py \"{}\"", meta))["stdout"];
                     db["answers"].add({
-                        put("value", result),
-                        put("rating", to_string(static_cast<double>(rating)/5.0)),
-                        put("journalId", to_string(jid)),
-                        put("questionId", qid)
+                        {"value", result},
+                        {"rating", to_string(static_cast<double>(rating)/5.0)},
+                        {"journalId", to_string(jid)},
+                        {"questionId", qid}
                     });
                 }
                 respond(&response, string("Successfully created new journal."));

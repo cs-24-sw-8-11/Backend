@@ -201,43 +201,43 @@ map<string, map<int, string>> tag_map = {
     {3, "Other"}
     }},
 {"religion", (map<int, string>) {
-    {1, "Agnostic"),
-    {2, "Atheist"),
-    {3, "Buddhist"),
-    {4, "Christian"),
-    {5, "Christian"),
-    {6, "Christian"),
-    {7, "Christian"),
-    {8, "Hindu"),
-    {9, "Jewish"),
-    {10, "Muslim"),
-    {11, "Sikh"),
-    {12, "")
-    }),
+    {1, "Agnostic"},
+    {2, "Atheist"},
+    {3, "Buddhist"},
+    {4, "Christian"},
+    {5, "Christian"},
+    {6, "Christian"},
+    {7, "Christian"},
+    {8, "Hindu"},
+    {9, "Jewish"},
+    {10, "Muslim"},
+    {11, "Sikh"},
+    {12, ""}
+    }},
 {"orientation", (map<int, string>) {
-    {1, "Heterosexual"),
-    {2, "Bisexual"),
-    {3, "Homosexual"),
-    {4, "Asexual"),
-    {5, "")
-    }),
+    {1, "Heterosexual"},
+    {2, "Bisexual"},
+    {3, "Homosexual"},
+    {4, "Asexual"},
+    {5, ""}
+    }},
 {"race", (map<int, string>) {
-    {10, "Asian"),
-    {20, "Arab"),
-    {30, "Black"),
-    {40, "Indigenous Australian"),
-    {50, "Native American"),
-    {60, "White"),
-    {70, "")
-    }),
+    {10, "Asian"},
+    {20, "Arab"},
+    {30, "Black"},
+    {40, "Indigenous Australian"},
+    {50, "Native American"},
+    {60, "White"},
+    {70, ""}
+    }},
 {"married", (map<int, string>) {
-    {1, "Married"),
-    {2, "Single")
-    }),
+    {1, "Married"},
+    {2, "Single"}
+    }},
 {"age", (map<int, string>) {
-    }),
+    }},
 {"pets", (map<int, string>) {
-    })
+    }}
 };
 
 vector<string> userdata_to_tags(map<string, string> userdata) {

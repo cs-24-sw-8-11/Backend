@@ -19,18 +19,18 @@ void setup(std::string path) {
     Database db(path);
     if (db["questions"].get_where("tags", "default").size() == 0) {
         db["questions"].add({
-            put("type", "1"),
-            put("tags", "default"),
-            put("question", "Does this default question stop the tests from failing?")
+            {"type", "1"},
+            {"tags", "default"},
+            {"question", "Does this default question stop the tests from failing?"}
         });
     }
     log<INFO>("added question");
     if (db["mitigations"].get_where("tags", "default").size() == 0) {
         db["mitigations"].add({
-            put("type", "1"),
-            put("tags", "default"),
-            put("title", "Default mitigation so tests don't fail"),
-            put("description", "Default description because it cannot be null.")
+            {"type", "1"},
+            {"tags", "default"},
+            {"title", "Default mitigation so tests don't fail"},
+            {"description", "Default description because it cannot be null."}
         });
     }
     log<INFO>("added mitigation");
@@ -130,7 +130,7 @@ int main(int argc, char* argv[]) {
             P8::ThreadPool<pair<int, int>, double> pool{thread_cnt};
             vector<pair<int, int>> args;
             for (auto [i, uid] : zip(make_range(uids_size), uids)) {
-                args.push_back(make_pair(i, uid));
+                args.push_back({i, uid});
             }
             auto target = [&](pair<int, int> arg) {
                 auto i = arg.first;
@@ -144,7 +144,7 @@ int main(int argc, char* argv[]) {
                     vector<pair<double, double>> prediction_data;
                     for (auto aid : db["answers"].get_where("journalId", jid)) {
                         auto answer = db["answers"].get(aid);
-                        prediction_data.push_back(make_pair(stod(answer["value"]), stod(answer["rating"])));
+                        prediction_data.push_back({stod(answer["value"]), stod(answer["rating"])});
                     }
                     builder.add_journal(day_identifier, prediction_data);
                 }
