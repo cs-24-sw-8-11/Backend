@@ -87,6 +87,7 @@ class Database {
         this->predictions = factory.create("predictions", {
             "userId INTEGER NOT NULL",
             "value INTEGER NOT NULL",
+            "timestamp INTEGER NOT NULL",
             "FOREIGN KEY(userId) REFERENCES users(id)"
         });
         this->mitigations = factory.create("mitigations", {
