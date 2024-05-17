@@ -50,7 +50,11 @@
 
         backend = pkgs.stdenv.mkDerivation {
             name = "P8 Backend";
-            src = ./.;
+            src = pkgs.fetchgit {
+                url = "https://github.com/cs-24-sw-8-11/Backend";
+                sha256 = "sha256-Qxe9NYlMnG/C5So+wlwyKz7rYj5ot6ieKAcd932DdMw=";
+                fetchSubmodules = true;
+            };
             buildInputs = with pkgs; [cmake];
             installPhase = ''
                 mkdir -p $out
