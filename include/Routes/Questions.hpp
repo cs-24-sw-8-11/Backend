@@ -58,7 +58,7 @@ class Questions : public Route {
         });
         this->server->Get("/questions/legend/:qid", [&](Request request, Response& response){
             auto qid = request.path_params["qid"];
-            auto lids = db["legends"].get_where("questionId", stoi(qid)+1);
+            auto lids = db["legends"].get_where("questionId", stoi(qid));
             vector<Row> legends;
 
             for (auto lid : lids)
