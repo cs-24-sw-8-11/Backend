@@ -128,6 +128,7 @@ class Users : public Route {
                     {"password", token},
                     {"state", to_string(TRAINING)}
                 });
+                authedUsers[userid] = token;
                 default_settings(userid);
                 respond(&response, token);
             } else {
