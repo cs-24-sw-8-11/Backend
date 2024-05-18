@@ -3,21 +3,21 @@
         "data":[{
             "qid":"1",
             "meta":"It was horrible!",
-            "rating":4
+            "rating":"4"
         }]
     },
     {
         "data":[{
             "qid":"2",
             "meta":"It was okay...",
-            "rating":2
+            "rating":"2"
         }]
     },
     {
         "data":[{
             "qid":"3",
             "meta":"I loved it!",
-            "rating":1
+            "rating":"1"
         }]
     }
 ]

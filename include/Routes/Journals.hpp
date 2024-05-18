@@ -35,12 +35,12 @@ class Journals : public Route {
                 for (auto entry : list) {
                     auto qid = entry["qid"].get<string>();
                     auto meta = entry["meta"].get<string>();
-                    auto rating = entry["rating"].get<int>();
+                    auto rating = entry["rating"].get<string>();
                     // run sentiment analysis on answer
                     auto result = run_cmd(format("python ./lib/datasets/sentiment_analysis.py \"{}\"", meta))["stdout"];
                     db["answers"].add({
                         {"value", result},
-                        {"rating", to_string(static_cast<double>(rating)/5.0)},
+                        {"rating", to_string(stod(rating)/5.0)},
                         {"journalId", to_string(jid)},
                         {"questionId", qid}
                     });
