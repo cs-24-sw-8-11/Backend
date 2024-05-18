@@ -31,7 +31,7 @@ class Users : public Route {
     /// @brief Initializes the User endpoints.
     void init() override {
         /// @brief Gets the userdata of a user.
-        this->server->Get("/user/get/:token", [&](Request request, Response& response){
+        Get("/user/get/:token", [&](Request request, Response& response){
             json response_data;
             auto token = request.path_params["token"];
             auto uid = user_id_from_token(token);
@@ -60,7 +60,7 @@ class Users : public Route {
             respond(&response, response_data);
         });
         /// @brief Get a range of user ids with a given min and max value.
-        this->server->Get("/user/ids/:min/:max", [&](Request request, Response& response){
+        Get("/user/ids/:min/:max", [&](Request request, Response& response){
             json response_data;
             auto min = stoi(request.path_params["min"]);
             auto max = stoi(request.path_params["max"]);
@@ -81,12 +81,12 @@ class Users : public Route {
             respond(&response, response_data);
         });
         /// @brief Gets all user ids.
-        this->server->Get("/user/ids", [&](Request request, Response& response){
+        Get("/user/ids", [&](Request request, Response& response){
             json data = db["users"].get_where();
             respond(&response, data);
         });
         /// @brief Authenticate a user.
-        this->server->Post("/user/auth", [&](Request request, Response& response){
+        Post("/user/auth", [&](Request request, Response& response){
             auto body = json::parse(request.body);
             auto username = body["username"].get<string>();
             auto password = body["password"].get<string>();
@@ -108,9 +108,9 @@ class Users : public Route {
             } else {
                 respond(&response, string("Invalid Credentials!"), 403);
             }
-        });
+        }, {"username", "password"});
         /// @brief Register a new user into the system.
-        this->server->Post("/user/register", [&](Request request, Response& response){
+        Post("/user/register", [&](Request request, Response& response){
             auto body = json::parse(request.body);
             auto username = body["username"].get<string>();
             auto password = body["password"].get<string>();
@@ -134,9 +134,9 @@ class Users : public Route {
             } else {
                 respond(&response, string("Username is already taken!"), 400);
             }
-        });
+        }, {"username", "password"});
         /// @brief Updates or creates a user's userdata with new values.
-        this->server->Post("/user/data/update", [&](Request request, Response& response){
+        Post("/user/data/update", [&](Request request, Response& response){
             auto body = json::parse(request.body);
             auto token = body["token"].get<std::string>();
             auto uid = user_id_from_token(token);
@@ -154,6 +154,6 @@ class Users : public Route {
             } else {
                 respond(&response, string("Token does not match expected value!"), 403);
             }
-        });
+        }, {"token", "data"});
     }
 };

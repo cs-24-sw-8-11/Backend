@@ -77,6 +77,16 @@ class Route {
         response->set_content(data, "text/plain");
     }
 
+    bool validate(Request request, vector<string> format){
+        json body = json::parse(request.body);
+        for(auto key : format){
+            if(!body.contains(key)){
+                return false;
+            }
+        }
+        return true;
+    }
+
 
  public:
     /// @brief Constructs a route object with references to the http server and the database.
@@ -91,5 +101,27 @@ class Route {
     virtual void init() {
         cerr << "Error, called unimplemented run method" << endl;
         throw exception();
+    }
+
+    void Get(string name, function<void(Request, Response&)> handler){
+        this->server->Get(name, handler);
+    }
+
+    void Post(string name, function<void(Request, Response&)> handler, vector<string> format){
+        server->Post(name, [&](Request request, Response& response){
+            if(this->validate(request, format))
+                return handler(request, response);
+            else {
+                stringstream out;
+                out << '[';
+                for(auto key : format)
+                    out << key;
+                out << ']';
+                this->respond(&response, std::format("Error, malformed input! expected input keys: {}", out.str()), 400);
+            }
+        });
+    }
+    void Delete(string name, function<void(Request, Response&)> handler) {
+        server->Delete(name, handler);
     }
 };
