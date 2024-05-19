@@ -17,10 +17,10 @@ jobs:
           with:
             version: latest
             platform: x64
+        - uses: hendrikmuhs/ccache-action@v1.2.11
         - uses: actions/checkout@v4.1.1
           with:
               submodules: recursive
-        - uses: hendrikmuhs/ccache-action@v1.2.11
         - name: build
           run: cmake -B .ccache && cmake --build .ccache
           env:
