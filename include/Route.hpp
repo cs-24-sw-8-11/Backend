@@ -123,7 +123,8 @@ class Route {
             }
         });
     }
-    void _delete(string name, function<void(Request, Response&)> handler) {
+    // Name can't be delete, as its a reserved keyword
+    void delete_request(string name, function<void(Request, Response&)> handler) {
         server->Delete(name, handler);
     }
 };

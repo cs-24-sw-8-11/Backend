@@ -82,7 +82,7 @@ class Journals : public Route {
             respond(&response, response_data);
         });
         /// @brief Deletes a journal from the system with a given journal id.
-        _delete("/journals/delete/:jid/:token", [&](Request request, Response& response){
+        delete_request("/journals/delete/:jid/:token", [&](Request request, Response& response){
             auto token = request.path_params["token"];
             auto uid = user_id_from_token(token);
             auto jid = stoi(request.path_params["jid"]);
