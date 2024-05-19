@@ -20,6 +20,9 @@ jobs:
         - uses: actions/checkout@v4.1.1
           with:
               submodules: recursive
+        - uses: hendrikmuhs/ccache-action@v1.2.11
+          with:
+            create-symlink: true
         - name: build
           run: cmake -B .ccache && cmake --build .ccache
           env:
@@ -88,6 +91,6 @@ jobs:
             - name: setup-env
               run: sudo apt install sqlite3 curl jq python-is-python3
             - name: setup-venv
-              run: python -m venv venv && source venv/bin/activate && pip install torch transformers
+              run: python -m venv venv && source venv/bin/activate && pip install transformers
             - name: run-test
               run: bash ./tests/api-test.sh .ccache

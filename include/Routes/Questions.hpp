@@ -43,7 +43,7 @@ class Questions : public Route {
 
                 while (response_data.size() < 5) {
                     auto row = db["questions"].get(qids[randint(qids.size())]);
-                    if (row["tags"] == "default") 
+                    if (row["tags"] == "default")
                         continue;
                     response_data.push_back(row);
                 }

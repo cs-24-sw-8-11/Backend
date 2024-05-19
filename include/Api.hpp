@@ -65,15 +65,15 @@ class Api {
 
         server->set_exception_handler([](const auto& req, auto& res, std::exception_ptr e_ptr){
             json response_data;
-            try{
+            try {
                 rethrow_exception(e_ptr);
             }
-            catch(DbException& e){
+            catch (DbException& e) {
                 loge("Database exception!");
                 loge("why: {}", e.what());
                 response_data["error"] = e.what();
             }
-            catch (exception& e){
+            catch (exception& e) {
                 loge("Unknown exception");
                 loge("why: {}", e.what());
                 response_data["error"] = e.what();
