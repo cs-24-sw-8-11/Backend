@@ -157,22 +157,35 @@ class ThreadPool {
         return map(workers);
     }
 };
-map<string, string> run_cmd(string command) {
-    map<string, string> result;
-    auto stdout_path = "/tmp/p8_backend_stdout";
-    auto stderr_path = "/tmp/p8_backend_stderr";
-    auto final_command = format("bash -c '{} 2> {} 1> {}'", command, stderr_path, stdout_path);
-    auto error_code = system(final_command.c_str());
-    ifstream stdout_file{stdout_path};
-    ifstream stderr_file{stdout_path};
-    stdout_file >> result["stdout"];
-    stderr_file >> result["stderr"];
-    if (error_code) {
-        cout << "command: " << final_command << endl;
-        cout << "stdout:  " << result["stdout"] << endl;
-        cout << "stderr:  " << result["stderr"] << endl;
+class RunCommandException : public exception {
+    string why;
+ public:
+    explicit RunCommandException(string why) : why(why) {}
+    string what(){
+        return why;
     }
-    return result;
+};
+map<string, string> run_cmd(string command) {
+    try {
+        map<string, string> result;
+        auto stdout_path = "/tmp/p8_backend_stdout";
+        auto stderr_path = "/tmp/p8_backend_stderr";
+        auto final_command = format("bash -c '{} 2> {} 1> {}'", command, stderr_path, stdout_path);
+        auto error_code = system(final_command.c_str());
+        ifstream stdout_file{stdout_path};
+        ifstream stderr_file{stdout_path};
+        stdout_file >> result["stdout"];
+        stderr_file >> result["stderr"];
+        if (error_code) {
+            cout << "command: " << final_command << endl;
+            cout << "stdout:  " << result["stdout"] << endl;
+            cout << "stderr:  " << result["stderr"] << endl;
+        }
+        return result;
+    }
+    catch (exception& e) {
+        throw RunCommandException("fuck");
+    }
 }
 
 template<typename K, typename V>
