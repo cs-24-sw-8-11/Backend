@@ -92,6 +92,6 @@ jobs:
             - name: setup-env
               run: sudo apt install sqlite3 curl jq python-is-python3
             - name: setup-venv
-              run: python -m venv venv && source venv/bin/activate && pip install transformers
+              run: python -m venv venv && source venv/bin/activate && pip install transformers torch
             - name: run-test
-              run: bash ./tests/api-test.sh build -vvvvv
+              run: source venv/bin/activate && bash ./tests/api-test.sh build -vvvvv
