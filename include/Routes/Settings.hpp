@@ -31,9 +31,7 @@ class Settings : public Route {
             for (auto setting : settings) {
                 json data;
                 auto row = db["settings"].get(setting);
-                for (auto key : row.keys()) {
-                    data[key] = row[key];
-                }
+                data = row;
                 response_data.push_back(data);
             }
             respond(&response, response_data);

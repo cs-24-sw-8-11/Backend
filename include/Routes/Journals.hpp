@@ -59,9 +59,8 @@ class Journals : public Route {
                 return respond(&response, response_data, 400);
             }
             auto journal = db["journals"].get(jid);
-            for (auto key : journal.keys()) {
-                response_data[key] = journal[key];
-            }
+            response_data = journal;
+
             response_data["answers"] = db["answers"].get_where(
                 "journalId",
                 jid);

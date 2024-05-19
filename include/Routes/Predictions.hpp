@@ -35,9 +35,7 @@ class Predictions : public Route {
                 for (auto prediction : predictions) {
                     auto row = db["predictions"].get(prediction);
                     json data;
-                    for (auto key : row.keys()) {
-                        data[key] = row[key];
-                    }
+                    data = row;
                     result.push_back(data);
                 }
             } else {

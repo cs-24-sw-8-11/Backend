@@ -28,9 +28,8 @@ class Mitigations : public Route {
                 return respond(&response, response_data, 400);
             }
             auto mitigations = db["mitigations"].get(mid);
-            for (auto key : mitigations.keys()) {
-                response_data[key] = mitigations[key];
-            }
+            response_data = mitigations;
+
             respond(&response, response_data);
         });
         /// @brief Returns a specific mitigation with a given id.
@@ -59,9 +58,7 @@ class Mitigations : public Route {
                 for (distinct = mitigations.begin(); distinct != mitigations.end(); ++distinct) {
                     auto mitigation = db["mitigations"].get(*distinct);
                     json data;
-                    for (auto key : mitigation.keys()) {
-                        data[key] = mitigation[key];
-                    }
+                    data = mitigation;
                     response_data.push_back(data);
                 }
                 respond(&response, response_data);
@@ -90,8 +87,7 @@ class Mitigations : public Route {
                 auto mitigation = db["mitigations"].get(mid);
 
                 json data;
-                for (auto key : mitigation.keys())
-                    data[key] = mitigation[key];
+                data = mitigation;
 
                 response_data["data"] = data;
                 respond(&response, response_data);

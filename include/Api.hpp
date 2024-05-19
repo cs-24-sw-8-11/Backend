@@ -14,6 +14,7 @@
 #include "Users.hpp"
 #include "Mitigations.hpp"
 #include "Tests.hpp"
+#include "Database.hpp"
 
 #include "Globals.hpp"
 
@@ -46,7 +47,7 @@ class Api {
 
         log<IMPORTANT>("Initialized routes and endpoints");
         /// @brief Initializes the logger that prints out every request.
-        server->set_logger([](httplib::Request req, const Response& res) {
+        server->set_logger([](const auto& req, const auto& res) {
             string red = "\033[38;2;255;0;0m";
             string green = "\033[38;2;0;255;0m";
             stringstream ss;
@@ -61,6 +62,28 @@ class Api {
             log("{}", ss.str());
         });
         log<DEBUG>("Initialized logger");
+
+        server->set_exception_handler([](const auto& req, auto& res, std::exception_ptr e_ptr){
+            json response_data;
+            try {
+                rethrow_exception(e_ptr);
+            }
+            catch (DbException& e) {
+                loge("Database exception!");
+                loge("why: {}", e.what());
+                response_data["error"] = e.what();
+            }
+            catch (exception& e) {
+                loge("Unknown exception");
+                loge("why: {}", e.what());
+                response_data["error"] = e.what();
+            }
+            res.set_content(to_string(response_data), "application/json");
+            res.status = 500;
+        });
+
+        log<DEBUG>("Initialized exception handler");
+
         log("Starting server on localhost: {}", port);
         server->listen("localhost", port);
     }

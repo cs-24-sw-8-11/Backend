@@ -27,9 +27,7 @@ class Answers : public Route {
             auto allowedToGetAnswer = authedUsers[stoi(db["journals"].get(
                 stoi(answer["journalId"]))["userId"])] == token;
             if (allowedToGetAnswer) {
-                for (auto key : answer.keys()) {
-                    response_data[key] = answer[key];
-                }
+                response_data = answer;
             } else {
                 response_data["error"] = "Not allowed to access other users' answers!";
             }
