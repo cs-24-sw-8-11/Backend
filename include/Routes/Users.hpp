@@ -111,25 +111,36 @@ class Users : public Route {
         }, {"username", "password"});
         /// @brief Register a new user into the system.
         post("/user/register", [&](Request request, Response& response){
+            log<DEBUG>();
             auto body = json::parse(request.body);
+            log<DEBUG>();
             auto username = body["username"].get<string>();
+            log<DEBUG>();
             auto password = body["password"].get<string>();
+            log<DEBUG>();
             auto alreadyRegistered = db["users"].get_where(
                 "username",
                 username).size() > 0;
+            log<DEBUG>();
             // we dont want empty usernames and passwords
             if (username.size() > 0 &&
                 password.size() > 0 &&
                 !alreadyRegistered) {
+            log<DEBUG>();
                 auto hash = make_hash(username, password);
+            log<DEBUG>();
                 auto token = to_string(hash);
+            log<DEBUG>();
                 auto userid = db["users"].add({
                     {"username", username},
                     {"password", token},
                     {"state", to_string(TRAINING)}
                 });
+            log<DEBUG>();
                 authedUsers[userid] = token;
+            log<DEBUG>();
                 default_settings(userid);
+            log<DEBUG>();
                 respond(&response, token);
             } else {
                 respond(&response, string("Username is already taken!"), 400);

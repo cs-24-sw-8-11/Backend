@@ -11,7 +11,7 @@ jobs:
       runs-on: ubuntu-24.04
       steps:
         - name: install dependencies
-          run: sudo apt install cmake sqlite3
+          run: sudo apt install cmake sqlite3 cppcheck
         - name: setup gcc
           uses: egor-tensin/setup-gcc@v1
           with:
