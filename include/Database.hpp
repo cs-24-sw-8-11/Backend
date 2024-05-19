@@ -24,10 +24,10 @@ enum JournalType {
     PREDICTION_JOURNAL
 };
 
-class DBException : public exception {
+class DbException : public exception {
     string why;
  public:
-    explicit DBException(string why) {
+    explicit DbException(string why) {
         this->why = why;
     }
     string what() {
@@ -118,7 +118,7 @@ class Database {
 
     Table operator[](string key){
         if (!tables.contains(key))
-            throw DBException(format("No such table {} exists", key));
+            throw DbException(format("No such table {} exists", key));
         return tables[key];
     }
 };
