@@ -60,7 +60,7 @@ class Journals : public Route {
             }
             auto journal = db["journals"].get(jid);
             response_data = journal;
-            
+
             response_data["answers"] = db["answers"].get_where(
                 "journalId",
                 jid);

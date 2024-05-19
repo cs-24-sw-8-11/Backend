@@ -27,10 +27,10 @@ enum JournalType {
 class DBException : public exception {
     string why;
  public:
-    DBException(string why){
+    explicit DBException(string why) {
         this->why = why;
     }
-    string what(){
+    string what() {
         return why;
     }
 };
@@ -117,7 +117,7 @@ class Database {
     }
 
     Table operator[](string key){
-        if(!tables.contains(key))
+        if (!tables.contains(key))
             throw DBException(format("No such table {} exists", key));
         return tables[key];
     }

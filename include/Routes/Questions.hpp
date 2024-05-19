@@ -40,8 +40,8 @@ class Questions : public Route {
             json response_data;
             if (db["questions"].get_where("tags", tag).size() == 0) {
                 auto qids = db["questions"].get_where();
-                
-                while(response_data.size() < 5) {
+
+                while (response_data.size() < 5) {
                     auto row = db["questions"].get(qids[randint(qids.size())]);
                     if (row["tags"] == "default")
                         continue;

@@ -29,7 +29,7 @@ class Mitigations : public Route {
             }
             auto mitigations = db["mitigations"].get(mid);
             response_data = mitigations;
-            
+
             respond(&response, response_data);
         });
         /// @brief Returns a specific mitigation with a given id.
