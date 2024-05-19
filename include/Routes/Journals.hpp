@@ -22,7 +22,7 @@ class Journals : public Route {
     void init() override {
         /// @brief Submits a new journal to the system
         this->server->Post("/journals/new", [&](Request request, Response& response){
-            throw exception();
+            throw exception(); 
             auto time = chrono::duration_cast<chrono::seconds>(chrono::system_clock::now().time_since_epoch()).count();
             auto body = json::parse(request.body);
             auto token = body["token"].get<string>();
