@@ -86,6 +86,8 @@ jobs:
                 create-symlink: true
                 save: false
             - name: setup-env
-              run: sudo apt install sqlite3 curl jq python3-transformers python3-pytorch python-is-python3
+              run: sudo apt install sqlite3 curl jq python-is-python3
+            - name: setup-venv
+              run: python -m venv venv && source venv/bin/activate && pip install pytorch transformers
             - name: run-test
               run: bash ./tests/api-test.sh .ccache
