@@ -77,9 +77,10 @@ class Route {
         response->set_content(data, "text/plain");
     }
 
-    bool validate(Request request, vector<string> format){
+    bool validate(Request& request, vector<string> body_format){
         json body = json::parse(request.body);
-        for(auto key : format){
+        log<DEBUG>("Checking keys");
+        for(auto key : body_format){
             if(!body.contains(key)){
                 return false;
             }
@@ -107,15 +108,16 @@ class Route {
         this->server->Get(name, handler);
     }
 
-    void Post(string name, function<void(Request, Response&)> handler, vector<string> format){
-        server->Post(name, [&](Request request, Response& response){
-            if(this->validate(request, format))
+    void Post(string name, function<void(Request, Response&)> handler, vector<string> body_format){
+        server->Post(name, [body_format, this, handler](Request request, Response& response){
+            log<DEBUG>("validating input...");
+            if(this->validate(request, body_format))
                 return handler(request, response);
             else {
                 stringstream out;
                 out << '[';
-                for(auto key : format)
-                    out << key;
+                for(auto key : body_format)
+                    out << '"' << key << '"' << ',';
                 out << ']';
                 this->respond(&response, std::format("Error, malformed input! expected input keys: {}", out.str()), 400);
             }
