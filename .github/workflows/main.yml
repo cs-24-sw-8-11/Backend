@@ -91,4 +91,4 @@ jobs:
             - name: setup-venv
               run: python -m venv venv && source venv/bin/activate && pip install transformers
             - name: run-test
-              run: bash ./tests/api-test.sh .ccache
+              run: bash ./tests/api-test.sh .ccache -vvvvv
