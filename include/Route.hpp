@@ -123,7 +123,7 @@ class Route {
             }
         });
     }
-    void _Delete(string name, function<void(Request, Response&)> handler) {
+    void _delete(string name, function<void(Request, Response&)> handler) {
         server->Delete(name, handler);
     }
 };
