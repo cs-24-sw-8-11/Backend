@@ -48,7 +48,7 @@ namespace P8 {
         auto input = format(fmt , forward<Args>(args)...);
         writefile(input);
 
-        auto intensity = 0xff - (V * (0xff/(INFO*4)));
+        auto intensity = 0xff - (V * (0xff/(INFO*2)));
         if (verbosity >= V) {
             cout << start_line(filename, line) << color(intensity, intensity, intensity) << input << "\033[0m" << endl;
         }
@@ -64,7 +64,7 @@ namespace P8 {
         auto input = format(fmt, forward<Args>(args)...);
         writefile(input);
 
-        auto intensity = 0xff - (V * (0xff/(INFO*4)));
+        auto intensity = 0xff - (V * (0xff/(INFO*2)));
         if (verbosity >= V) {
             cerr << start_line(filename, line) << color(intensity, 0, 0) << input << "\033[0m" << endl;
         }
@@ -75,7 +75,7 @@ namespace P8 {
         auto input = format(fmt, forward<Args>(args)...);
         writefile(input);
 
-        auto intensity = 0xff - (V * (0xff/(INFO*4)));
+        auto intensity = 0xff - (V * (0xff/(INFO*2)));
         if (verbosity >= V) {
             cout << start_line(filename, line) << color(intensity, intensity, 0) << input << "\033[0m" << endl;
         }
