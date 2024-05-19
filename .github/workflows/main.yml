@@ -79,11 +79,13 @@ jobs:
         runs-on: ubuntu-24.04
         steps:
             - uses: actions/checkout@v4.1.1
+              with:
+                submodules: recursive
             - uses: hendrikmuhs/ccache-action@v1.2.11
               with:
                 create-symlink: true
                 save: false
             - name: setup-env
-              run: sudo apt install sqlite3 curl jq
+              run: sudo apt install sqlite3 curl jq && pip3 install transformers pytorch
             - name: run-test
               run: bash ./tests/api-test.sh .ccache
