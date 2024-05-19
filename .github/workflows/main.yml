@@ -21,8 +21,6 @@ jobs:
           with:
               submodules: recursive
         - uses: hendrikmuhs/ccache-action@v1.2.11
-          with:
-            create-symlink: true
         - name: build
           run: cmake -B .ccache && cmake --build .ccache
           env:
