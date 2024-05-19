@@ -88,6 +88,6 @@ jobs:
             - name: setup-env
               run: sudo apt install sqlite3 curl jq python-is-python3
             - name: setup-venv
-              run: python -m venv venv && source venv/bin/activate && pip install pytorch transformers
+              run: python -m venv venv && source venv/bin/activate && pip install torch transformers
             - name: run-test
               run: bash ./tests/api-test.sh .ccache
