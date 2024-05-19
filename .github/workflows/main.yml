@@ -94,4 +94,4 @@ jobs:
             - name: setup-venv
               run: python -m venv venv && source venv/bin/activate && pip install transformers
             - name: run-test
-              run: bash ./tests/api-test.sh build -vvvvv
+              run: source venv/bin/activate && bash ./tests/api-test.sh build -vvvvv
