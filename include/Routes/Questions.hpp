@@ -29,9 +29,7 @@ class Questions : public Route {
             for (auto i : questions) {
                 auto question = db["questions"].get(i);
                 json data;
-                for (auto key : question.keys()) {
-                    data[key] = question[key];
-                }
+                data = question;
                 response_data.push_back(data);
             }
             respond(&response, response_data);
@@ -39,19 +37,24 @@ class Questions : public Route {
         /// @brief Returns all the questions with a given tag.
         this->server->Get("/questions/get/:tag", [&](Request request, Response& response){
             auto tag = request.path_params["tag"];
+            json response_data;
             if (db["questions"].get_where("tags", tag).size() == 0) {
-                json response_data;
-                response_data["error"] = "No Questions With that Tag.";
-                return respond(&response, response_data, 400);
+                auto qids = db["questions"].get_where();
+
+                while (response_data.size() < 5) {
+                    auto row = db["questions"].get(qids[randint(qids.size())]);
+                    if (row["tags"] == "default")
+                        continue;
+                    response_data.push_back(row);
+                }
+
+                return respond(&response, response_data);
             }
             auto questions = db["questions"].get_where("tags", tag);
-            json response_data;
             for (auto i : questions) {
                 auto question = db["questions"].get(i);
                 json data;
-                for (auto key : question.keys()) {
-                    data[key] = question[key];
-                }
+                data = question;
                 response_data.push_back(data);
             }
             respond(&response, response_data);

@@ -17,11 +17,15 @@ jobs:
           with:
             version: latest
             platform: x64
+        - uses: actions/cache@v4
+          with:
+            path: build
+            key: cmake
         - uses: actions/checkout@v4.1.1
           with:
               submodules: recursive
         - name: build
-          run: cmake -B .ccache && cmake --build .ccache
+          run: cmake -B build && cmake --build build
           env:
               CXX: g++-13
     format:
@@ -49,41 +53,45 @@ jobs:
         runs-on: ubuntu-24.04
         steps:
             - uses: actions/checkout@v4.1.1
-            - uses: hendrikmuhs/ccache-action@v1.2.11
+            - uses: actions/cache/restore@v4
               with:
-                create-symlink: true
-                save: false
+                path: build
+                key: cmake
             - name: setup-env
               run: sudo apt install sqlite3
             - name: test-all
-              run: ctest --test-dir .ccache
+              run: ctest --test-dir build
     valgrind:
         needs: build
         runs-on: ubuntu-24.04
         steps:
             - uses: actions/checkout@v4.1.1
-            - uses: hendrikmuhs/ccache-action@v1.2.11
+            - uses: actions/cache/restore@v4
               with:
-                create-symlink: true
-                save: false
+                path: build
+                key: cmake
             - name: setup-env
               run: sudo apt install sqlite3 valgrind
             - name: test-database-tests
-              run: valgrind ./.ccache/bin/database_test
+              run: valgrind ./build/bin/database_test
             - name: test-utils-tests
-              run: valgrind ./.ccache/bin/utils_test
+              run: valgrind ./build/bin/utils_test
             - name: test-predictions-test
-              run: valgrind ./.ccache/bin/predictions_test
+              run: valgrind ./build/bin/predictions_test
     api-test:
         needs: build
         runs-on: ubuntu-24.04
         steps:
             - uses: actions/checkout@v4.1.1
-            - uses: hendrikmuhs/ccache-action@v1.2.11
               with:
-                create-symlink: true
-                save: false
+                submodules: recursive
+            - uses: actions/cache/restore@v4
+              with:
+                path: build
+                key: cmake
             - name: setup-env
-              run: sudo apt install sqlite3 curl jq
+              run: sudo apt install sqlite3 curl jq python-is-python3
+            - name: setup-venv
+              run: python -m venv venv && source venv/bin/activate && pip install transformers
             - name: run-test
-              run: bash ./tests/api-test.sh .ccache
+              run: bash ./tests/api-test.sh build -vvvvv
