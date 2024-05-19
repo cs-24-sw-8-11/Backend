@@ -9,7 +9,7 @@ class Tests : public Route {
     using Route::Route;
 
     void init() override {
-        Post("/tests/rate", [&](Request request, Response response){
+        post("/tests/rate", [&](Request request, Response response){
             auto body = json::parse(request.body);
             auto token = body["token"].get<string>();
             auto uid = user_id_from_token(token);

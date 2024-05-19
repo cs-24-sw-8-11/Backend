@@ -23,7 +23,7 @@ class Predictions : public Route {
     /// @brief Initializes the Prediction endpoints.
     void init() override {
         /// @brief Returns all predictions from a specific user.
-        Get("/predictions/get/:token", [&](Request request, Response& response){
+        get("/predictions/get/:token", [&](Request request, Response& response){
             auto token = request.path_params["token"];
             auto uid = user_id_from_token(token);
             json response_data;
@@ -46,7 +46,7 @@ class Predictions : public Route {
             respond(&response, response_data);
         });
         /// @brief Submits a prediction to the system.
-        Post("/predictions/add", [&](Request request, Response& response){
+        post("/predictions/add", [&](Request request, Response& response){
             auto body = json::parse(request.body);
             auto token = body["token"].get<string>();
             auto uid = user_id_from_token(token);

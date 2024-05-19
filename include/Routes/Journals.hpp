@@ -21,7 +21,7 @@ class Journals : public Route {
     /// @brief Initializes the Journal endpoints.
     void init() override {
         /// @brief Submits a new journal to the system
-        Post("/journals/new", [&](Request request, Response& response){
+        post("/journals/new", [&](Request request, Response& response){
             auto time = chrono::duration_cast<chrono::seconds>(chrono::system_clock::now().time_since_epoch()).count();
             auto body = json::parse(request.body);
             auto token = body["token"].get<string>();
@@ -51,7 +51,7 @@ class Journals : public Route {
             }
         }, {"token", "data"});
         /// @brief Returns a journal with a given journal id.
-        Get("/journals/get/:jid", [&](Request request, Response& response){
+        get("/journals/get/:jid", [&](Request request, Response& response){
             auto jid = stoi(request.path_params["jid"]);
             json response_data;
             if (jid <= 0 || db["journals"].get_where("id", jid).size() == 0) {
@@ -67,7 +67,7 @@ class Journals : public Route {
             respond(&response, response_data);
         });
         /// @brief Returns all the journal ids belonging to a specific user.
-        Get("/journals/ids/:token", [&](Request request, Response& response){
+        get("/journals/ids/:token", [&](Request request, Response& response){
             json response_data;
             auto token = request.path_params["token"];
             auto uid = user_id_from_token(token);
@@ -82,7 +82,7 @@ class Journals : public Route {
             respond(&response, response_data);
         });
         /// @brief Deletes a journal from the system with a given journal id.
-        Delete("/journals/delete/:jid/:token", [&](Request request, Response& response){
+        _delete("/journals/delete/:jid/:token", [&](Request request, Response& response){
             auto token = request.path_params["token"];
             auto uid = user_id_from_token(token);
             auto jid = stoi(request.path_params["jid"]);

@@ -30,8 +30,8 @@ class Users : public Route {
     using Route::Route;
     /// @brief Initializes the User endpoints.
     void init() override {
-        /// @brief Gets the userdata of a user.
-        Get("/user/get/:token", [&](Request request, Response& response){
+        /// @brief gets the userdata of a user.
+        get("/user/get/:token", [&](Request request, Response& response){
             json response_data;
             auto token = request.path_params["token"];
             auto uid = user_id_from_token(token);
@@ -59,8 +59,8 @@ class Users : public Route {
 
             respond(&response, response_data);
         });
-        /// @brief Get a range of user ids with a given min and max value.
-        Get("/user/ids/:min/:max", [&](Request request, Response& response){
+        /// @brief get a range of user ids with a given min and max value.
+        get("/user/ids/:min/:max", [&](Request request, Response& response){
             json response_data;
             auto min = stoi(request.path_params["min"]);
             auto max = stoi(request.path_params["max"]);
@@ -80,13 +80,13 @@ class Users : public Route {
             response_data = filteredUsers;
             respond(&response, response_data);
         });
-        /// @brief Gets all user ids.
-        Get("/user/ids", [&](Request request, Response& response){
+        /// @brief gets all user ids.
+        get("/user/ids", [&](Request request, Response& response){
             json data = db["users"].get_where();
             respond(&response, data);
         });
         /// @brief Authenticate a user.
-        Post("/user/auth", [&](Request request, Response& response){
+        post("/user/auth", [&](Request request, Response& response){
             auto body = json::parse(request.body);
             auto username = body["username"].get<string>();
             auto password = body["password"].get<string>();
@@ -110,7 +110,7 @@ class Users : public Route {
             }
         }, {"username", "password"});
         /// @brief Register a new user into the system.
-        Post("/user/register", [&](Request request, Response& response){
+        post("/user/register", [&](Request request, Response& response){
             auto body = json::parse(request.body);
             auto username = body["username"].get<string>();
             auto password = body["password"].get<string>();
@@ -136,7 +136,7 @@ class Users : public Route {
             }
         }, {"username", "password"});
         /// @brief Updates or creates a user's userdata with new values.
-        Post("/user/data/update", [&](Request request, Response& response){
+        post("/user/data/update", [&](Request request, Response& response){
             auto body = json::parse(request.body);
             auto token = body["token"].get<std::string>();
             auto uid = user_id_from_token(token);

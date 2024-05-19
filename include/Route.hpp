@@ -104,11 +104,11 @@ class Route {
         throw exception();
     }
 
-    void Get(string name, function<void(Request, Response&)> handler) {
+    void get(string name, function<void(Request, Response&)> handler) {
         this->server->Get(name, handler);
     }
 
-    void Post(string name, function<void(Request, Response&)> handler, vector<string> body_format) {
+    void post(string name, function<void(Request, Response&)> handler, vector<string> body_format) {
         server->Post(name, [body_format, this, handler](Request request, Response& response) {
             log<DEBUG>("validating input...");
             if (this->validate(request, body_format)) {
@@ -123,7 +123,7 @@ class Route {
             }
         });
     }
-    void Delete(string name, function<void(Request, Response&)> handler) {
+    void _Delete(string name, function<void(Request, Response&)> handler) {
         server->Delete(name, handler);
     }
 };

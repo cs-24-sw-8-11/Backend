@@ -18,7 +18,7 @@ class Questions : public Route {
     /// @brief Initializes the Questions endpoints.
     void init() override {
         /// @brief Returns the default questions (those with the tag "default").
-        Get("/questions/defaults", [&](Request request, Response& response){
+        get("/questions/defaults", [&](Request request, Response& response){
             if (db["questions"].get_where("tags", "default").size() == 0) {
                 json response_data;
                 response_data["error"] = "Somehow there are no default questions???";
@@ -35,7 +35,7 @@ class Questions : public Route {
             respond(&response, response_data);
         });
         /// @brief Returns all the questions with a given tag.
-        Get("/questions/get/:tag", [&](Request request, Response& response){
+        get("/questions/get/:tag", [&](Request request, Response& response){
             auto tag = request.path_params["tag"];
             json response_data;
             if (db["questions"].get_where("tags", tag).size() == 0) {
@@ -59,7 +59,7 @@ class Questions : public Route {
             }
             respond(&response, response_data);
         });
-        Get("/questions/legend/:qid", [&](Request request, Response& response){
+        get("/questions/legend/:qid", [&](Request request, Response& response){
             auto qid = request.path_params["qid"];
             auto lids = db["legends"].get_where("questionId", stoi(qid));
             vector<Row> legends;

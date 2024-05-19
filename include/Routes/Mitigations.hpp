@@ -20,7 +20,7 @@ class Mitigations : public Route {
     /// @brief Initializes the Mitigations endpoints.
     void init() override {
         /// @brief Returns a specific mitigation with a given id.
-        Get("/mitigations/get/:mid", [&](Request request, Response& response){
+        get("/mitigations/get/:mid", [&](Request request, Response& response){
             auto mid = stoi(request.path_params["mid"]);
             json response_data;
             if (mid <= 0 || db["mitigations"].get_where("id", mid).size() == 0) {
@@ -33,7 +33,7 @@ class Mitigations : public Route {
             respond(&response, response_data);
         });
         /// @brief Returns a specific mitigation with a given id.
-        Get("/mitigations/tags/:tag", [&](Request request, Response& response){
+        get("/mitigations/tags/:tag", [&](Request request, Response& response){
             auto tagparam = request.path_params["tag"];
             auto tags = split_string(tagparam);
             json response_data;
@@ -67,7 +67,7 @@ class Mitigations : public Route {
                 respond(&response, response_data, 400);
             }
         });
-        Get("/mitigations/new/:token", [&](Request request, Response& response) {
+        get("/mitigations/new/:token", [&](Request request, Response& response) {
             json response_data;
             auto token = request.path_params["token"];
             auto uid = user_id_from_token(token);
