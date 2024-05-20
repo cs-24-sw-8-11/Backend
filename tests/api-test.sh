@@ -73,7 +73,7 @@ mitigation=$(echo "$mitigations" | jq -r .[0].title)
 curated_mitigation=$(curl -s -X 'GET' $addr/mitigations/new/$token)
 
 # /journals/delete/<jid>/<token>
-#curl -s -X 'DELETE' $addr/journals/delete/$jid/$token
+curl -s -X 'DELETE' $addr/journals/delete/$jid/$token
 
 pkill backend
 
