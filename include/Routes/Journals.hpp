@@ -38,9 +38,13 @@ class Journals : public Route {
                     auto meta = entry["meta"].get<string>();
                     auto rating = entry["rating"].get<string>();
                     // run sentiment analysis on answer
-                    auto result = split_string(run_cmd(format("python ./lib/datasets/sentiment_analysis.py \"{}\" \"{}\"", meta, question))["stdout"], "\n");
-                    auto meta_value = result[0];
-                    auto question_value = result[1];
+                    auto analysis = run_cmd(format("python ./lib/datasets/sentiment_analysis.py \"{}\" \"{}\"", meta, question));
+                    auto sa_stdout = split_string(analysis["stdout"], "\n");
+                    if (sa_stdout.size() < 2) {
+                        continue;
+                    }
+                    auto meta_value = sa_stdout[0];
+                    auto question_value = sa_stdout[1];
                     auto final_value = mean({stod(question_value), stod(meta_value)});
                     db["answers"].add({
                         {"value", to_string(final_value)},
