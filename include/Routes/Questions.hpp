@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ranges>
 #include <vector>
 
 #include "Route.hpp"
@@ -40,11 +41,17 @@ class Questions : public Route {
             json response_data;
             if (db["questions"].get_where("tags", tag).size() == 0) {
                 auto qids = db["questions"].get_where();
+                vector<int> chosen_ids;
 
                 while (response_data.size() < 5) {
-                    auto row = db["questions"].get(qids[randint(qids.size())]);
+                    auto qid = qids[randint(qids.size())];
+                    if (any_of(chosen_ids.begin(), chosen_ids.end(), [qid](int x){return x == qid;})) {
+                        continue;
+                    }
+                    auto row = db["questions"].get(qid);
                     if (row["tags"] == "default")
                         continue;
+
                     response_data.push_back(row);
                 }
 
