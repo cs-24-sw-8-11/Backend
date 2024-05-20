@@ -35,14 +35,23 @@ class Journals : public Route {
                 });
                 for (auto entry : list) {
                     auto qid = entry["qid"].get<string>();
+                    auto question = db["questions"].get(stoi(qid))["question"];
                     auto meta = entry["meta"].get<string>();
                     auto rating = entry["rating"].get<string>();
                     // run sentiment analysis on answer
                     increment_running(userid);
-                    sentiment_threads[userid].push_back(thread([meta, this, rating, jid, qid, userid]() {
-                        auto result = run_cmd(format("python ./lib/datasets/sentiment_analysis.py \"{}\"", meta))["stdout"];
-                        this->db["answers"].add({
-                            {"value", result},
+                    sentiment_threads[userid].push_back(thread([meta, this, rating, jid, qid, userid, question]() {
+                        auto analysis = run_cmd(format("python ./lib/datasets/sentiment_analysis.py \"{}\" \"{}\"", meta, question));
+                        auto sa_stdout = split_string(analysis["stdout"], "\n");
+                        if (sa_stdout.size() < 2) {
+                            decrement_running(userid);
+                            return;
+                        }
+                        auto meta_value = sa_stdout[0];
+                        auto question_value = sa_stdout[1];
+                        auto final_value = mean({stod(question_value), stod(meta_value)});
+                        db["answers"].add({
+                            {"value", to_string(final_value)},
                             {"rating", to_string(stod(rating)/5.0)},
                             {"journalId", to_string(jid)},
                             {"questionId", qid}

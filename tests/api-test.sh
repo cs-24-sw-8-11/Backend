@@ -76,6 +76,12 @@ curated_mitigation=$(curl -s -X 'GET' $addr/mitigations/new/$token)
 #curl -s -X 'DELETE' $addr/journals/delete/$jid/$token
 
 pkill backend
+
+echo "STDERR"
+cat /tmp/p8_backend_stderr
+echo "STDOUT"
+cat /tmp/p8_backend_stdout
+
 echo "---------------------TEST COMPLETE---------------------"
 # verify if all data is intact
 verify(){
