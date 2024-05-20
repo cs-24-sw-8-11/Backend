@@ -28,33 +28,39 @@ class Journals : public Route {
             auto token = body["token"].get<string>();
             auto userid = user_id_from_token(token);
             if (authedUsers[userid] == token) {
-                auto list = body["data"].get<vector<json>>();
-                auto jid = db["journals"].add({
-                    {"timestamp", to_string(time)},
-                    {"userId", to_string(userid)}
-                });
-                for (auto entry : list) {
-                    auto qid = entry["qid"].get<string>();
-                    auto question = db["questions"].get(stoi(qid))["question"];
-                    auto meta = entry["meta"].get<string>();
-                    auto rating = entry["rating"].get<string>();
-                    // run sentiment analysis on answer
-                    increment_running(userid);
-                    sentiment_threads[userid].push_back(thread([this](string question, string meta, int uid, int jid, int qid, string rating) {
+                increment_running(userid);
+                sentiment_threads[userid].push_back(thread([this](json body, int uid, int time) {
+                    auto list = body["data"].get<vector<json>>();
+                    vector<Row> rows;
+                    for (auto entry : list) {
+                        auto qid = entry["qid"].get<string>();
+                        auto question = db["questions"].get(stoi(qid))["question"];
+                        auto meta = entry["meta"].get<string>();
+                        auto rating = entry["rating"].get<string>();
+                        // run sentiment analysis on answer
                         log<DEBUG>("Question: {}", question);
                         log<DEBUG>("Answer:   {}", meta);
                         auto meta_value = run_cmd(format("python ./lib/datasets/sentiment_analysis.py \"{}\"", meta))["stdout"];
                         auto question_value = run_cmd(format("python ./lib/datasets/sentiment_analysis.py \"{}\"", question))["stdout"];
                         auto final_value = mean({stod(question_value), stod(meta_value)});
-                        db["answers"].add({
+
+                        rows.push_back({
                             {"value", to_string(final_value)},
                             {"rating", to_string(stod(rating)/5.0)},
-                            {"journalId", to_string(jid)},
-                            {"questionId", to_string(qid)}
+                            {"questionId", qid}
                         });
-                        decrement_running(uid);
-                    }, question, meta, userid, jid, stoi(qid), rating));
-                }
+                    }
+                    // wait until now with adding the journal to prevent failures during creation
+                    auto jid = db["journals"].add({
+                        {"timestamp", to_string(time)},
+                        {"userId", to_string(uid)}
+                    });
+                    for (auto row : rows) {
+                        row["journalId"] = jid;
+                        db["answers"].add(row);
+                    }
+                    decrement_running(uid);
+                }, body, userid, time));
                 respond(&response, string("Successfully created new journal."));
             } else {
                 respond(&response, string("Token does not match expected value!"), 403);
