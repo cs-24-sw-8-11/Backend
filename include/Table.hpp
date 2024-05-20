@@ -9,6 +9,8 @@
 #include <unordered_map>
 #include <algorithm>
 #include <memory>
+#include <thread>
+#include <mutex>
 
 #include "Globals.hpp"
 #include "Logger.hpp"
@@ -58,6 +60,7 @@ class Row : public map<string, string> {
     }
 };
 
+mutex table_mutex;
 
 /// @brief Data Structure for a table in the database.
 class Table {
@@ -76,9 +79,7 @@ class Table {
  public:
     Table() = default;
 
-    Table(string name,
-          vector<string> columns,
-          shared_ptr<SQLite::Database> db) {
+    Table(string name, vector<string> columns, shared_ptr<SQLite::Database> db) {
         this->name = name;
         this->columns = columns;
         this->db = db;
@@ -92,6 +93,7 @@ class Table {
             this->name,
             qs);
         SQLite::Statement query = make_statement(sql);
+        lock_guard guard{table_mutex};
         try {
             query.exec();
         }
@@ -102,6 +104,7 @@ class Table {
             format("SELECT id FROM {}",
             this->name));
         auto size = 0;
+        lock_guard guard(table_mutex);
         while (query.executeStep()) size++;
         return size;
     }
@@ -130,6 +133,7 @@ class Table {
             log<INFO>("Bound value at location: {} with value: {}", i+1, values[i]);
         }
         int id = -1;
+        lock_guard guard{table_mutex};
         try {
             query.exec();
             query2.executeStep();
@@ -146,6 +150,7 @@ class Table {
         query.bind(1, value);
         log<INFO>("Bound value at location: 1 with value: {}", value);
         vector<int> res;
+        lock_guard guard{table_mutex};
         try {
             while (query.executeStep()) {
                 res.push_back(query.getColumn("id").getInt());
@@ -159,6 +164,7 @@ class Table {
             format("SELECT id FROM {}",
             this->name));
         vector<int> res;
+        lock_guard guard{table_mutex};
         try {
             while (query.executeStep()) {
                 res.push_back(query.getColumn("id").getInt());
@@ -182,6 +188,7 @@ class Table {
             key));
         query.bind(1, value);
         vector<int> res;
+        lock_guard guard{table_mutex};
         try {
             while (query.executeStep()) {
                 res.push_back(query.getColumn("id").getInt());
@@ -197,6 +204,7 @@ class Table {
             this->name));
         query.bind(1, id);
         log<INFO>("Bound value at location: 1 with value: {}", id);
+        lock_guard guard{table_mutex};
         try {
             query.executeStep();
             auto colcnt = query.getColumnCount();
@@ -212,6 +220,7 @@ class Table {
             format("DELETE FROM {} WHERE id = ?", name));
         query.bind(1, id);
         log<INFO>("bound value at location: 1 with value: ", id);
+        lock_guard guard{table_mutex};
         try {
             query.exec();
         }
@@ -229,6 +238,7 @@ class Table {
             log<INFO>("bound value at location: 1 with value: ", value);
             query.bind(2, id);
             log<INFO>("bound value at location: 2 with value: ", id);
+        lock_guard guard{table_mutex};
             try {
                 query.exec();
             }

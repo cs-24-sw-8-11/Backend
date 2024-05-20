@@ -39,8 +39,8 @@ legends=$(curl -s -X 'GET' $addr/questions/legend/$qid)
 # /journals/new
 for i in $(seq 0 2); do
     curl -s -X 'POST' -d "$(cat ./files/testdata/journals.json | jq -rc "(.[$i].token = \"$token\")[$i]")" $addr/journals/new >> /dev/null
+    sleep 1
 done
-
 # /journals/ids/<token>
 jids=$(curl -s -X 'GET' $addr/journals/ids/$token)
 # get the one journal

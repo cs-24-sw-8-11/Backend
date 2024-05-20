@@ -19,6 +19,15 @@ class Answers : public Route {
             auto answerId = stoi(request.path_params["answerId"]);
             auto token = request.path_params["token"];
             json response_data;
+
+
+            // check if threads are running for the user:
+            if (get_running(user_id_from_token(token))) {
+                for (auto& thread : sentiment_threads[user_id_from_token(token)]) {
+                    thread.join();
+                }
+            }
+
             if (answerId <= 0 || db["answers"].get_where("id", answerId).size() == 0) {
                 response_data["error"] = "Invalid Answer Id.";
                 return respond(&response, response_data, 400);

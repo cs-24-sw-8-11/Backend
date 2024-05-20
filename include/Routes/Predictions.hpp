@@ -53,6 +53,14 @@ class Predictions : public Route {
             json response_data;
             if (authedUsers[uid] == token) {
                 auto jids = db["journals"].get_where("userId", uid);
+
+                // check if threads are running for the user:
+                if (get_running(uid)) {
+                    for (auto& thread : sentiment_threads[uid]) {
+                        thread.join();
+                    }
+                }
+
                 map<int, Row> journals;
                 auto now = chrono::duration_cast<chrono::seconds>(chrono::system_clock::now().time_since_epoch()).count();
                 for (auto jid : jids) {
