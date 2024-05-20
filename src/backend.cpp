@@ -1,4 +1,6 @@
+#include <time.h>
 #include <ranges>
+#include <cstdlib>
 #include <future>
 #include <iostream>
 #include <argparse/argparse.hpp>
@@ -52,6 +54,8 @@ Mode to_mode(string input) {
 }
 
 int main(int argc, char* argv[]) {
+    // set random seed
+    srand(time(0));
     argparse::ArgumentParser program("backend");
     program.add_argument("-v", "--verbose")
         .help("Increase verbosity")
