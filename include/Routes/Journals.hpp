@@ -1,11 +1,11 @@
 #pragma once
 
+#include <thread>
 #include <chrono>
 #include <vector>
 #include <string>
 #include "Route.hpp"
 #include <nlohmann/json.hpp>
-#include <thread>
 
 #include "Utils.hpp"
 
@@ -87,10 +87,11 @@ class Journals : public Route {
             auto uid = user_id_from_token(token);
 
             // check if threads are running for the user:
-            if(get_running(uid))
-                for(auto& thread : sentiment_threads[uid]){
+            if (get_running(uid)) {
+                for (auto& thread : sentiment_threads[uid]) {
                     thread.join();
                 }
+            }
 
             if (uid <= 0) {
                 response_data["error"] = "Invalid Token!";

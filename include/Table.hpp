@@ -64,7 +64,6 @@ mutex table_mutex;
 
 /// @brief Data Structure for a table in the database.
 class Table {
-
  private:
     string name;
     vector<string> columns;

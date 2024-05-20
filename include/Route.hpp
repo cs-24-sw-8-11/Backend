@@ -1,11 +1,11 @@
 #pragma once
 
 #include <httplib.h>
+#include <mutex>
 #include <memory>
 #include <vector>
 #include <string>
 #include <nlohmann/json.hpp>
-#include <mutex>
 
 #include "Database.hpp"
 #include "PredictionManager.hpp"
@@ -21,22 +21,22 @@ map<int, vector<thread>> sentiment_threads;
 
 mutex running_mutex;
 map<int, int> running_threads;
-void increment_running(int uid){
+void increment_running(int uid) {
     log<DEBUG>("Incrementing threads...");
     lock_guard guard{running_mutex};
-    if(running_threads.contains(uid))
+    if (running_threads.contains(uid))
         running_threads[uid]++;
     else
         running_threads[uid] = 1;
 }
-void decrement_running(int uid){
+void decrement_running(int uid) {
     log<DEBUG>("Decrementing threads...");
     lock_guard{running_mutex};
     running_threads[uid]--;
 }
-int get_running(int uid){
+int get_running(int uid) {
     lock_guard{running_mutex};
-    if(!running_threads.contains(uid))
+    if (!running_threads.contains(uid))
         running_threads[uid] = 0;
     return running_threads[uid];
 }
