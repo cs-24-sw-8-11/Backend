@@ -5,6 +5,7 @@
 #include <string>
 #include "Route.hpp"
 #include <nlohmann/json.hpp>
+#include <thread>
 
 #include "Utils.hpp"
 
@@ -37,13 +38,17 @@ class Journals : public Route {
                     auto meta = entry["meta"].get<string>();
                     auto rating = entry["rating"].get<string>();
                     // run sentiment analysis on answer
-                    auto result = run_cmd(format("python ./lib/datasets/sentiment_analysis.py \"{}\"", meta))["stdout"];
-                    db["answers"].add({
-                        {"value", result},
-                        {"rating", to_string(stod(rating)/5.0)},
-                        {"journalId", to_string(jid)},
-                        {"questionId", qid}
-                    });
+                    increment_running(userid);
+                    sentiment_threads[userid].push_back(thread([meta, this, rating, jid, qid, userid]() {
+                        auto result = run_cmd(format("python ./lib/datasets/sentiment_analysis.py \"{}\"", meta))["stdout"];
+                        this->db["answers"].add({
+                            {"value", result},
+                            {"rating", to_string(stod(rating)/5.0)},
+                            {"journalId", to_string(jid)},
+                            {"questionId", qid}
+                        });
+                        decrement_running(userid);
+                    }));
                 }
                 respond(&response, string("Successfully created new journal."));
             } else {
@@ -71,6 +76,13 @@ class Journals : public Route {
             json response_data;
             auto token = request.path_params["token"];
             auto uid = user_id_from_token(token);
+
+            // check if threads are running for the user:
+            if(get_running(uid))
+                for(auto& thread : sentiment_threads[uid]){
+                    thread.join();
+                }
+
             if (uid <= 0) {
                 response_data["error"] = "Invalid Token!";
                 return respond(&response, response_data, 400);
