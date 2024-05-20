@@ -182,8 +182,8 @@ map<string, string> run_cmd(string command) {
         result["stdout"] = out_stream.str();
         result["stderr"] = err_stream.str();
 
-        P8::_log<P8::DEBUG>("stdout: {}", result["stdout"]);
-        P8::_log<P8::DEBUG>("stderr: {}", result["stderr"]);
+        cout << "stdout: " << result["stdout"] << endl;
+        cout << "stderr: " << result["stderr"] << endl;
 
         return result;
     }
