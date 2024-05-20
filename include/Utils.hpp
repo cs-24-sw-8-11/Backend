@@ -12,6 +12,7 @@
 #include <memory>
 #include <string>
 #include <cctype>
+#include <sstream>
 
 using namespace std;
 
@@ -173,14 +174,17 @@ map<string, string> run_cmd(string command) {
         auto final_command = format("bash -c '{} 2> {} 1> {}'", command, stderr_path, stdout_path);
         auto error_code = system(final_command.c_str());
         ifstream stdout_file{stdout_path};
-        ifstream stderr_file{stdout_path};
-        stdout_file >> result["stdout"];
-        stderr_file >> result["stderr"];
-        if (error_code) {
-            cout << "command: " << final_command << endl;
-            cout << "stdout:  " << result["stdout"] << endl;
-            cout << "stderr:  " << result["stderr"] << endl;
-        }
+        ifstream stderr_file{stderr_path};
+        stringstream out_stream;
+        stringstream err_stream;
+        out_stream << stdout_file.rdbuf();
+        err_stream << stderr_file.rdbuf();
+        result["stdout"] = out_stream.str();
+        result["stderr"] = err_stream.str();
+
+        P8::_log<P8::DEBUG>("stdout: {}", result["stdout"]);
+        P8::_log<P8::DEBUG>("stderr: {}", result["stderr"]);
+
         return result;
     }
     catch (exception& e) {
