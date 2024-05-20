@@ -169,8 +169,10 @@ class RunCommandException : public exception {
 map<string, string> run_cmd(string command) {
     try {
         map<string, string> result;
-        auto stdout_path = "/tmp/p8_backend_stdout";
-        auto stderr_path = "/tmp/p8_backend_stderr";
+        char stdout_path[L_tmpnam];
+        char stderr_path[L_tmpnam];
+        tmpnam(stdout_path);
+        tmpnam(stderr_path);
         auto final_command = format("bash -c '{} 2> {} 1> {}'", command, stderr_path, stdout_path);
         auto error_code = system(final_command.c_str());
         ifstream stdout_file{stdout_path};
