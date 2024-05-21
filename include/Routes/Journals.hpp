@@ -31,32 +31,36 @@ class Journals : public Route {
                 increment_running(userid);
                 sentiment_threads[userid].push_back(thread([this](json body, int uid, int time) {
                     auto list = body["data"].get<vector<json>>();
-                    vector<Row> rows;
+                    vector<future<Row>> tasks;
                     for (auto entry : list) {
-                        auto qid = entry["qid"].get<string>();
-                        auto question = db["questions"].get(stoi(qid))["question"];
-                        auto meta = entry["meta"].get<string>();
-                        auto rating = entry["rating"].get<string>();
-                        // run sentiment analysis on answer
-                        log<DEBUG>("Question: {}", question);
-                        log<DEBUG>("Answer:   {}", meta);
-                        auto meta_value = run_cmd(format("python ./lib/datasets/sentiment_analysis.py \"{}\"", meta))["stdout"];
-                        auto question_value = run_cmd(format("python ./lib/datasets/sentiment_analysis.py \"{}\"", question))["stdout"];
-                        auto final_value = mean({stod(question_value), stod(meta_value)});
+                        tasks.push_back(async(launch::async, [this](json entry) -> Row {
+                            auto qid = entry["qid"].get<string>();
+                            auto question = db["questions"].get(stoi(qid))["question"];
+                            auto meta = entry["meta"].get<string>();
+                            auto rating = entry["rating"].get<string>();
+                            // run sentiment analysis on answer
+                            log<DEBUG>("Question: {}", question);
+                            log<DEBUG>("Answer:   {}", meta);
+                            auto meta_value = run_cmd(format("python ./lib/datasets/sentiment_analysis.py \"{}\"", meta))["stdout"];
+                            auto question_value = run_cmd(format("python ./lib/datasets/sentiment_analysis.py \"{}\"", question))["stdout"];
+                            auto final_value = mean({stod(question_value), stod(meta_value)});
 
-                        rows.push_back({
-                            {"value", to_string(final_value)},
-                            {"rating", to_string(stod(rating)/5.0)},
-                            {"questionId", qid}
-                        });
+                            return {
+                                {"value", to_string(final_value)},
+                                {"rating", to_string(stod(rating)/5.0)},
+                                {"questionId", qid}
+                            };
+                        }, entry));
                     }
                     // wait until now with adding the journal to prevent failures during creation
                     auto jid = db["journals"].add({
                         {"timestamp", to_string(time)},
                         {"userId", to_string(uid)}
                     });
-                    for (auto row : rows) {
-                        row["journalId"] = jid;
+                    log<DEBUG>("jid: {}", jid);
+                    for (auto& task : tasks) {
+                        auto row = task.get();
+                        row["journalId"] = to_string(jid);
                         db["answers"].add(row);
                     }
                     decrement_running(uid);
