@@ -34,7 +34,6 @@ class Journals : public Route {
                     vector<future<Row>> tasks;
                     for (auto entry : list) {
                         tasks.push_back(async(launch::async, [this](json entry) -> Row {
-
                             auto qid = entry["qid"].get<string>();
                             auto question = db["questions"].get(stoi(qid))["question"];
                             auto meta = entry["meta"].get<string>();
