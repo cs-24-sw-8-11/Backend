@@ -56,7 +56,7 @@ class Journals : public Route {
                         {"userId", to_string(uid)}
                     });
                     log<DEBUG>("jid: {}", jid);
-                    for (auto row : rows) {
+                    for (auto& row : rows) {
                         row["journalId"] = jid;
                         db["answers"].add(row);
                     }
