@@ -56,8 +56,8 @@ class Journals : public Route {
                         {"userId", to_string(uid)}
                     });
                     log<DEBUG>("jid: {}", jid);
-                    for (auto& row : rows) {
-                        row["journalId"] = jid;
+                    for (auto row : rows) {
+                        row["journalId"] = to_string(jid);
                         db["answers"].add(row);
                     }
                     decrement_running(uid);
