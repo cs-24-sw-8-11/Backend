@@ -7,6 +7,7 @@
 #include <cmath>
 #include <utility>
 #include <iostream>
+#include <algorithm>
 
 #include "Globals.hpp"
 #include "Utils.hpp"
@@ -14,6 +15,9 @@
 
 using namespace std;
 using namespace P8;
+
+#define DAY 86400
+#define WEEK DAY*7
 
 template<typename T = double>
 T sum(vector<T> values) {
@@ -69,8 +73,8 @@ class PredictionBuilder {
             ys.push_back(value);
         }
         auto f = calculate_regression(xs, ys);
-        log<DEBUG>("Built prediction with value: {}", f(xs.size()+1));
-        return f(xs.size()+1);
+        log<DEBUG>("Built prediction with value: {}", f((*(min_element(xs.begin(), xs.end()))) - DAY));
+        return f((*(min_element(xs.begin(), xs.end()))) - DAY);
     }
 };
 
