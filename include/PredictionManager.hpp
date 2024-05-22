@@ -7,6 +7,7 @@
 #include <cmath>
 #include <utility>
 #include <iostream>
+#include <algorithm>
 
 #include "Globals.hpp"
 #include "Utils.hpp"
