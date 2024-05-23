@@ -41,6 +41,9 @@ class Journals : public Route {
                             // run sentiment analysis on answer
                             log<DEBUG>("Question: {}", question);
                             log<DEBUG>("Answer:   {}", meta);
+
+                            replace(meta.begin(), meta.end(), '\'', ' ');
+                            replace(question.begin(), question.end(), '\'', ' ');
                             auto meta_value = run_cmd(format("python ./lib/datasets/sentiment_analysis.py \"{}\"", meta))["stdout"];
                             auto question_value = run_cmd(format("python ./lib/datasets/sentiment_analysis.py \"{}\"", question))["stdout"];
                             auto final_value = mean({stod(question_value), stod(meta_value)});
