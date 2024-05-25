@@ -1,8 +1,14 @@
+# ----- DISCLAIMER -----
+# The project group is aware that this module is not reproducible, but its needed to document the test setup
+# ----------------------
+# The tests were set up by cloning the project to `cfg.path` and `cfg.test.path`, compiling it (using the `build-project` command defined in flake.nix),
+# and populating the database by running `./build/bin/backend populate`
+ 
 {pkgs, config, lib, ...}: let
-    cfg = config.skademaskinen;
+    cfg = config.p8;
 in {
     # define some configuration options, also to import into nginx
-    options.skademaskinen.p8 = {
+    options.p8 = {
         # Enable the services
         enable = lib.mkOption {
             type = lib.types.bool;
@@ -16,7 +22,6 @@ in {
         # Path to the compiled project
         path = lib.mkOption {
             type = lib.types.str;
-            default = "${cfg.storage}/p8/prod/Backend";
         };
         # options specific to the test server.
         test = {
@@ -30,7 +35,6 @@ in {
             };
             path = lib.mkOption {
                 type = lib.types.str;
-                default = "${cfg.storage}/p8/test/Backend";
             };
         };
     };
@@ -43,14 +47,14 @@ in {
         ]);
     in {
         # Systemd service for the production server
-        systemd.services.p8-prod = if cfg.p8.enable then {
-            enable = cfg.p8.enable;
+        systemd.services.p8-prod = if cfg.enable then {
+            enable = cfg.enable;
             # to run the sentiment analysis, the service needs access to bash and the python environment
             path = with pkgs; [bash env];
             serviceConfig = {
-                WorkingDirectory = cfg.p8.path;
+                WorkingDirectory = cfg.path;
                 User = "root";
-                ExecStart = "${pkgs.bash}/bin/bash -c '${cfg.p8.path}/build/bin/backend -p ${builtins.toString cfg.p8.port}' -L ${cfg.storage}/p8/prod.log";
+                ExecStart = "${pkgs.bash}/bin/bash -c '${cfg.path}/build/bin/backend -p ${builtins.toString cfg.port}' -L ${cfg.path}/prod.log";
                 # in case of a failure (e.g. a segfault, restart the server)
                 Restart = "on-failure";
             };
@@ -59,13 +63,13 @@ in {
             wants = ["network-online.target"];
         } else {};
         # same setup as the production server, only difference is that it is run with max verbosity
-        systemd.services.p8-test = if cfg.p8.test.enable then {
-            enable = cfg.p8.test.enable;
+        systemd.services.p8-test = if cfg.test.enable then {
+            enable = cfg.test.enable;
             path = with pkgs; [bash env];
             serviceConfig = {
-                WorkingDirectory = cfg.p8.test.path;
+                WorkingDirectory = cfg.test.path;
                 User = "root";
-                ExecStart = "${pkgs.bash}/bin/bash -c '${cfg.p8.test.path}/build/bin/backend -vvvvvvv -p ${builtins.toString cfg.p8.test.port}'";
+                ExecStart = "${pkgs.bash}/bin/bash -c '${cfg.test.path}/build/bin/backend -vvvvvvv -p ${builtins.toString cfg.test.port}'";
                 Restart = "on-failure";
             };
             wantedBy = ["default.target"];
@@ -75,8 +79,8 @@ in {
 
         # Updating timers
         # These timers update the system once a day by calling a oneshot service pointing to a script generated at build
-        systemd.timers.p8-prod-update = if cfg.p8.enable then {
-            enable = cfg.p8.enable;
+        systemd.timers.p8-prod-update = if cfg.enable then {
+            enable = cfg.enable;
             wantedBy = ["timers.target"];
             timerConfig = {
                 OnBootSec = "5m";
@@ -84,10 +88,10 @@ in {
                 Unit = "p8-prod-update.service";
             };
         } else {};
-        systemd.services.p8-prod-update = if cfg.p8.enable then {
-            enable = cfg.p8.enable;
+        systemd.services.p8-prod-update = if cfg.enable then {
+            enable = cfg.enable;
             script = ''
-                cd ${cfg.p8.path}
+                cd ${cfg.path}
                 systemctl stop p8-prod.service
                 ${pkgs.su}/bin/su mast3r -c '${pkgs.git}/bin/git pull'
                 ${pkgs.cmake}/bin/cmake -B build
@@ -100,8 +104,8 @@ in {
             };
         } else {};
 
-        systemd.timers.p8-test-update = if cfg.p8.test.enable then {
-            enable = cfg.p8.test.enable;
+        systemd.timers.p8-test-update = if cfg.test.enable then {
+            enable = cfg.test.enable;
             wantedBy = ["timers.target"];
             timerConfig = {
                 OnBootSec = "5m";
@@ -110,10 +114,10 @@ in {
             };
         } else {};
 
-        systemd.services.p8-test-update = if cfg.p8.test.enable then {
-            enable = cfg.p8.test.enable;
+        systemd.services.p8-test-update = if cfg.test.enable then {
+            enable = cfg.test.enable;
             script = ''
-                cd ${cfg.p8.test.path}
+                cd ${cfg.test.path}
                 systemctl stop p8-test.service
                 ${pkgs.su}/bin/su mast3r -c '${pkgs.git}/bin/git pull'
                 ${pkgs.cmake}/bin/cmake -B build
