@@ -17,7 +17,7 @@ class Settings : public Route {
     /// @brief Initializes the Settings endpoints.
     void init() override {
         /// @brief Returns all the settings belonging to a given user.
-        this->server->Get("/settings/get/:token", [&](Request request, Response& response){
+        get("/settings/get/:token", [&](Request request, Response& response){
             auto token = request.path_params["token"];
             auto uid = user_id_from_token(token);
             json response_data;
@@ -37,7 +37,7 @@ class Settings : public Route {
             respond(&response, response_data);
         });
         /// @brief Updates all the specified settings for a given user.
-        this->server->Post("/settings/update", [&](Request request, Response& response){
+        post("/settings/update", [&](Request request, Response& response){
             auto body = json::parse(request.body);
             auto token = body["token"].get<std::string>();
             auto uid = user_id_from_token(token);
@@ -65,6 +65,6 @@ class Settings : public Route {
             } else {
                 respond(&response, string("Token does not match expected value!"), 403);
             }
-        });
+        }, {"token", "settings"});
     }
 };

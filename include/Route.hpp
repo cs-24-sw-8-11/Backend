@@ -102,6 +102,17 @@ class Route {
         response->set_content(data, "text/plain");
     }
 
+    bool validate(Request& request, vector<string> body_format) {
+        json body = json::parse(request.body);
+        log<DEBUG>("Checking keys");
+        for (auto key : body_format) {
+            if (!body.contains(key)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 
  public:
     /// @brief Constructs a route object with references to the http server and the database.
@@ -116,5 +127,29 @@ class Route {
     virtual void init() {
         cerr << "Error, called unimplemented run method" << endl;
         throw exception();
+    }
+
+    void get(string name, function<void(Request, Response&)> handler) {
+        this->server->Get(name, handler);
+    }
+
+    void post(string name, function<void(Request, Response&)> handler, vector<string> body_format) {
+        server->Post(name, [body_format, this, handler](Request request, Response& response) {
+            log<DEBUG>("validating input...");
+            if (this->validate(request, body_format)) {
+                return handler(request, response);
+            } else {
+                stringstream out;
+                out << '[';
+                for (auto key : body_format)
+                    out << '"' << key << '"' << ',';
+                out << ']';
+                this->respond(&response, std::format("Error, malformed input! expected input keys: {}", out.str()), 400);
+            }
+        });
+    }
+    // Name can't be delete, as its a reserved keyword
+    void delete_request(string name, function<void(Request, Response&)> handler) {
+        server->Delete(name, handler);
     }
 };

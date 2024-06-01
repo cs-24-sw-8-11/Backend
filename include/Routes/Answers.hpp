@@ -15,7 +15,7 @@ class Answers : public Route {
     /// @brief Initializes the Answers endpoints.
     void init() override {
         /// @brief Returns a specific answer provided that the user has permission to access it.
-        this->server->Get("/answers/get/:answerId/:token", [&](Request request, Response& response){
+        get("/answers/get/:answerId/:token", [&](Request request, Response& response){
             auto answerId = stoi(request.path_params["answerId"]);
             auto token = request.path_params["token"];
             json response_data;
