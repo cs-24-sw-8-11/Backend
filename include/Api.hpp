@@ -50,16 +50,15 @@ class Api {
         server->set_logger([](const auto& req, const auto& res) {
             string red = "\033[38;2;255;0;0m";
             string green = "\033[38;2;0;255;0m";
-            stringstream ss;
-            ss << "--------------- Got request! ---------------" << endl <<
-                "Status:   " << (res.status >= 200 && res.status < 300 ? green : red) << res.status << "\033[0m" << endl <<
-                "Path:     " << req.path << endl <<
-                "req Body: " << req.body << endl <<
-                "res Body: " << res.body << endl <<
-                "Params:   " << endl;
-            for (auto [key, value] : req.path_params)
-                ss << "\t" << key << ": " << value << endl;
-            log("{}", ss.str());
+            log("--------------- Got request! ---------------");
+            log("Status:   {}{}\033[0m", (res.status >= 200 && res.status < 300 ? green : red), res.status);
+            log<IMPORTANT>("Path:     {}", req.path);
+            log<IMPORTANT>("req Body: {}", req.body.c_str());
+            log("res Body: {}", res.body.c_str());
+            log<IMPORTANT>("Params:   ");
+            for (auto [key, value] : req.path_params) {
+                log<IMPORTANT>("\t{}:{}", key, value);
+            }
         });
         log<DEBUG>("Initialized logger");
 
